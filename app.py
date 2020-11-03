@@ -24,6 +24,18 @@ DB.app = APP
 def db_init():
     DB.create_all()
     DB.session.commit()
+    
+@APP.route("/")
+def index():
+    return flask.render_template("index.html")
+    
+@APP.route("/join")
+def join():
+    return flask.render_template("join.html")
+    
+@APP.route("/group")
+def group():
+    return flask.render_template("group.html")
 
 if __name__ == "__main__":
     db_init()
