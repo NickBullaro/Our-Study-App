@@ -28,6 +28,17 @@ def db_init():
 
 socketio = flask_socketio.SocketIO(APP)
 socketio.init_app(APP, cors_allowed_origins="*")
+
+def emit_joined_rooms(user_id, client_room):
+    # TODO Get this list of rooms the user has joineed already from the database
+    roomList = [{"roomName": "not necessarily unique", "roomId": 0}, {"roomName": "Insert creative name here", "roomId": 2}]
+    socketio.emit(
+        "updated room list",
+        {
+            "rooms": roomList
+        },
+        room=client_room,
+    )
     
 @socketio.on("connect")
 def on_connect():
@@ -48,6 +59,7 @@ def accept_login(data):
         },
         room=request.sid,
     )
+    emit_joined_rooms("temp", request.sid)
 
 
 @socketio.on("room entry request")
@@ -70,6 +82,7 @@ def accept_room_departure(data):
         },
         room=request.sid,
     )
+    emit_joined_rooms("temp", request.sid)
 
 @APP.route("/")
 def index():

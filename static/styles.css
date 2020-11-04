@@ -33,3 +33,19 @@
     margin: 0;
     padding: 0;
 }
+
+#joinedRoomList {
+    margin: 0;
+}
+
+.RoomListElement {
+    list-style-type: none;
+}
+
+.RoomListName {
+    display: inline;
+}
+
+.RoomListButton {
+    display: inline;
+}
