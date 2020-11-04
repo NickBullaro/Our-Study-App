@@ -50,6 +50,20 @@ def on_disconnect():
     print("someone disconnected!")
 
 
+@socketio.on("new room creation request")
+def on_new_room_creation(data):
+    print("received a new room creation request: {}".format(data["roomName"]))
+    #TODO
+    emit_joined_rooms("temp", request.sid)
+
+
+@socketio.on("join room request")
+def on_join_room_request(data):
+    print("received a request to join room {} with this password: {}".format(data["roomId"], data["roomPassword"]))
+    #TODO
+    emit_joined_rooms("temp", request.sid)
+
+
 @socketio.on("new user login")
 def accept_login(data):
     socketio.emit(
