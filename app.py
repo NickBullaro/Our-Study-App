@@ -3,6 +3,7 @@ import flask
 import flask_socketio
 import flask_sqlalchemy
 from dotenv import load_dotenv
+from flask import request
 
 APP = flask.Flask(__name__)
 SOCKETIO = flask_socketio.SocketIO(APP)
@@ -25,17 +26,54 @@ def db_init():
     DB.create_all()
     DB.session.commit()
 
+socketio = flask_socketio.SocketIO(APP)
+socketio.init_app(APP, cors_allowed_origins="*")
+    
+@socketio.on("connect")
+def on_connect():
+    print("Someone connected!")
+
+
+@socketio.on("disconnect")
+def on_disconnect():
+    print("someone disconnected!")
+
+
+@socketio.on("new user login")
+def accept_login(data):
+    socketio.emit(
+        "login accepted",
+        {
+            "email": ""
+        },
+        room=request.sid,
+    )
+
+
+@socketio.on("room entry request")
+def accept_room_entry(data):
+    socketio.emit(
+        "room entry accepted",
+        {
+            "email": ""
+        },
+        room=request.sid,
+    )
+
+
+@socketio.on("leave room")
+def accept_room_departure(data):
+    socketio.emit(
+        "left room",
+        {
+            "email": ""
+        },
+        room=request.sid,
+    )
+
 @APP.route("/")
 def index():
     return flask.render_template("index.html")
-
-@APP.route("/join")
-def join():
-    return flask.render_template("join.html")
-
-@APP.route("/group")
-def group():
-    return flask.render_template("group.html")
 
 if __name__ == "__main__":
     db_init()
