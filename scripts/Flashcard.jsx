@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './styles.css';
+
 export default function Flashcard({ flashcard }) {
     
     const [flip, setFlip] = useState(false);
@@ -9,7 +9,7 @@ export default function Flashcard({ flashcard }) {
     }
     
     return (
-        <div className={`card ${ flip ? "flip" : '' } `} onClick={flipCard}>
+        <div className={`flashcard ${ flip ? "flip" : '' } `} onClick={flipCard}>
         
         <div className='front'>
             {flashcard.question}
@@ -21,8 +21,6 @@ export default function Flashcard({ flashcard }) {
         </div>
         
         <div className='back'>{flashcard.answer}</div>
-        
-        { flip ? flashcard.answer : flashcard.question}
         </div>
     );
 }
