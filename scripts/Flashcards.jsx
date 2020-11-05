@@ -21,9 +21,6 @@ import Flashcard from './Flashcard';
 export default function Flashcards() {
     const [flashcards, setFlashcards] = useState(SAMPLE_CARDS);
     
-        
-    console.log(flashcards);
-    
     return (
         <div className='card-grid'>
         {flashcards.map( flashcard => {
@@ -32,5 +29,5 @@ export default function Flashcards() {
         }
         
         </div>
-    )
+    );
 }
