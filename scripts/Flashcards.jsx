@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
+import Flashcard from './Flashcard';
 
-export default function FlashCards() {
-    const [flashcards, setFlashcards] = useState(SAMPLE_CARDS);
-    
-    const SAMPLE_CARDS = [
+ const SAMPLE_CARDS = [
         {
             id: 1,
             question: "Question 1 ",
@@ -18,12 +16,21 @@ export default function FlashCards() {
         }
         
         
-        ]
-    
-    return {
-        <div>
+        ];
         
+export default function Flashcards() {
+    const [flashcards, setFlashcards] = useState(SAMPLE_CARDS);
+    
+        
+    console.log(flashcards);
+    
+    return (
+        <div className='card-grid'>
+        {flashcards.map( flashcard => {
+            return <Flashcard key={flashcard.id} flashcard={flashcard} />;
+        })
+        }
         
         </div>
-    }
+    )
 }
