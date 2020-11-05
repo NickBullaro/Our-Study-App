@@ -103,7 +103,7 @@ def index():
     return flask.render_template("index.html")
 
 if __name__ == "__main__":
-    #db_init()
+    db_init()
     SOCKETIO.run(
         APP,
         host=os.getenv("IP", "0.0.0.0"),
