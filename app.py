@@ -5,6 +5,8 @@ import flask_sqlalchemy
 from dotenv import load_dotenv
 from flask import request
 
+messages = []
+
 APP = flask.Flask(__name__)
 SOCKETIO = flask_socketio.SocketIO(APP)
 SOCKETIO.init_app(APP, cors_allowed_origins="*")
@@ -39,7 +41,11 @@ def emit_joined_rooms(user_id, client_room):
         },
         room=client_room,
     )
-    
+
+def emit_all_messages(channel):
+    all_messages = messages
+    socketio.emit(channel, {"allMessages": all_messages})
+
 @socketio.on("connect")
 def on_connect():
     print("Someone connected!")
@@ -82,9 +88,11 @@ def accept_room_entry(data):
         "room entry accepted",
         {
             "email": ""
-        },
-        room=request.sid,
+        }
     )
+    print("room entry accepted")
+    emit_joined_rooms("temp", request.sid)
+    emit_all_messages("temp")
 
 
 @socketio.on("leave room")
@@ -97,6 +105,12 @@ def accept_room_departure(data):
         room=request.sid,
     )
     emit_joined_rooms("temp", request.sid)
+
+@socketio.on("new message input")
+def on_new_message(data):
+    print("Got an event for new message input with data:", data)
+    messages.append(data['message'])
+    emit_all_messages("temp")
 
 @APP.route("/")
 def index():

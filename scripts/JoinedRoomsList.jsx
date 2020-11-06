@@ -1,5 +1,7 @@
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import Socket from './Socket';
+import InRoomScreen from './InRoomScreen';
 
 function JoinedRoomsList() {
   const [roomsList, setRoomslist] = React.useState([]);
@@ -18,7 +20,6 @@ function JoinedRoomsList() {
     Socket.emit('room entry request', {
       roomId: roomId
     });
-    
   }
   
   setup();
