@@ -69,7 +69,7 @@ def accept_login(data):
     socketio.emit(
         "login accepted",
         {
-            "email": ""
+            "email": data['email']
         },
         room=request.sid,
     )

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import Socket from './Socket';
+import { GoogleButton } from './GoogleButton';
 
 function LoginScreen() {
   
@@ -12,7 +13,8 @@ function LoginScreen() {
   return (
     <div id='loginScreen'>
         <p>Insert Login Screen HTML and components here</p>
-        <button onClick={ fakeLogin }>FakeLogin</button>
+        <h1>Sign in with Google to continue!</h1>
+        <GoogleButton/>
     </div>
   );
 }
