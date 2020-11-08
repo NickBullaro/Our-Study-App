@@ -1,14 +1,8 @@
 import * as React from 'react';
 import Socket from './Socket';
-import { GoogleButton } from './GoogleButton';
+import GoogleButton from './GoogleButton';
 
 function LoginScreen() {
-  
-  function fakeLogin() {
-    Socket.emit('new user login', {
-      msg: ""
-    });
-  }
 
   return (
     <div id='loginScreen'>

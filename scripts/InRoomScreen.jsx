@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { Socket } from './Socket';
-import { Flashcards } from './Flashcards';
-import { Chatbox } from './Chatbox';
+import Socket from './Socket';
+import Flashcards from './Flashcards';
+import Chatbox from './Chatbox';
 
-export function InRoomScreen() {
+function InRoomScreen() {
   
   function fakeRoomLeave() {
     Socket.emit('leave room', {
@@ -22,3 +22,5 @@ export function InRoomScreen() {
     </div>
   );
 }
+
+export default InRoomScreen;

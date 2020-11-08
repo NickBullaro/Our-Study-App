@@ -45,6 +45,28 @@ def emit_joined_rooms(user_id, client_room):
 def emit_all_messages(channel):
     all_messages = messages
     socketio.emit(channel, {"allMessages": all_messages})
+    
+def emit_room_history(room_id):
+    flashcards = [
+      {
+        id: 1,
+        'question': 'Question 1 ',
+        'answer': 'Answer 1',
+        'options': ['option1', 'option2', 'option3']
+      },
+      {
+        id: 2,
+        'question': 'Question 2 ',
+        'answer': 'Answer 2',
+        'options': ['answer1', 'nome', 'smac']
+      }]
+    message_history = messages
+    data = {
+        'flashcardList': flashcards,
+        'allMessages': message_history
+    }
+    socketio.emit('sending room data', data, room=room_id)
+      
 
 @socketio.on("connect")
 def on_connect():

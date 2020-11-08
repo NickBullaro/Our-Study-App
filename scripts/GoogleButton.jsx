@@ -1,9 +1,6 @@
 import React from 'react';
-import * as ReactDOM from 'react-dom';
-
 import Socket from './Socket';
-import { GoogleLogin } from 'react-google-login';
-import { Content } from './Content';
+import GoogleLogin from 'react-google-login';
 
 
 const responseGoogle = (response) => {
@@ -26,22 +23,19 @@ function handleSubmit(response) {
     console.log('Sent the name ' + user + ' to server!');
     console.log('Sent the email ' + email + ' to server!');
     console.log('Sent the pic ' + pic + ' to server!');
-    ReactDOM.render(<LoggedInContent/>, document.getElementById('content'));
 }
 
-
-
-
-export function GoogleButton() {
+function GoogleButton() {
     return (
-                <GoogleLogin
-                className="gbutton"
-                clientId="734948163476-c023m7n67lmmk5dobh85ank7b56o6477.apps.googleusercontent.com"
-                buttonText="Login"
-                onSuccess={handleSubmit}
-                onFailure={responseGoogle}
-                cookiePolicy={'single_host_origin'}/>
-            );
+        <GoogleLogin
+            className="gbutton"
+            clientId="734948163476-c023m7n67lmmk5dobh85ank7b56o6477.apps.googleusercontent.com"
+            buttonText="Login"
+            onSuccess={handleSubmit}
+            onFailure={responseGoogle}
+            cookiePolicy={'single_host_origin'}
+        />
+    );
 }
 
- 
+export default GoogleButton;
