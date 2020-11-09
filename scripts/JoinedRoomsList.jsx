@@ -7,30 +7,30 @@ function JoinedRoomsList() {
   function setup() {
     React.useEffect(() => {
       Socket.on('updated room list', (data) => {
-        console.log("recieved updated joined room list")
-        setRoomslist(data.rooms)
+        console.log('recieved updated joined room list');
+        setRoomslist(data.rooms);
       });
     });
   }
-  
+
   function enterRoom(roomId) {
-    console.log("Sending request to enter room identified by %i", roomId)
+    console.log('Sending request to enter room identified by %i', roomId);
     Socket.emit('room entry request', {
-      roomId: roomId
+      roomId,
     });
-    
   }
-  
+
   setup();
 
   return (
-    <div id='joinedRoomList'>
+    <div id="joinedRoomList">
       <ul>
-        {roomsList.map((room, index) => 
-          <li key={index} className='RoomListElement'>
-            <p className='RoomListName'>{room.roomName}</p>
-            <button className='RoomListButton' onClick={(event) => enterRoom(room.roomId)} type='submit'>Enter room</button>
-          </li>)}
+        {roomsList.map((room, index) => (
+          <li key={index} className="RoomListElement">
+            <p className="RoomListName">{room.roomName}</p>
+            <button className="RoomListButton" onClick={(event) => enterRoom(room.roomId)} type="submit">Enter room</button>
+          </li>
+        ))}
       </ul>
     </div>
   );

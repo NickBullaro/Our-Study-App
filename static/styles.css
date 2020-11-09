@@ -90,3 +90,16 @@
     transform: rotateY(180deg);
     
 }
+
+.userList {
+    text-align: center;
+    background: white;
+    display: inline-block;
+    vertical-align: top;
+    padding-left: 10px;
+    height: 95%;
+    width: 18%;
+    border: 3px solid red;
+    margin: 0;
+    overflow-y:auto;
+}
