@@ -165,7 +165,7 @@ def on_new_message(data):
     
 @socketio.on(NEW_CARDS)
 def new_cards(data):
-    print(data)
+    print("New card:" , data)
     room = get_room(request.sid)
     DB.session.add(models.Flashcards(data['question'], data['answer']))
     DB.session.commit()

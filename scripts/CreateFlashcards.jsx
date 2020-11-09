@@ -26,8 +26,6 @@ export default function CreateFlashcards() {
     :
     <div>
       <h2>Create Flashcards</h2>
-
-      <form onSubmit={handleSubmit}>
         <div className='row'>
                 <div className='col-6'>
                     <input type='text' id='question' onChange={ (event) => setQuestion(event.target.value) } />
@@ -43,8 +41,7 @@ export default function CreateFlashcards() {
                 </span>
             </div>
 
-            <button type="submit">Done</button>
-      </form>
+            <button type="button" onClick={handleSubmit}>Done</button>
 
     </div>
   );
