@@ -22,6 +22,8 @@ APP.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
 DB = flask_sqlalchemy.SQLAlchemy(APP)
 DB.app = APP
 
+import models
+
 def db_init():
     DB.create_all()
     DB.session.commit()
@@ -31,18 +33,19 @@ socketio.init_app(APP, cors_allowed_origins="*")
 
 username_sid_dict = {}
 
+NEW_CARDS = 'new card'
+CARDS = 'cards'
+
 SAMPLE_FLASH_CARDS = [
       {
         'id': 1,
         'question': 'Question 1 ',
         'answer': 'Answer 1',
-        'options': ['option1', 'option2', 'option3']
       },
       {
         'id': 2,
         'question': 'Question 2 ',
         'answer': 'Answer 2',
-        'options': ['answer1', 'nome', 'smac']
       }]
 
 SAMPLE_JOINED_ROOMS_LIST = [
@@ -68,7 +71,19 @@ def emit_joined_rooms(client_room):
         },
         room=client_room,
     )
-
+    
+def emit_flashcards(room):
+    all_cards = models.Flashcards.query.all()
+    cards = []
+    for card in all_cards:
+        card_dict = {}
+        card_dict['question'] = card.question
+        card_dict['answer'] = card.answer
+        cards.append(card_dict)
+        
+    print(cards)    
+    socketio.emit(CARDS, cards)
+    
 def emit_all_messages(room_id):
     # TODO properly load the messages realted to the room from the database
     all_messages = SAMPLE_MESSAGES
@@ -76,11 +91,10 @@ def emit_all_messages(room_id):
     
 def emit_room_history(room_id):
     # TODO properly load the flash cards realted to the room from the database
-    flashcards = SAMPLE_FLASH_CARDS
+    emit_flashcards(room_id)
     # TODO properly load the messages realted to the room from the database
     message_history = SAMPLE_MESSAGES
     data = {
-        'flashcardList': flashcards,
         'allMessages': message_history
     }
     socketio.emit('sending room data', data, room=room_id)
@@ -147,7 +161,14 @@ def on_new_message(data):
     SAMPLE_MESSAGES.append(data['message'])
     room_id = request.sid # TODO: get room_id from the sender request.sid
     emit_all_messages(room_id)
-
+    
+@socketio.on(NEW_CARDS)
+def new_cards(data):
+    print(data)
+    DB.session.add(models.Flashcards(data['question'], data['answer']))
+    DB.session.commit()
+    emit_flashcards('room')
+    
 @APP.route("/")
 def index():
     return flask.render_template("index.html")

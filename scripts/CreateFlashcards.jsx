@@ -1,40 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Socket from './Socket';
-import CreateFlashcard from './CreateFlashcard';
+import Flashcards from './Flashcards';
 
-export default function CreateFlashcards ({ oldEntries }) {
+export default function CreateFlashcards() {
+  const [question, setQuestion] = useState('');
+  const [answer, setAnswer] = useState('');
+  const [submitted, setSubmit] = useState(false);
+  
+  function addCard() {
+    const entry = {
+      question: question,
+      answer: answer,
+    };
+    Socket.emit('new card', entry);
+  }
+  
+  function handleSubmit(event) {
+    event.preventDefault();
+    setSubmit(true);
+  }
     
-    const [question, setQuestion] = useState('');
-    const [answer, setAnswer] = useState('');
-    const [entries, setEntries] = useState(oldEntries);
+  return (
+    submitted ?  
+    <Flashcards />
+    :
+    <div>
+      <h2>Create Flashcards</h2>
 
-    
-    function handleSubmit(event){
-        event.preventDefault();
-        console.log(entries);
-        Socket.emit('new cards', entries);
-    }
-    
-    function addCard(){
-        const entry = {
-            'question': question,
-            'answer': answer
-        };
-        setEntries([...entries, entry]);
-        console.log(entries);
-        
-        
-    }
-    return (
-        <div>
-            <h2>Create Flashcards</h2>
+      <form onSubmit={handleSubmit}>
+        <div className='row'>
+                <div className='col-6'>
+                    <input type='text' id='question' onChange={ (event) => setQuestion(event.target.value) } />
+                </div>
+                <div className='col-6'>
+                    <input type='text' id='answer' onChange={ (event) => setAnswer(event.target.value) } />
+                </div>
+            </div>
             
-            <form onSubmit={handleSubmit}>
-              <CreateFlashcard oldEntries={oldEntries} addCard={addCard} handleSubmission={handleSubmit} question={setQuestion} answer={setAnswer} />
-            
-                <button type='submit'>Done</button>
-            </form>
-        
-        </div>
-        );
+            <div className='row'>
+                <span>  
+                    <button type='button' onClick={addCard}>Add Card</button>
+                </span>
+            </div>
+
+            <button type="submit">Done</button>
+      </form>
+
+    </div>
+  );
 }

@@ -58,4 +58,4 @@ class Flashcards(DB.Model):
         self.question = question
         
     def __repr__(self):
-        return '<card> question: {} answer: {}'.format(self.question, self.answer)
+        return '<card> question: {} answer: {} </card>\n'.format(self.question, self.answer)

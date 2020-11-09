@@ -4,6 +4,7 @@ import Flashcards from './Flashcards';
 import Chatbox from './Chatbox';
 
 function InRoomScreen() {
+
   function fakeRoomLeave() {
     Socket.emit('leave room', {
       msg: '',
