@@ -71,6 +71,8 @@ def emit_joined_rooms(client_room):
         },
         room=client_room,
     )
+def get_room(client_sid):
+    return client_sid
     
 def emit_flashcards(room):
     all_cards = models.Flashcards.query.all()
@@ -164,7 +166,7 @@ def on_new_message(data):
 @socketio.on(NEW_CARDS)
 def new_cards(data):
     print(data)
-    room = request.sid
+    room = get_room(request.sid)
     DB.session.add(models.Flashcards(data['question'], data['answer']))
     DB.session.commit()
     emit_flashcards(room)
