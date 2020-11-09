@@ -29,9 +29,38 @@ def db_init():
 socketio = flask_socketio.SocketIO(APP)
 socketio.init_app(APP, cors_allowed_origins="*")
 
-def emit_joined_rooms(user_id, client_room):
+username_sid_dict = {}
+
+SAMPLE_FLASH_CARDS = [
+      {
+        'id': 1,
+        'question': 'Question 1 ',
+        'answer': 'Answer 1',
+        'options': ['option1', 'option2', 'option3']
+      },
+      {
+        'id': 2,
+        'question': 'Question 2 ',
+        'answer': 'Answer 2',
+        'options': ['answer1', 'nome', 'smac']
+      }]
+
+SAMPLE_JOINED_ROOMS_LIST = [
+    {
+        "roomName": "not necessarily unique",
+        "roomId": 0
+        
+    },
+    {
+        "roomName": "Insert creative name here",
+        "roomId": 2
+    }]
+
+SAMPLE_MESSAGES = []
+
+def emit_joined_rooms(client_room):
     # TODO Get this list of rooms the user has joineed already from the database
-    roomList = [{"roomName": "not necessarily unique", "roomId": 0}, {"roomName": "Insert creative name here", "roomId": 2}]
+    roomList = SAMPLE_JOINED_ROOMS_LIST
     socketio.emit(
         "updated room list",
         {
@@ -39,7 +68,24 @@ def emit_joined_rooms(user_id, client_room):
         },
         room=client_room,
     )
+
+def emit_all_messages(room_id):
+    # TODO properly load the messages realted to the room from the database
+    all_messages = SAMPLE_MESSAGES
+    socketio.emit("sending message history", {"allMessages": all_messages}, room=room_id)
     
+def emit_room_history(room_id):
+    # TODO properly load the flash cards realted to the room from the database
+    flashcards = SAMPLE_FLASH_CARDS
+    # TODO properly load the messages realted to the room from the database
+    message_history = SAMPLE_MESSAGES
+    data = {
+        'flashcardList': flashcards,
+        'allMessages': message_history
+    }
+    socketio.emit('sending room data', data, room=room_id)
+      
+
 @socketio.on("connect")
 def on_connect():
     print("Someone connected!")
@@ -47,56 +93,60 @@ def on_connect():
 
 @socketio.on("disconnect")
 def on_disconnect():
-    print("someone disconnected!")
+    disconnected_user = username_sid_dict.pop(request.sid, 'unlogged-in user')
+    print("{} disconnected!".format(disconnected_user))
 
 
 @socketio.on("new room creation request")
 def on_new_room_creation(data):
     print("received a new room creation request: {}".format(data["roomName"]))
-    #TODO
-    emit_joined_rooms("temp", request.sid)
+    #TODO Add new room to the databse and set the sender 
+    emit_joined_rooms(request.sid)
 
 
 @socketio.on("join room request")
 def on_join_room_request(data):
     print("received a request to join room {} with this password: {}".format(data["roomId"], data["roomPassword"]))
-    #TODO
-    emit_joined_rooms("temp", request.sid)
+    #TODO Check the database to verify that the roomId and roomPassword are a valid pair
+    #TODO If the pair is valid, update the database to reflect that the user associated with request has joineed the room
+    emit_joined_rooms(request.sid)
 
 
 @socketio.on("new user login")
 def accept_login(data):
+    username_sid_dict[request.sid] = data['email']
     socketio.emit(
         "login accepted",
-        {
-            "email": ""
-        },
-        room=request.sid,
+        room=request.sid
     )
-    emit_joined_rooms("temp", request.sid)
+    print("{} logged in".format(data['email']))
+    emit_joined_rooms(request.sid)
 
 
 @socketio.on("room entry request")
 def accept_room_entry(data):
     socketio.emit(
         "room entry accepted",
-        {
-            "email": ""
-        },
-        room=request.sid,
+        room=request.sid
     )
+    print("room entry accepted")
+    emit_room_history(request.sid)
 
 
 @socketio.on("leave room")
 def accept_room_departure(data):
     socketio.emit(
         "left room",
-        {
-            "email": ""
-        },
         room=request.sid,
     )
-    emit_joined_rooms("temp", request.sid)
+    emit_joined_rooms(request.sid)
+
+@socketio.on("new message input")
+def on_new_message(data):
+    print("Got an event for new message input with data:", data)
+    SAMPLE_MESSAGES.append(data['message'])
+    room_id = request.sid # TODO: get room_id from the sender request.sid
+    emit_all_messages(room_id)
 
 @APP.route("/")
 def index():

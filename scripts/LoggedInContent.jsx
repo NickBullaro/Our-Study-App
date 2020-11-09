@@ -8,27 +8,26 @@ function LoggedInContent() {
 
   function setup() {
     React.useEffect(() => {
-      Socket.on('room entry accepted', (data) => {
+      Socket.on('room entry accepted', () => {
         setRoomParticipation(true);
       });
     });
-    
+
     React.useEffect(() => {
-      Socket.on('left room', (data) => {
+      Socket.on('left room', () => {
         setRoomParticipation(false);
       });
     });
   }
-  
+
   setup();
 
   return (
-    <div id='loggedInContent'>
+    <div id="loggedInContent">
       {
-        joinedRoom?
-          <InRoomScreen />
-        :
-          <RoomSelectionScreen />
+        joinedRoom
+          ? <InRoomScreen />
+          : <RoomSelectionScreen />
       }
     </div>
   );

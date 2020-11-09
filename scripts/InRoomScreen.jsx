@@ -1,20 +1,22 @@
 import * as React from 'react';
 import Socket from './Socket';
 import Flashcards from './Flashcards';
+import Chatbox from './Chatbox';
 
 function InRoomScreen() {
-  
   function fakeRoomLeave() {
     Socket.emit('leave room', {
-      msg: ""
+      msg: '',
     });
   }
 
   return (
-    <div id='inRoomScreen'>
-        <p>Insert room HTML and components here</p>
-        <Flashcards />
-        <button onClick={ fakeRoomLeave }>FakeLeaveRoom</button>
+    <div id="inRoomScreen">
+      <p>Insert room HTML and components here</p>
+      <p>Chatbox</p>
+      <Chatbox />
+      <Flashcards />
+      <button onClick={fakeRoomLeave} type="submit">FakeLeaveRoom</button>
     </div>
   );
 }

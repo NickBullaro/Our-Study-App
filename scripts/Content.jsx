@@ -8,21 +8,20 @@ function Content() {
 
   function setup() {
     React.useEffect(() => {
-      Socket.on('login accepted', (data) => {
+      Socket.on('login accepted', () => {
         setLoginState(true);
       });
     });
   }
-  
+
   setup();
 
   return (
-    <div id='content'>
+    <div id="content">
       {
-        loggedIn?
-          <LoggedInContent />
-        :
-          <LoginScreen />
+        loggedIn
+          ? <LoggedInContent />
+          : <LoginScreen />
       }
     </div>
   );
