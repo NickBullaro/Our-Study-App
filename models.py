@@ -52,6 +52,7 @@ class Flashcards(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True)
     question = DB.Column(DB.String(120))
     answer = DB.Column(DB.String(120))
+    #room = DB.Column(DB.String(120), DB.ForeignKey('rooms.room'), nullable=False)
 
     def __init__(self, question, answer):
         self.answer = answer

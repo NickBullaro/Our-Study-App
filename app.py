@@ -81,8 +81,7 @@ def emit_flashcards(room):
         card_dict['answer'] = card.answer
         cards.append(card_dict)
         
-    print(cards)    
-    socketio.emit(CARDS, cards)
+    socketio.emit(CARDS, cards, room=room)
     
 def emit_all_messages(room_id):
     # TODO properly load the messages realted to the room from the database
@@ -90,7 +89,7 @@ def emit_all_messages(room_id):
     socketio.emit("sending message history", {"allMessages": all_messages}, room=room_id)
     
 def emit_room_history(room_id):
-    # TODO properly load the flash cards realted to the room from the database
+   
     emit_flashcards(room_id)
     # TODO properly load the messages realted to the room from the database
     message_history = SAMPLE_MESSAGES
@@ -165,9 +164,10 @@ def on_new_message(data):
 @socketio.on(NEW_CARDS)
 def new_cards(data):
     print(data)
+    room = request.sid
     DB.session.add(models.Flashcards(data['question'], data['answer']))
     DB.session.commit()
-    emit_flashcards('room')
+    emit_flashcards(room)
     
 @APP.route("/")
 def index():
