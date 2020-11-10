@@ -9,7 +9,6 @@ function Whiteboard() {
   const [listersOff, setListersOff] = React.useState(true);
   
   function startDraw(cursor){
-    console.log("cursor down")
     isDrawing[0]=true;
     setIsDrawing(isDrawing);
     stroke.oldy=cursor.offsetY;
