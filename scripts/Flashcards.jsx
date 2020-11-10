@@ -20,7 +20,7 @@ export default function Flashcards() {
         console.log(data);
         setFlashcards(data);
       });
-    }, [flashcards]);
+    });
   }
   
   
@@ -28,7 +28,7 @@ export default function Flashcards() {
   
     return (
         addCards ?
-        <CreateFlashcards /> 
+        <CreateFlashcards cards={flashcards} /> 
         :
         <div>
             <div className='card-grid'>

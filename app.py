@@ -3,7 +3,7 @@ import flask
 import flask_socketio
 import flask_sqlalchemy
 from dotenv import load_dotenv
-from flask import request
+from flask import request, redirect
 
 APP = flask.Flask(__name__)
 SOCKETIO = flask_socketio.SocketIO(APP)
@@ -33,7 +33,7 @@ socketio.init_app(APP, cors_allowed_origins="*")
 
 username_sid_dict = {}
 
-NEW_CARDS = 'new card'
+NEW_CARDS = 'new cards'
 CARDS = 'cards'
 
 SAMPLE_FLASH_CARDS = [
@@ -83,7 +83,7 @@ def emit_flashcards(room):
         card_dict['answer'] = card.answer
         cards.append(card_dict)
         
-    socketio.emit(CARDS, cards, room=room)
+    socketio.emit(CARDS, cards)
     
 def emit_all_messages(room_id):
     # TODO properly load the messages realted to the room from the database
@@ -165,9 +165,14 @@ def on_new_message(data):
     
 @socketio.on(NEW_CARDS)
 def new_cards(data):
-    print("New card:" , data)
+    print("New cards:" , data)
     room = get_room(request.sid)
-    DB.session.add(models.Flashcards(data['question'], data['answer']))
+    for i in range( len(data)//2 ):
+            question = data["question" + str(i)]
+            answer = data["answer" + str(i)]
+        
+            DB.session.add(models.Flashcards(question, answer))
+            
     DB.session.commit()
     emit_flashcards(room)
     
@@ -175,6 +180,23 @@ def new_cards(data):
 def index():
     return flask.render_template("index.html")
 
+@APP.route("/sendcards", methods=["GET", "POST"])
+def upload_cards():
+    print("something")
+    if request.method == 'POST':
+        form = request.form
+        
+        for i in range( len(form)//2 ):
+            question = form["question" + str(i)]
+            answer = form["answer" + str(i)]
+        
+            DB.session.add(models.Flashcards(question, answer))
+            
+    DB.session.commit()
+    emit_flashcards('room')
+        
+    return redirect("/")
+    
 if __name__ == "__main__":
     db_init()
     SOCKETIO.run(

@@ -79,6 +79,18 @@
     --rotate-y: 180deg;
 }
 
+.trash {
+    width: 2rem;
+    height: auto;
+    position: absolute;
+    right:0;
+    top:0;
+}
+
+.answer, .question {
+    width: 90%;
+}
+
 .flashcard .front,
 .flashcard .back {
     position: absolute;

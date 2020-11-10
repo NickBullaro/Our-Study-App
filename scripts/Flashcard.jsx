@@ -7,13 +7,18 @@ export default function Flashcard({ flashcard }) {
     function flipCard(){
         setFlip(!flip);
     }
+    function deleteCard() {
+        console.log('Delete card');
+    }
     
     return (
         <div 
         className={`flashcard ${ flip ? "flip" : '' } `} 
         onClick={flipCard}
         >
-        
+            <div>
+                <img src="https://cdn3.iconfinder.com/data/icons/ui-essential-elements/110/DeleteDustbin-512.png" className='trash' onClick={deleteCard} />
+            </div>
         <div className='front'>{flashcard.question}</div>
         
         <div className='back'>{flashcard.answer}</div>
