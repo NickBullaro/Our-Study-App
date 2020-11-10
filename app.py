@@ -190,23 +190,6 @@ def on_drawing_stroke(data):
 def index():
     return flask.render_template("index.html")
 
-@APP.route("/sendcards", methods=["GET", "POST"])
-def upload_cards():
-    print("something")
-    if request.method == 'POST':
-        form = request.form
-        
-        for i in range( len(form)//2 ):
-            question = form["question" + str(i)]
-            answer = form["answer" + str(i)]
-        
-            DB.session.add(models.Flashcards(question, answer))
-            
-    DB.session.commit()
-    emit_flashcards('room')
-        
-    return redirect("/")
-    
 if __name__ == "__main__":
     db_init()
     SOCKETIO.run(

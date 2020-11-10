@@ -12,23 +12,16 @@ export default function CreateFlashcards({ cards }) {
   function handleQuestion(i, event) {
     const values = [...fields];
     values[i].question = event.target.value;
-    setFields[values];
+    setFields(values);
   }
   
   function handleAnswer(i, event) {
     const values = [...fields];
     values[i].answer = event.target.value;
-    setFields[values];
+    setFields(values);
   }
   
   function handleAdd() {
-    /*event.preventDefault();
-    const entry = {
-      question: question,
-      answer: answer,
-    };
-    Socket.emit('new card', entry);*/
-    
     const values = [...fields];
     values.push({ question: null, answer: null });
     setFields(values);
