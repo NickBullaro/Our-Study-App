@@ -1,46 +1,52 @@
 import * as React from 'react';
+import Socket from './Socket'
 
 function Whiteboard() {
   const [isDrawing, setIsDrawing] = React.useState(()=>[false]);
-  const [doDraw, setDoDraw] = React.useState([]);
+  const [doDraw, setDoDraw] = React.useState({oldx:0,oldy:0,newx:0,newy:0,color:"#000000"});
   const canvasRef = React.useRef(null);
-  const [oldCoor, setOldCoor] = React.useState(()=>{return {y:0,x:0}});
-  const [newCoor, setNewCoor] = React.useState(()=>{return {y:0,x:0}});
+  const [stroke, setStroke] = React.useState(()=>{return {oldx:0,oldy:0,newx:0,newy:0,color:"#000000"}});
   const [listersOff, setListersOff] = React.useState(true);
   
   function startDraw(cursor){
     console.log("cursor down")
     isDrawing[0]=true;
     setIsDrawing(isDrawing);
-    oldCoor.y=cursor.offsetY;
-    oldCoor.x=cursor.offsetX;
-    newCoor.y=cursor.offsetY;
-    newCoor.x=cursor.offsetX;
-    setOldCoor(oldCoor);
-    setNewCoor(newCoor);
+    stroke.oldy=cursor.offsetY;
+    stroke.oldx=cursor.offsetX;
+    stroke.newy=cursor.offsetY;
+    stroke.newx=cursor.offsetX;
+    setStroke(stroke);
   }
   function draw(cursor){
     if (isDrawing[0]){
-      console.log(oldCoor.x, oldCoor.y,newCoor.x, newCoor.y)
-      oldCoor.y=newCoor.y;
-      oldCoor.x=newCoor.x;
-      setNewCoor((myDict)=>{
-        myDict.x=cursor.offsetX;
-        myDict.y=cursor.offsetY;
-        return myDict
-      })
-      setOldCoor(oldCoor);
-      setDoDraw([])
+      stroke.oldy=stroke.newy;
+      stroke.oldx=stroke.newx;
+      stroke.newy=cursor.offsetY;
+      stroke.newx=cursor.offsetX;
+      setStroke(stroke);
+      Socket.emit("drawing stroke input", stroke);
     }
   }
   function endDraw(cursor){
     isDrawing[0]=false;
     setIsDrawing(isDrawing);
-    oldCoor.y=newCoor.y;
-    oldCoor.x=newCoor.x;
-    setNewCoor({y:cursor.offsetY,x:cursor.offsetX});
-    setOldCoor(oldCoor);
+    stroke.oldy=stroke.newy;
+    stroke.oldx=stroke.newx;
+    stroke.newy=cursor.offsetY;
+    stroke.newx=cursor.offsetX;
+    setStroke(stroke);
+    Socket.emit("drawing stroke input", stroke);
   }
+  
+  function fOutputDoStroke(data) {
+    setDoDraw(data);
+  }
+  function newOutputDoStroke() {
+    Socket.on('drawing stroke output', fOutputDoStroke);
+    return () => Socket.off('drawing stroke output', fOutputDoStroke);
+  }
+  React.useEffect(newOutputDoStroke);
   
   React.useEffect(() => {
     const canvas = canvasRef.current
@@ -51,11 +57,9 @@ function Whiteboard() {
       setListersOff(false)
     }
     const context = canvas.getContext('2d')
-    context.fillStyle = '#000000'
-    //Our first draw
-    console.log("HELLO")
-    context.moveTo(oldCoor.x, oldCoor.y);
-    context.lineTo(newCoor.x, newCoor.y);
+    context.fillStyle = doDraw.color
+    context.moveTo(doDraw.oldx, doDraw.oldy);
+    context.lineTo(doDraw.newx, doDraw.newy);
     context.stroke();
   }, [doDraw])
   return (

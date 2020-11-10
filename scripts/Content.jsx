@@ -24,7 +24,7 @@ function Content() {
           ? <LoggedInContent />
           : <LoginScreen />
       }
-      <Whitboard />
+      <Whiteboard />
     </div>
   );
 }

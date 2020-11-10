@@ -147,6 +147,11 @@ def on_new_message(data):
     SAMPLE_MESSAGES.append(data['message'])
     room_id = request.sid # TODO: get room_id from the sender request.sid
     emit_all_messages(room_id)
+    
+@socketio.on("drawing stroke input")
+def on_drawing_stroke(data):
+    room_id = request.sid
+    socketio.emit("drawing stroke output",data)
 
 @APP.route("/")
 def index():
