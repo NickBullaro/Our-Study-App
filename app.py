@@ -124,7 +124,7 @@ def accept_login(data):
 
 
 @socketio.on("room entry request")
-def accept_room_entry(data):
+def on_room_entry_request(data):
     socketio.emit(
         "room entry accepted",
         room=request.sid
