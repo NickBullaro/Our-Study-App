@@ -33,6 +33,9 @@ socketio.init_app(APP, cors_allowed_origins="*")
 
 username_sid_dict = {}
 
+USERS_RECEIVED_CHANNEL = "users received"
+users = ["Nick", "Jason", "Mitchell", "George", "Navado"]
+
 NEW_CARDS = 'new cards'
 CARDS = 'cards'
 
@@ -99,6 +102,10 @@ def emit_room_history(room_id):
         'allMessages': message_history
     }
     socketio.emit('sending room data', data, room=room_id)
+
+def emit_all_users(channel):
+    all_users = users
+    socketio.emit(channel, {"all_users": all_users})
       
 
 @socketio.on("connect")
@@ -117,6 +124,7 @@ def on_new_room_creation(data):
     print("received a new room creation request: {}".format(data["roomName"]))
     #TODO Add new room to the databse and set the sender 
     emit_joined_rooms(request.sid)
+    emit_all_users(USERS_RECEIVED_CHANNEL)
 
 
 @socketio.on("join room request")
@@ -125,6 +133,7 @@ def on_join_room_request(data):
     #TODO Check the database to verify that the roomId and roomPassword are a valid pair
     #TODO If the pair is valid, update the database to reflect that the user associated with request has joineed the room
     emit_joined_rooms(request.sid)
+    emit_all_users(USERS_RECEIVED_CHANNEL)
 
 
 @socketio.on("new user login")
@@ -136,6 +145,7 @@ def accept_login(data):
     )
     print("{} logged in".format(data['email']))
     emit_joined_rooms(request.sid)
+    emit_all_users(USERS_RECEIVED_CHANNEL)
 
 
 @socketio.on("room entry request")
@@ -146,6 +156,7 @@ def on_room_entry_request(data):
     )
     print("room entry accepted")
     emit_room_history(request.sid)
+    emit_all_users(USERS_RECEIVED_CHANNEL)
 
 
 @socketio.on("leave room")
@@ -155,6 +166,7 @@ def accept_room_departure(data):
         room=request.sid,
     )
     emit_joined_rooms(request.sid)
+    emit_all_users(USERS_RECEIVED_CHANNEL)
 
 @socketio.on("new message input")
 def on_new_message(data):
@@ -162,6 +174,7 @@ def on_new_message(data):
     SAMPLE_MESSAGES.append(data['message'])
     room_id = request.sid # TODO: get room_id from the sender request.sid
     emit_all_messages(room_id)
+    emit_all_users(USERS_RECEIVED_CHANNEL)
     
 @socketio.on(NEW_CARDS)
 def new_cards(data):
@@ -180,11 +193,13 @@ def new_cards(data):
             
     DB.session.commit()
     emit_flashcards(room)
+    emit_all_users(USERS_RECEIVED_CHANNEL)
 
 @socketio.on("drawing stroke input")
 def on_drawing_stroke(data):
     room_id = request.sid
     socketio.emit("drawing stroke output",data)
+    
 
 @APP.route("/")
 def index():
