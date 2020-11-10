@@ -38,6 +38,10 @@ function Whiteboard() {
     setStroke(stroke);
     Socket.emit("drawing stroke input", stroke);
   }
+  function changeColor(event){
+    stroke.color = event.target.value;
+    setStroke(stroke);
+  }
   
   function fOutputDoStroke(data) {
     setDoDraw(data);
@@ -54,16 +58,31 @@ function Whiteboard() {
       canvas.addEventListener('mousedown', startDraw, false);
       canvas.addEventListener('mousemove', draw, false);
       canvas.addEventListener('mouseup', endDraw, false);
+      canvas.height = 500
+      canvas.width = 500
       setListersOff(false)
     }
     const context = canvas.getContext('2d')
-    context.fillStyle = doDraw.color
+    context.beginPath();
+    context.strokeStyle = doDraw.color
     context.moveTo(doDraw.oldx, doDraw.oldy);
     context.lineTo(doDraw.newx, doDraw.newy);
     context.stroke();
   }, [doDraw])
   return (
-    <canvas ref={canvasRef}/>
+    <div id='whiteboard componant'>
+      <canvas ref={canvasRef}/>
+      <form onChange={changeColor}>
+        <input type="radio" id="black" name="color" value="#000000" />
+        <label for="black">Black</label>
+        <input type="radio" id="red" name="color" value="#ff0000" />
+        <label for="red">Red</label>
+        <input type="radio" id="blue" name="color" value="#0000ff"/>
+        <label for="blue">Blue</label>
+        <input type="radio" id="Green" name="color" value="#00ff00" />
+        <label for="green">Green</label>
+      </form>
+    </div>
   );
 }
 
