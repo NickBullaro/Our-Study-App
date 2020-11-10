@@ -167,9 +167,14 @@ def on_new_message(data):
 def new_cards(data):
     print("New cards:" , data)
     room = get_room(request.sid)
-    for i in range( len(data)//2 ):
-            question = data["question" + str(i)]
-            answer = data["answer" + str(i)]
+    
+    #Clear database
+    DB.session.query(models.Flashcards).delete()
+    DB.session.commit()
+    
+    for card in data:
+            question = card["question"]
+            answer = card["answer"]
         
             DB.session.add(models.Flashcards(question, answer))
             

@@ -53,7 +53,7 @@ export default function CreateFlashcards({ cards }) {
     <Flashcards />
     :
     <div>
-      <form method='POST' onSubmit={handleSubmit} > 
+      <form method='POST' > 
         <h2>Create Flashcards</h2>
           {fields.map((field, idx) => {
         return (
@@ -81,7 +81,7 @@ export default function CreateFlashcards({ cards }) {
         </div>
               
   
-        <input type="submit" value='Done'  />
+        <input type="button" value='Done'  onClick={handleSubmit} />
       </form>
     </div>
   );
