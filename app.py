@@ -175,7 +175,12 @@ def new_cards(data):
             
     DB.session.commit()
     emit_flashcards(room)
-    
+
+@socketio.on("drawing stroke input")
+def on_drawing_stroke(data):
+    room_id = request.sid
+    socketio.emit("drawing stroke output",data)
+
 @APP.route("/")
 def index():
     return flask.render_template("index.html")

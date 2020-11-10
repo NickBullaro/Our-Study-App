@@ -2,6 +2,7 @@ import * as React from 'react';
 import Socket from './Socket';
 import Flashcards from './Flashcards';
 import Chatbox from './Chatbox';
+import WhiteboardButton from './WhiteboardButton'
 
 function InRoomScreen() {
 
@@ -14,6 +15,7 @@ function InRoomScreen() {
   return (
     <div id="inRoomScreen">
       <p>Insert room HTML and components here</p>
+      <WhiteboardButton />
       <p>Chatbox</p>
       <Chatbox />
       <Flashcards />
