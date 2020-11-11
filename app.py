@@ -1,9 +1,14 @@
+'''
+app.py
+Main module for the app
+'''
+
 import os
 import flask
 import flask_socketio
 import flask_sqlalchemy
 from dotenv import load_dotenv
-from flask import request, redirect
+from flask import request
 
 APP = flask.Flask(__name__)
 SOCKETIO = flask_socketio.SocketIO(APP)
@@ -39,18 +44,6 @@ users = ["Nick", "Jason", "Mitchell", "George", "Navado"]
 NEW_CARDS = 'new cards'
 CARDS = 'cards'
 
-SAMPLE_FLASH_CARDS = [
-      {
-        'id': 1,
-        'question': 'Question 1 ',
-        'answer': 'Answer 1',
-      },
-      {
-        'id': 2,
-        'question': 'Question 2 ',
-        'answer': 'Answer 2',
-      }]
-
 SAMPLE_JOINED_ROOMS_LIST = [
     {
         "roomName": "not necessarily unique",
@@ -78,6 +71,7 @@ def get_room(client_sid):
     return client_sid
     
 def emit_flashcards(room):
+    '''Emit all the flashcards for a specific room'''
     all_cards = models.Flashcards.query.all()
     cards = []
     for card in all_cards:
@@ -94,7 +88,7 @@ def emit_all_messages(room_id):
     socketio.emit("sending message history", {"allMessages": all_messages}, room=room_id)
     
 def emit_room_history(room_id):
-   
+
     emit_flashcards(room_id)
     # TODO properly load the messages realted to the room from the database
     message_history = SAMPLE_MESSAGES
@@ -178,10 +172,13 @@ def on_new_message(data):
     
 @socketio.on(NEW_CARDS)
 def new_cards(data):
-    print("New cards:" , data)
+    ''' Listen for new cards event from client. 
+    Update the database by replacing the old cards with the new cards.
+    '''
+    
+    print("New cards:", data)
     room = get_room(request.sid)
     
-    #Clear database
     DB.session.query(models.Flashcards).delete()
     DB.session.commit()
     
@@ -203,6 +200,7 @@ def on_drawing_stroke(data):
 
 @APP.route("/")
 def index():
+    ''' Return the index.html page on this route'''
     return flask.render_template("index.html")
 
 if __name__ == "__main__":
