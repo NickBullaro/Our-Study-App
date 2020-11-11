@@ -31,18 +31,14 @@ class AuthUser(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True)
     auth_type = DB.Column(DB.String(120))
     username = DB.Column(DB.String(120))
-    room = DB.Column(DB.String(120))
-    sid = DB.Column(DB.String(120))
-    password = DB.Column(DB.String(120))
+    email = DB.Column(DB.String(120))
     picUrl = DB.Column(DB.Text)
     
-    def __init__(self, name, auth_type, password, sid, pic=''):
+    def __init__(self, auth_type, name, email, pic=''):
         assert type(auth_type) is AuthUserType
-        self.username = name
         self.auth_type = auth_type.value
-        self.password = password
-        self.room = ''
-        self.sid = sid
+        self.username = name
+        self.email = email
         self.picUrl = pic
         
 class AuthUserType(Enum):
@@ -53,7 +49,7 @@ class Flashcards(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True)
     question = DB.Column(DB.String(120))
     answer = DB.Column(DB.String(120))
-    #room = DB.Column(DB.String(120), DB.ForeignKey('rooms.room'), nullable=False)
+    #room = DB.Column(DB.Integer, DB.ForeignKey('Rooms.id'), nullable=False)
 
     def __init__(self, question, answer):
         self.answer = answer
@@ -61,3 +57,33 @@ class Flashcards(DB.Model):
         
     def __repr__(self):
         return '<card> question: {} answer: {} </card>\n'.format(self.question, self.answer)
+        
+class Rooms(DB.Model):
+    id = DB.Column(DB.Integer, primary_key=True)
+    creator = DB.Column(DB.Integer, DB.ForeignKey(AuthUser.id), nullable=False)
+    name = DB.Column(DB.String(50))
+    
+    def __init__(self, roomCreator, roomName):
+        self.creator = roomCreator
+        self.name = roomName
+    
+    def __repr__(self):
+        return "{}, created by {}".format(self.creator, self.name)
+
+class CurrentConnections(DB.Model):
+    id = DB.Column(DB.Integer, primary_key=True)
+    sid = DB.Column(DB.String(32), nullable=False)
+    user = DB.Column(DB.Integer, DB.ForeignKey(AuthUser.id), nullable=True)
+
+    def __init__(self, sid, user):
+        self.sid = sid
+        self.user = user
+
+class EnteredRooms(DB.Model):
+    id = DB.Column(DB.Integer, primary_key=True)
+    user = DB.Column(DB.Integer, DB.ForeignKey(AuthUser.id), nullable=False)
+    room = DB.Column(DB.Integer, DB.ForeignKey(Rooms.id), nullable=False)
+    
+    def __init__(self, user, room):
+        self.user = user
+        self.room = room

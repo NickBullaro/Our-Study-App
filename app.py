@@ -67,6 +67,7 @@ def emit_joined_rooms(client_room):
         },
         room=client_room,
     )
+
 def get_room(client_sid):
     return client_sid
     
@@ -105,12 +106,21 @@ def emit_all_users(channel):
 @socketio.on("connect")
 def on_connect():
     print("Someone connected!")
+    models.DB.session.add(models.CurrentConnections(request.sid, None))
+    models.DB.session.commit()
 
 
 @socketio.on("disconnect")
 def on_disconnect():
-    disconnected_user = username_sid_dict.pop(request.sid, 'unlogged-in user')
-    print("{} disconnected!".format(disconnected_user))
+    disconnected_user = models.CurrentConnections.query.filter_by(sid=request.sid).first()
+    if not disconnected_user:
+        print("Database error on disconnect")
+    elif disconnected_user.user is not None:
+        disconnected_username = models.AuthUser.query.filter_by(id=disconnected_user.user).first().username
+    else:
+        disconnected_username = 'unlogged-in user'
+    print("{} disconnected!".format(disconnected_username))
+    models.DB.session.delete(disconnected_user)
 
 
 @socketio.on("new room creation request")
@@ -130,14 +140,23 @@ def on_join_room_request(data):
     emit_all_users(USERS_RECEIVED_CHANNEL)
 
 
-@socketio.on("new user login")
-def accept_login(data):
-    username_sid_dict[request.sid] = data['email']
+@socketio.on("new google user login")
+def accept_google_login(data):
     socketio.emit(
         "login accepted",
         room=request.sid
     )
-    print("{} logged in".format(data['email']))
+    user = models.DB.session.query(models.AuthUser).filter_by(auth_type=models.AuthUserType.GOOGLE.value, email=data['email']).first()
+    if not user:
+        models.DB.session.add(models.AuthUser(models.AuthUserType.GOOGLE, data['user'], data['email'], data['pic']))
+        user = models.DB.session.query(models.AuthUser.id).filter_by(auth_type=models.AuthUserType.GOOGLE.value, email=data['email']).first()
+    else:
+        user.username = data['user']
+        user.picUrl = data['pic']
+    connection = models.DB.session.query(models.CurrentConnections).filter_by(sid=request.sid).first()
+    connection.user = user.id
+    models.DB.session.commit()
+    print("{} logged in".format(user.username))
     emit_joined_rooms(request.sid)
     emit_all_users(USERS_RECEIVED_CHANNEL)
 

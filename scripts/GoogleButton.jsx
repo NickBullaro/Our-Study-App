@@ -13,7 +13,7 @@ function handleSubmit(response) {
   const user = response.profileObj.name;
   const { email } = response.profileObj;
   const pic = response.profileObj.imageUrl;
-  Socket.emit('new user login', {
+  Socket.emit('new google user login', {
     user,
     email,
     pic,
