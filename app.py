@@ -2,6 +2,7 @@ import os
 import flask
 import flask_socketio
 import flask_sqlalchemy
+import models
 from dotenv import load_dotenv
 from flask import request, redirect
 
@@ -19,14 +20,12 @@ except KeyError:
 
 APP.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
 
-DB = flask_sqlalchemy.SQLAlchemy(APP)
-DB.app = APP
+models.DB.init_app(APP)
+models.DB.app = APP
 
-import models
-
-def db_init():
-    DB.create_all()
-    DB.session.commit()
+def database_init():
+    models.DB.create_all()
+    models.DB.session.commit()
 
 socketio = flask_socketio.SocketIO(APP)
 socketio.init_app(APP, cors_allowed_origins="*")
@@ -182,16 +181,16 @@ def new_cards(data):
     room = get_room(request.sid)
     
     #Clear database
-    DB.session.query(models.Flashcards).delete()
-    DB.session.commit()
+    models.DB.session.query(models.Flashcards).delete()
+    models.DB.session.commit()
     
     for card in data:
             question = card["question"]
             answer = card["answer"]
         
-            DB.session.add(models.Flashcards(question, answer))
+            models.DB.session.add(models.Flashcards(question, answer))
             
-    DB.session.commit()
+    models.DB.session.commit()
     emit_flashcards(room)
     emit_all_users(USERS_RECEIVED_CHANNEL)
 
@@ -206,7 +205,7 @@ def index():
     return flask.render_template("index.html")
 
 if __name__ == "__main__":
-    db_init()
+    database_init()
     SOCKETIO.run(
         APP,
         host=os.getenv("IP", "0.0.0.0"),
