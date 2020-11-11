@@ -33,15 +33,15 @@ function InRoomScreen() {
       <p>Insert room HTML and components here</p>
       <WhiteboardButton />
       <p>Chatbox</p>
-      <p>
         <Chatbox />
         <ul className="userLis">
           {
             users.map((user, index) => <li key={index}>{user}</li>)
         }
         </ul>
-        <Flashcards />
-      </p>
+        <div id="flashcards">
+          <Flashcards />
+        </div>
       <button onClick={fakeRoomLeave} type="submit">FakeLeaveRoom</button>
     </div>
   );
