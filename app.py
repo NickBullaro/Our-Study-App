@@ -18,6 +18,7 @@ except KeyError:
     DATABASE_URI = ""
 
 APP.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
+APP.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 DB = flask_sqlalchemy.SQLAlchemy(APP)
 DB.app = APP
