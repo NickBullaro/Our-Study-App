@@ -13,9 +13,9 @@ function Chatbox() {
         chatBox.scrollTop = chatBox.scrollHeight;
       });
     });
-    
+
     React.useEffect(() => {
-      Socket.on('sending message history',(data) => {
+      Socket.on('sending message history', (data) => {
         setMessages(data.allMessages);
         const chatBox = document.getElementById('chatbox');
         chatBox.scrollTop = chatBox.scrollHeight;
