@@ -4,9 +4,10 @@ Database models for SQLAlchemy
 '''
 
 import flask_sqlalchemy
-from app import DB
 import json
 from enum import Enum
+
+DB = flask_sqlalchemy.SQLAlchemy()
 
 class Messages(DB.Model):
     id = DB.Column(DB.Integer,  primary_key=True)

@@ -104,8 +104,24 @@
 }
 
 .userList {
+    float: left;
     text-align: center;
     background: white;
+    display: inline-block;
+    vertical-align: top;
+    padding-left: 10px;
+    height: 95%;
+    width: 18%;
+    border: 3px solid red;
+    margin: 0;
+    overflow-y:auto;
+}
+
+.userLis {
+    float: right;
+    text-align: center;
+    background: white;
+    color: red;
     display: inline-block;
     vertical-align: top;
     padding-left: 10px;

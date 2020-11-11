@@ -1,9 +1,15 @@
+'''
+app.py
+Main module for the app
+'''
+
 import os
 import flask
 import flask_socketio
 import flask_sqlalchemy
+import models
 from dotenv import load_dotenv
-from flask import request, redirect
+from flask import request
 
 APP = flask.Flask(__name__)
 SOCKETIO = flask_socketio.SocketIO(APP)
@@ -20,34 +26,23 @@ except KeyError:
 APP.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
 APP.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-DB = flask_sqlalchemy.SQLAlchemy(APP)
-DB.app = APP
+models.DB.init_app(APP)
+models.DB.app = APP
 
-import models
-
-def db_init():
-    DB.create_all()
-    DB.session.commit()
+def database_init():
+    models.DB.create_all()
+    models.DB.session.commit()
 
 socketio = flask_socketio.SocketIO(APP)
 socketio.init_app(APP, cors_allowed_origins="*")
 
 username_sid_dict = {}
 
+USERS_RECEIVED_CHANNEL = "users received"
+users = ["Nick", "Jason", "Mitchell", "George", "Navado"]
+
 NEW_CARDS = 'new cards'
 CARDS = 'cards'
-
-SAMPLE_FLASH_CARDS = [
-      {
-        'id': 1,
-        'question': 'Question 1 ',
-        'answer': 'Answer 1',
-      },
-      {
-        'id': 2,
-        'question': 'Question 2 ',
-        'answer': 'Answer 2',
-      }]
 
 SAMPLE_JOINED_ROOMS_LIST = [
     {
@@ -76,6 +71,7 @@ def get_room(client_sid):
     return client_sid
     
 def emit_flashcards(room):
+    '''Emit all the flashcards for a specific room'''
     all_cards = models.Flashcards.query.all()
     cards = []
     for card in all_cards:
@@ -92,7 +88,7 @@ def emit_all_messages(room_id):
     socketio.emit("sending message history", {"allMessages": all_messages}, room=room_id)
     
 def emit_room_history(room_id):
-   
+
     emit_flashcards(room_id)
     # TODO properly load the messages realted to the room from the database
     message_history = SAMPLE_MESSAGES
@@ -100,6 +96,10 @@ def emit_room_history(room_id):
         'allMessages': message_history
     }
     socketio.emit('sending room data', data, room=room_id)
+
+def emit_all_users(channel):
+    all_users = users
+    socketio.emit(channel, {"all_users": all_users})
       
 
 @socketio.on("connect")
@@ -118,6 +118,7 @@ def on_new_room_creation(data):
     print("received a new room creation request: {}".format(data["roomName"]))
     #TODO Add new room to the databse and set the sender 
     emit_joined_rooms(request.sid)
+    emit_all_users(USERS_RECEIVED_CHANNEL)
 
 
 @socketio.on("join room request")
@@ -126,6 +127,7 @@ def on_join_room_request(data):
     #TODO Check the database to verify that the roomId and roomPassword are a valid pair
     #TODO If the pair is valid, update the database to reflect that the user associated with request has joineed the room
     emit_joined_rooms(request.sid)
+    emit_all_users(USERS_RECEIVED_CHANNEL)
 
 
 @socketio.on("new user login")
@@ -137,6 +139,7 @@ def accept_login(data):
     )
     print("{} logged in".format(data['email']))
     emit_joined_rooms(request.sid)
+    emit_all_users(USERS_RECEIVED_CHANNEL)
 
 
 @socketio.on("room entry request")
@@ -147,6 +150,7 @@ def on_room_entry_request(data):
     )
     print("room entry accepted")
     emit_room_history(request.sid)
+    emit_all_users(USERS_RECEIVED_CHANNEL)
 
 
 @socketio.on("leave room")
@@ -156,6 +160,7 @@ def accept_room_departure(data):
         room=request.sid,
     )
     emit_joined_rooms(request.sid)
+    emit_all_users(USERS_RECEIVED_CHANNEL)
 
 @socketio.on("new message input")
 def on_new_message(data):
@@ -163,36 +168,45 @@ def on_new_message(data):
     SAMPLE_MESSAGES.append(data['message'])
     room_id = request.sid # TODO: get room_id from the sender request.sid
     emit_all_messages(room_id)
+    emit_all_users(USERS_RECEIVED_CHANNEL)
     
 @socketio.on(NEW_CARDS)
 def new_cards(data):
-    print("New cards:" , data)
+    ''' Listen for new cards event from client. 
+    Update the database by replacing the old cards with the new cards.
+    '''
+    
+    print("New cards:", data)
     room = get_room(request.sid)
     
     #Clear database
-    DB.session.query(models.Flashcards).delete()
-    DB.session.commit()
+    models.DB.session.query(models.Flashcards).delete()
+    models.DB.session.commit()
+
     
     for card in data:
             question = card["question"]
             answer = card["answer"]
         
-            DB.session.add(models.Flashcards(question, answer))
+            models.DB.session.add(models.Flashcards(question, answer))
             
-    DB.session.commit()
+    models.DB.session.commit()
     emit_flashcards(room)
+    emit_all_users(USERS_RECEIVED_CHANNEL)
 
 @socketio.on("drawing stroke input")
 def on_drawing_stroke(data):
     room_id = request.sid
     socketio.emit("drawing stroke output",data)
+    
 
 @APP.route("/")
 def index():
+    ''' Return the index.html page on this route'''
     return flask.render_template("index.html")
 
 if __name__ == "__main__":
-    db_init()
+    database_init()
     SOCKETIO.run(
         APP,
         host=os.getenv("IP", "0.0.0.0"),

@@ -1,43 +1,40 @@
 import React, { useState, useEffect } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import Flashcard from './Flashcard';
 import CreateFlashcards from './CreateFlashcards';
 import Socket from './Socket';
-        
+
 export default function Flashcards() {
-    const [addCards, setAddCards] = useState(false);
-    const [flashcards, setFlashcards] = useState([]);
-       
-    const CARDS = 'cards';
-    
-    function addFlashCards(e) {
-        e.preventDefault();
-        setAddCards(true);
-    }
-    
-    function new_cards() {
-    useEffect( () => {
-      Socket.on(CARDS, data => {
-        console.log(data);
+  const [addCards, setAddCards] = useState(false);
+  const [flashcards, setFlashcards] = useState([]);
+
+  const CARDS = 'cards';
+
+  function addFlashCards(e) {
+    e.preventDefault();
+    setAddCards(true);
+  }
+
+  function newCards() {
+    useEffect(() => {
+      Socket.on(CARDS, (data) => {
         setFlashcards(data);
       });
     });
   }
-  
-  
-  new_cards();
-  
-    return (
-        addCards ?
-        <CreateFlashcards cards={flashcards} /> 
-        :
+
+  newCards();
+
+  return (
+    addCards
+      ? <CreateFlashcards cards={flashcards} />
+      : (
         <div>
-            <div className='card-grid'>
-            {flashcards.map( flashcard => {
-                return <Flashcard key={flashcard.id} flashcard={flashcard} />;
-            })
-            }
-            <button type='submit' onClick={addFlashCards}>Edit Flashcards</button> 
-            </div>
+          <div className="card-grid">
+            {flashcards.map((flashcard) => <Flashcard key={uuidv4()} flashcard={flashcard} />)}
+            <button type="submit" onClick={addFlashCards}>Edit Flashcards</button>
+          </div>
         </div>
-    );
+      )
+  );
 }
