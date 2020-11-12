@@ -30,7 +30,6 @@ models.DB.app = APP
 
 
 def database_init():
-    models.DB.drop_all()
     models.DB.create_all()
     models.DB.session.commit()
 
@@ -116,6 +115,15 @@ def emit_all_users(channel):
     all_users = users
     socketio.emit(channel, {"all_users": all_users})
 
+def clear_non_persistent_tables():
+    '''
+    EnteredRooms and CurrentConnections are tables the server uses to track the current state of rooms. Both
+    tables should be empty on startup.
+    '''
+    models.DB.session.query(models.CurrentConnections).delete()
+    models.DB.session.query(models.EnteredRooms).delete()
+    models.DB.session.commit()
+
 
 @socketio.on("connect")
 def on_connect():
@@ -126,15 +134,26 @@ def on_connect():
 
 @socketio.on("disconnect")
 def on_disconnect():
+    '''
+    When a user disconnects, make sure they are removed from any rooms that they had entered and 
+    stop associating the user with that connection
+    '''
     disconnected_user = models.CurrentConnections.query.filter_by(sid=request.sid).first()
     if not disconnected_user:
         print("Database error on disconnect")
+        return
     elif disconnected_user.user is not None:
+        # Remove the user from any rooms they are currently in
+        models.DB.session.query(models.EnteredRooms).filter_by(user=disconnected_user.user).delete()
+        models.DB.session.commit()
+        # get the disconnected user's username
         disconnected_username = models.AuthUser.query.filter_by(id=disconnected_user.user).first().username
     else:
         disconnected_username = 'unlogged-in user'
     print("{} disconnected!".format(disconnected_username))
+    # Stop tracking that connection between user and sid
     models.DB.session.delete(disconnected_user)
+    models.DB.session.commit()
 
 
 @socketio.on("new room creation request")
@@ -266,6 +285,7 @@ def index():
 
 if __name__ == "__main__":
     database_init()
+    clear_non_persistent_tables()
     SOCKETIO.run(
         APP,
         host=os.getenv("IP", "0.0.0.0"),
