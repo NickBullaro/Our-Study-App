@@ -29,11 +29,12 @@ export default function Flashcards() {
     addCards
       ? <CreateFlashcards cards={flashcards} />
       : (
-        
+        <div>
           <div className="card-grid">
             {flashcards.map((flashcard) => <Flashcard key={uuidv4()} flashcard={flashcard} />)}
-            <button type="submit" onClick={addFlashCards}>Edit Flashcards</button>
           </div>
+          <button type="submit" onClick={addFlashCards}>Edit Flashcards</button>
+        </div>
       )
   );
 }
