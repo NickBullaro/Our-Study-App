@@ -97,7 +97,8 @@ def emit_flashcards(room):
 
 def emit_all_messages(room_id):
     # TODO properly load the messages realted to the room from the database
-    all_messages = SAMPLE_MESSAGES
+    all_messages = models.DB.session.query(models.Messages.message).filter_by(room=room_id).all()
+    print("messages: ", all_messages)
     socketio.emit(
         "sending message history", {"allMessages": all_messages}, room=room_id
     )
@@ -227,9 +228,14 @@ def accept_room_departure(data):
 @socketio.on("new message input")
 def on_new_message(data):
     print("Got an event for new message input with data:", data)
-    SAMPLE_MESSAGES.append(data["message"])
-    room_id = request.sid  # TODO: get room_id from the sender request.sid
-    emit_all_messages(room_id)
+    user = {}
+    user["sid"] = request.sid
+    user["room"] = get_room(request.sid)  # TODO: get room_id from the sender request.sid
+    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=request.sid).first()[0]
+    user["username"] = models.DB.session.query(models.AuthUser.username).filter_by(id=user_id).first()[0]
+    models.DB.session.add(models.Messages(user, user['username'] + ": " + data['message']))
+    models.DB.session.commit()
+    emit_all_messages(user['room'])
 
 
 @socketio.on(NEW_CARDS)
