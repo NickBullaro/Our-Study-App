@@ -43,22 +43,20 @@ export default function CreateFlashcards({ cards }) {
     submitted
       ? <Flashcards />
       : (
-        <div>
-          <form method="POST">
+          <form>
             <h2>Create Flashcards</h2>
             {fields.map((field, idx) => (
-              <div key={uuidv4()} className="row">
+              <div key={uuidv4()} className="form-row">
 
-                <div className="col-4">
-                  <input type="text" className="question" placeholder="Enter question" value={field.question} onChange={(e) => handleQuestion(idx, e)} name={`question${idx}`} required />
+                <div className="col-5">
+                  <input type="text" className="question" placeholder="Enter question" value={field.question} onChange={(e) => handleQuestion(idx, e)} />
                 </div>
-                <div className="col-4">
-                  <input type="text" className="answer" placeholder="Enter answer" value={field.answer} onChange={(e) => handleAnswer(idx, e)} name={`answer${idx}`} required />
+                <div className="col-5">
+                  <input type="text" className="answer" placeholder="Enter answer" value={field.answer} onChange={e => handleAnswer(idx, e)} />
                 </div>
-                <div className="col-2">
+          
                   <button type="button" onClick={() => handleRemove(idx)}>X</button>
-                </div>
-                <div className="col-1" />
+
               </div>
             ))}
 
@@ -71,7 +69,6 @@ export default function CreateFlashcards({ cards }) {
 
             <input type="button" value="Done" onClick={handleSubmit} />
           </form>
-        </div>
       )
   );
 }
