@@ -23,7 +23,7 @@ export default function CreateFlashcards({ cards }) {
 
   function handleAdd() {
     const values = [...fields];
-    values.push({ question: '', answer: '' });
+    values.push({ question: null, answer: null });
     setFields(values);
   }
 
@@ -43,10 +43,9 @@ export default function CreateFlashcards({ cards }) {
     submitted
       ? <Flashcards />
       : (
-          <form>
-            <h2>Create Flashcards</h2>
+        <div>
             {fields.map((field, idx) => (
-              <div key={uuidv4()} className="form-row">
+              <div key={`${field+idx}`} className="form-row">
 
                 <div className="col-5">
                   <input type="text" className="question" placeholder="Enter question" value={field.question} onChange={(e) => handleQuestion(idx, e)} />
@@ -68,8 +67,11 @@ export default function CreateFlashcards({ cards }) {
             </div>
 
             <input type="button" value="Done" onClick={handleSubmit} />
-          </form>
-      )
+            
+          </div>
+      
+  )
+  
   );
 }
 
