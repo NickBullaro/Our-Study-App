@@ -4,6 +4,7 @@
 - Mitchell Mecca
 - Nick Bullaro
 - Navado Wray
+- George Alvarado
 
 # Getting Up and Running (do this once)
 1. Clone this repository and navigate to the root folder within the terminal

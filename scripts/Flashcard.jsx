@@ -7,19 +7,18 @@ export default function Flashcard({ flashcard }) {
   function flipCard() {
     setFlip(!flip);
   }
-  function deleteCard() {
-    console.log('Delete card');
-  }
 
   return (
-    <div
+    <button
+      type="button"
       className={`flashcard ${flip ? 'flip' : ''} `}
       onClick={flipCard}
+
     >
       <div className="front">{flashcard.question}</div>
 
       <div className="back">{flashcard.answer}</div>
-    </div>
+    </button>
   );
 }
 
