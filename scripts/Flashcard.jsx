@@ -23,17 +23,12 @@ export default function Flashcard({ flashcard }) {
   );
 }
 
-/* <div className='flashcard-options'>
-                {flashcard.options.map( option => {
-                    return <div className='flashcard-option'>{option}</div>;
-                })}
-            </div> */
 Flashcard.defaultProps = {
   flashcard: {},
 };
 
 Flashcard.propTypes = {
-  flashcard: PropTypes.objectOf({
+  flashcard: PropTypes.shape({
     question: PropTypes.string.isRequired,
     answer: PropTypes.string.isRequired,
 

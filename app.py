@@ -93,7 +93,7 @@ def emit_flashcards(room):
         card_dict["answer"] = card.answer
         cards.append(card_dict)
 
-    socketio.emit(CARDS, cards)
+    socketio.emit(CARDS, cards, room=room)
 
 def emit_all_messages(room_id):
     # TODO properly load the messages realted to the room from the database
@@ -241,7 +241,6 @@ def new_cards(data):
     print("New cards:", data)
     room = get_room(request.sid)
 
-    # Clear database
     models.DB.session.query(models.Flashcards).delete()
     models.DB.session.commit()
 
@@ -249,7 +248,7 @@ def new_cards(data):
         question = card["question"]
         answer = card["answer"]
 
-        models.DB.session.add(models.Flashcards(question, answer))
+        models.DB.session.add(models.Flashcards(question, answer, room))
 
     models.DB.session.commit()
     emit_flashcards(room)
