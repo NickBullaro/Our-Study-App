@@ -1,21 +1,20 @@
-'''
+"""
 app.py
 Main module for the app
-'''
-
+"""
 import os
-import flask
-import flask_socketio
-import flask_sqlalchemy
-import models
 from dotenv import load_dotenv
 from flask import request
+import flask
+import flask_socketio
+import models
+
 
 APP = flask.Flask(__name__)
 SOCKETIO = flask_socketio.SocketIO(APP)
 SOCKETIO.init_app(APP, cors_allowed_origins="*")
 
-DOTENV_PATH = os.path.join(os.path.dirname(__file__), 'keys.env')
+DOTENV_PATH = os.path.join(os.path.dirname(__file__), "keys.env")
 load_dotenv(DOTENV_PATH)
 
 try:
@@ -29,10 +28,12 @@ APP.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 models.DB.init_app(APP)
 models.DB.app = APP
 
+
 def database_init():
     models.DB.drop_all()
     models.DB.create_all()
     models.DB.session.commit()
+
 
 socketio = flask_socketio.SocketIO(APP)
 socketio.init_app(APP, cors_allowed_origins="*")
@@ -42,10 +43,11 @@ username_sid_dict = {}
 USERS_RECEIVED_CHANNEL = "users received"
 users = ["Nick", "Jason", "Mitchell", "George", "Navado"]
 
-NEW_CARDS = 'new cards'
-CARDS = 'cards'
+NEW_CARDS = "new cards"
+CARDS = "cards"
 
 SAMPLE_MESSAGES = []
+
 
 def emit_joined_rooms(client_room):
     '''
@@ -63,9 +65,7 @@ def emit_joined_rooms(client_room):
         })
     socketio.emit(
         "updated room list",
-        {
-            "rooms": room_list
-        },
+        {"rooms": room_list},
         room=client_room,
     )
 
@@ -82,38 +82,40 @@ def get_room(client_sid):
     else:
         return client_sid
     
+
 def emit_flashcards(room):
-    '''Emit all the flashcards for a specific room'''
+    """Emit all the flashcards for a specific room"""
     all_cards = models.Flashcards.query.all()
     cards = []
     for card in all_cards:
         card_dict = {}
-        card_dict['question'] = card.question
-        card_dict['answer'] = card.answer
+        card_dict["question"] = card.question
+        card_dict["answer"] = card.answer
         cards.append(card_dict)
-    
-    print("emitting flash cards to room {}".format(room))
-    socketio.emit(CARDS, cards, room=room)
-    
+
+    socketio.emit(CARDS, cards)
+
 def emit_all_messages(room_id):
     # TODO properly load the messages realted to the room from the database
     all_messages = SAMPLE_MESSAGES
-    socketio.emit("sending message history", {"allMessages": all_messages}, room=room_id)
-    
+    socketio.emit(
+        "sending message history", {"allMessages": all_messages}, room=room_id
+    )
+
+
 def emit_room_history(room_id):
 
     emit_flashcards(room_id)
     # TODO properly load the messages realted to the room from the database
     message_history = SAMPLE_MESSAGES
-    data = {
-        'allMessages': message_history
-    }
-    socketio.emit('sending room data', data, room=room_id)
+    data = {"allMessages": message_history}
+    socketio.emit("sending room data", data, room=room_id)
+
 
 def emit_all_users(channel):
     all_users = users
     socketio.emit(channel, {"all_users": all_users})
-      
+
 
 @socketio.on("connect")
 def on_connect():
@@ -152,7 +154,11 @@ def on_new_room_creation(data):
 
 @socketio.on("join room request")
 def on_join_room_request(data):
-    print("received a request to join room {} with this password: {}".format(data["roomId"], data["roomPassword"]))
+    print(
+        "received a request to join room {} with this password: {}".format(
+            data["roomId"], data["roomPassword"]
+        )
+    )
     user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=request.sid).first()
     room = models.DB.session.query(models.Rooms).filter_by(id=data['roomId'], password=data['roomPassword']).first()
     if room:
@@ -191,10 +197,7 @@ def on_room_entry_request(data):
     user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=request.sid).first()
     models.DB.session.add(models.EnteredRooms(user_id, data['roomId']))
     models.DB.session.commit()
-    socketio.emit(
-        "room entry accepted",
-        room=request.sid
-    )
+    socketio.emit("room entry accepted", room=request.sid)
     flask_socketio.join_room(str(data['roomId']))
     print("room entry accepted")
     emit_room_history(request.sid)
@@ -216,54 +219,57 @@ def accept_room_departure(data):
     emit_joined_rooms(request.sid)
     emit_all_users(USERS_RECEIVED_CHANNEL)
 
+
 @socketio.on("new message input")
 def on_new_message(data):
     print("Got an event for new message input with data:", data)
-    SAMPLE_MESSAGES.append(data['message'])
-    room_id = request.sid # TODO: get room_id from the sender request.sid
+    SAMPLE_MESSAGES.append(data["message"])
+    room_id = request.sid  # TODO: get room_id from the sender request.sid
     emit_all_messages(room_id)
     emit_all_users(USERS_RECEIVED_CHANNEL)
-    
+
+
 @socketio.on(NEW_CARDS)
 def new_cards(data):
-    ''' Listen for new cards event from client. 
+    """Listen for new cards event from client.
     Update the database by replacing the old cards with the new cards.
-    '''
-    
+    """
+
     print("New cards:", data)
     room = get_room(request.sid)
-    
-    #Clear database
+
+    # Clear database
     models.DB.session.query(models.Flashcards).delete()
     models.DB.session.commit()
 
-    
     for card in data:
-            question = card["question"]
-            answer = card["answer"]
-        
-            models.DB.session.add(models.Flashcards(question, answer))
-            
+        question = card["question"]
+        answer = card["answer"]
+
+        models.DB.session.add(models.Flashcards(question, answer))
+
     models.DB.session.commit()
     emit_flashcards(room)
     emit_all_users(USERS_RECEIVED_CHANNEL)
 
+
 @socketio.on("drawing stroke input")
 def on_drawing_stroke(data):
     room_id = request.sid
-    socketio.emit("drawing stroke output",data)
-    
+    socketio.emit("drawing stroke output", data)
+
 
 @APP.route("/")
 def index():
-    ''' Return the index.html page on this route'''
+    """ Return the index.html page on this route"""
     return flask.render_template("index.html")
+
 
 if __name__ == "__main__":
     database_init()
     SOCKETIO.run(
         APP,
         host=os.getenv("IP", "0.0.0.0"),
-        port=int(os.getenv("PORT", 8080)),
+        port=int(os.getenv("PORT", "8080")),
         debug=True,
     )
