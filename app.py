@@ -269,7 +269,7 @@ def new_cards(data):
     print("New cards:", data)
     room = get_room(request.sid)
 
-    models.DB.session.query(models.Flashcards).delete()
+    models.Flashcards.query.delete()
     models.DB.session.commit()
 
     for card in data:
