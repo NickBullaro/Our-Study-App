@@ -6,6 +6,7 @@ Database models for SQLAlchemy
 import flask_sqlalchemy
 import json
 from enum import Enum
+import random
 
 DB = flask_sqlalchemy.SQLAlchemy()
 
@@ -57,18 +58,26 @@ class Flashcards(DB.Model):
         
     def __repr__(self):
         return '<card> question: {} answer: {} </card>\n'.format(self.question, self.answer)
+
+def GenerateCharacterPin(pin_length):
+    pin = ''
+    for i in range(pin_length):
+        pin += random.choice('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+    return pin
         
 class Rooms(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True)
     creator = DB.Column(DB.Integer, DB.ForeignKey(AuthUser.id), nullable=False)
     name = DB.Column(DB.String(50))
+    password = DB.Column(DB.String(4))
     
     def __init__(self, roomCreator, roomName):
         self.creator = roomCreator
         self.name = roomName
+        self.password = GenerateCharacterPin(4)
     
     def __repr__(self):
-        return "{}, created by {}".format(self.creator, self.name)
+        return "{} (id: {} password: {}), created by {}".format(self.name, self.id, self.password, self.creator)
 
 class CurrentConnections(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True)
@@ -78,6 +87,15 @@ class CurrentConnections(DB.Model):
     def __init__(self, sid, user):
         self.sid = sid
         self.user = user
+
+class JoinedRooms(DB.Model):
+    id = DB.Column(DB.Integer, primary_key=True)
+    user = DB.Column(DB.Integer, DB.ForeignKey(AuthUser.id), nullable=False)
+    room = DB.Column(DB.Integer, DB.ForeignKey(Rooms.id), nullable=False)
+    
+    def __init__(self, user, room):
+        self.user = user
+        self.room = room
 
 class EnteredRooms(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True)

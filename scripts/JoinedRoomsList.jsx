@@ -14,7 +14,7 @@ function JoinedRoomsList() {
   }
 
   function enterRoom(roomId) {
-    console.log('Sending request to enter room identified by %i', roomId);
+    console.log('Sending request to enter room identified by %s', roomId);
     Socket.emit('room entry request', {
       roomId,
     });
@@ -28,7 +28,7 @@ function JoinedRoomsList() {
         {roomsList.map((room, index) => (
           <li key={index} className="RoomListElement">
             <p className="RoomListName">{room.roomName}</p>
-            <button className="RoomListButton" onClick={(event) => enterRoom(room.roomId)} type="submit">Enter room</button>
+            <button className="RoomListButton" onClick={(event) => enterRoom(room.roomId[0])} type="submit">Enter room</button>
           </li>
         ))}
       </ul>

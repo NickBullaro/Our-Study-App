@@ -30,6 +30,7 @@ models.DB.init_app(APP)
 models.DB.app = APP
 
 def database_init():
+    models.DB.drop_all()
     models.DB.create_all()
     models.DB.session.commit()
 
@@ -44,26 +45,21 @@ users = ["Nick", "Jason", "Mitchell", "George", "Navado"]
 NEW_CARDS = 'new cards'
 CARDS = 'cards'
 
-SAMPLE_JOINED_ROOMS_LIST = [
-    {
-        "roomName": "not necessarily unique",
-        "roomId": 0
-        
-    },
-    {
-        "roomName": "Insert creative name here",
-        "roomId": 2
-    }]
-
 SAMPLE_MESSAGES = []
 
 def emit_joined_rooms(client_room):
-    # TODO Get this list of rooms the user has joineed already from the database
-    roomList = SAMPLE_JOINED_ROOMS_LIST
+    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=client_room).first()
+    room_id_list = models.DB.session.query(models.JoinedRooms.room).filter_by(user=user_id).all()
+    room_list = []
+    for room_id in room_id_list:
+        room_list.append({
+            'roomName': models.DB.session.query(models.Rooms.name).filter_by(id=room_id).first(),
+            'roomId': room_id
+        })
     socketio.emit(
         "updated room list",
         {
-            "rooms": roomList
+            "rooms": room_list
         },
         room=client_room,
     )
@@ -126,7 +122,14 @@ def on_disconnect():
 @socketio.on("new room creation request")
 def on_new_room_creation(data):
     print("received a new room creation request: {}".format(data["roomName"]))
-    #TODO Add new room to the databse and set the sender 
+    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=request.sid).first()
+    new_room = models.Rooms(user_id, data['roomName'])
+    models.DB.session.add(new_room)
+    models.DB.session.commit()
+    models.DB.session.refresh(new_room)
+    models.DB.session.add(models.JoinedRooms(user_id, new_room.id))
+    models.DB.session.commit()
+    print("created new room:\n\t{}".format(new_room))
     emit_joined_rooms(request.sid)
     emit_all_users(USERS_RECEIVED_CHANNEL)
 
@@ -134,8 +137,10 @@ def on_new_room_creation(data):
 @socketio.on("join room request")
 def on_join_room_request(data):
     print("received a request to join room {} with this password: {}".format(data["roomId"], data["roomPassword"]))
-    #TODO Check the database to verify that the roomId and roomPassword are a valid pair
-    #TODO If the pair is valid, update the database to reflect that the user associated with request has joineed the room
+    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=request.sid).first()
+    room = models.DB.session.query(models.Rooms).filter_by(id=data['roomId'], password=data['roomPassword']).first()
+    if room:
+        models.DB.session.add(models.JoinedRooms(user_id, room.id))
     emit_joined_rooms(request.sid)
     emit_all_users(USERS_RECEIVED_CHANNEL)
 
@@ -163,6 +168,10 @@ def accept_google_login(data):
 
 @socketio.on("room entry request")
 def on_room_entry_request(data):
+    print(data)
+    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=request.sid).first()
+    models.DB.session.add(models.EnteredRooms(user_id, data['roomId']))
+    models.DB.session.commit()
     socketio.emit(
         "room entry accepted",
         room=request.sid
@@ -174,6 +183,9 @@ def on_room_entry_request(data):
 
 @socketio.on("leave room")
 def accept_room_departure(data):
+    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=request.sid).first()
+    models.DB.session.query(models.EnteredRooms).filter_by(user=user_id).delete()
+    models.DB.session.commit()
     socketio.emit(
         "left room",
         room=request.sid,
