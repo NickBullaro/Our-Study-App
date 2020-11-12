@@ -47,25 +47,10 @@ class AuthUser(DB.Model):
         self.username = name
         self.email = email
         self.picUrl = pic
+        
 class AuthUserType(Enum):
     GOOGLE = "google"
     FACEBOOK = "facebook"
-
-
-class Flashcards(DB.Model):
-    id = DB.Column(DB.Integer, primary_key=True)
-    question = DB.Column(DB.String(120))
-    answer = DB.Column(DB.String(120))
-    # room = DB.Column(DB.String(120), DB.ForeignKey('rooms.room'), nullable=False)
-
-    def __init__(self, question, answer):
-        self.answer = answer
-        self.question = question
-
-    def __repr__(self):
-        return "<card> question: {} answer: {} </card>\n".format(
-            self.question, self.answer
-        )
 
 def GenerateCharacterPin(pin_length):
     pin = ''
@@ -86,6 +71,22 @@ class Rooms(DB.Model):
     
     def __repr__(self):
         return "{} (id: {} password: {}), created by {}".format(self.name, self.id, self.password, self.creator)
+
+class Flashcards(DB.Model):
+    id = DB.Column(DB.Integer, primary_key=True)
+    question = DB.Column(DB.String(120))
+    answer = DB.Column(DB.String(120))
+    room = DB.Column(DB.Integer, DB.ForeignKey(Rooms.id), nullable=False)
+
+    def __init__(self, question, answer, room):
+        self.answer = answer
+        self.question = question
+        self.room = room
+
+    def __repr__(self):
+        return "<card> question: {} answer: {} </card>\n".format(
+            self.question, self.answer
+        )
 
 class CurrentConnections(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True)
