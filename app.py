@@ -40,7 +40,7 @@ socketio.init_app(APP, cors_allowed_origins="*")
 username_sid_dict = {}
 
 USERS_RECEIVED_CHANNEL = "users received"
-users = ["Nick", "Jason", "Mitchell", "George", "Navado"]
+testUsers = ["Nick", "Jason", "Mitchell", "George", "Navado"]
 
 NEW_CARDS = "new cards"
 CARDS = "cards"
@@ -111,8 +111,9 @@ def emit_room_history(room_id):
     socketio.emit("sending room data", data, room=room_id)
 
 
-def emit_all_users(channel):
-    all_users = users
+def emit_all_users(channel, roomID):
+    all_users = models.DB.session.query(models.EnteredRooms.user).filter_by(room=roomID).all()
+    print("users: ", all_users)
     socketio.emit(channel, {"all_users": all_users})
 
 def clear_non_persistent_tables():
@@ -146,6 +147,10 @@ def on_disconnect():
         # Remove the user from any rooms they are currently in
         models.DB.session.query(models.EnteredRooms).filter_by(user=disconnected_user.user).delete()
         models.DB.session.commit()
+        # Update the room memebers for anyone still in the room
+        user_room = get_room(request.sid)
+        print("user room: ", user_room)
+        emit_all_users(USERS_RECEIVED_CHANNEL, user_room)
         # get the disconnected user's username
         disconnected_username = models.AuthUser.query.filter_by(id=disconnected_user.user).first().username
     else:
@@ -168,7 +173,7 @@ def on_new_room_creation(data):
     models.DB.session.commit()
     print("created new room:\n\t{}".format(new_room))
     emit_joined_rooms(request.sid)
-    emit_all_users(USERS_RECEIVED_CHANNEL)
+    emit_all_users(USERS_RECEIVED_CHANNEL, new_room.id)
 
 
 @socketio.on("join room request")
@@ -183,7 +188,7 @@ def on_join_room_request(data):
     if room:
         models.DB.session.add(models.JoinedRooms(user_id, room.id))
     emit_joined_rooms(request.sid)
-    emit_all_users(USERS_RECEIVED_CHANNEL)
+    emit_all_users(USERS_RECEIVED_CHANNEL, room.id)
 
 
 @socketio.on("new google user login")
@@ -207,7 +212,6 @@ def accept_google_login(data):
     models.DB.session.commit()
     print("{} logged in".format(user.username))
     emit_joined_rooms(request.sid)
-    emit_all_users(USERS_RECEIVED_CHANNEL)
 
 
 @socketio.on("room entry request")
@@ -220,7 +224,7 @@ def on_room_entry_request(data):
     flask_socketio.join_room(str(data['roomId']))
     print("room entry accepted")
     emit_room_history(request.sid)
-    emit_all_users(USERS_RECEIVED_CHANNEL)
+    emit_all_users(USERS_RECEIVED_CHANNEL, data['roomId'])
 
 
 @socketio.on("leave room")
@@ -236,7 +240,7 @@ def accept_room_departure(data):
     flask_socketio.leave_room(str(room_id))
     print("user {} left room {}".format(user_id, room_id))
     emit_joined_rooms(request.sid)
-    emit_all_users(USERS_RECEIVED_CHANNEL)
+    emit_all_users(USERS_RECEIVED_CHANNEL, room_id)
 
 
 @socketio.on("new message input")
@@ -245,7 +249,6 @@ def on_new_message(data):
     SAMPLE_MESSAGES.append(data["message"])
     room_id = request.sid  # TODO: get room_id from the sender request.sid
     emit_all_messages(room_id)
-    emit_all_users(USERS_RECEIVED_CHANNEL)
 
 
 @socketio.on(NEW_CARDS)
@@ -268,7 +271,6 @@ def new_cards(data):
 
     models.DB.session.commit()
     emit_flashcards(room)
-    emit_all_users(USERS_RECEIVED_CHANNEL)
 
 
 @socketio.on("drawing stroke input")
