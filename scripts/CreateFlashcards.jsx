@@ -23,7 +23,7 @@ export default function CreateFlashcards({ cards }) {
 
   function handleAdd() {
     const values = [...fields];
-    values.push({ question: null, answer: null });
+    values.push({ question: '', answer: '' });
     setFields(values);
   }
 
