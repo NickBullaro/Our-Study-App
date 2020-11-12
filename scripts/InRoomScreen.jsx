@@ -39,10 +39,10 @@ function InRoomScreen() {
             users.map((user, index) => <li key={index}>{user}</li>)
         }
         </ul>
-
+        <div id="flashcards">
           <Flashcards />
-    
-          <button onClick={fakeRoomLeave} type="submit">FakeLeaveRoom</button>
+        </div>
+      <button onClick={fakeRoomLeave} type="submit">FakeLeaveRoom</button>
     </div>
   );
 }
