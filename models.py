@@ -16,14 +16,12 @@ class Messages(DB.Model):
     message = DB.Column(DB.Text, nullable=False)
     room = DB.Column(DB.String(120))
     sid = DB.Column(DB.String(120))
-    pic_url = DB.Column(DB.Text)
 
     def __init__(self, user, message):
         self.sid = user["sid"]
         self.username = user["username"]
         self.room = user["room"]
         self.message = message
-        self.pic_url = user["profilePic"]
 
     def __repr__(self):
         return {
