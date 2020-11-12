@@ -48,8 +48,13 @@ CARDS = 'cards'
 SAMPLE_MESSAGES = []
 
 def emit_joined_rooms(client_room):
+    '''
+    Takes in a clients personal room sid and uses it to identify the user in the database. It then checks
+    the database to see which rooms the user has joined and emits that as a list to rhe client_room
+    '''
     user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=client_room).first()
     room_id_list = models.DB.session.query(models.JoinedRooms.room).filter_by(user=user_id).all()
+    models.DB.session.commit()
     room_list = []
     for room_id in room_id_list:
         room_list.append({
@@ -65,7 +70,17 @@ def emit_joined_rooms(client_room):
     )
 
 def get_room(client_sid):
-    return client_sid
+    '''
+    Takes in the a client's personal room sid and returns the room id of the room the client is 
+    currently in. If the client is not currently in any rooms, this just returns the client's \
+    personal sid
+    '''
+    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=client_sid).first()
+    entered_room = models.DB.session.query(models.EnteredRooms.room).filter_by(user=user_id).first()
+    if entered_room:
+        return str(entered_room[0])
+    else:
+        return client_sid
     
 def emit_flashcards(room):
     '''Emit all the flashcards for a specific room'''
@@ -76,8 +91,9 @@ def emit_flashcards(room):
         card_dict['question'] = card.question
         card_dict['answer'] = card.answer
         cards.append(card_dict)
-        
-    socketio.emit(CARDS, cards)
+    
+    print("emitting flash cards to room {}".format(room))
+    socketio.emit(CARDS, cards, room=room)
     
 def emit_all_messages(room_id):
     # TODO properly load the messages realted to the room from the database
@@ -153,9 +169,12 @@ def accept_google_login(data):
     )
     user = models.DB.session.query(models.AuthUser).filter_by(auth_type=models.AuthUserType.GOOGLE.value, email=data['email']).first()
     if not user:
+        print('adding new user')
         models.DB.session.add(models.AuthUser(models.AuthUserType.GOOGLE, data['user'], data['email'], data['pic']))
-        user = models.DB.session.query(models.AuthUser.id).filter_by(auth_type=models.AuthUserType.GOOGLE.value, email=data['email']).first()
+        models.DB.session.commit()
+        user = models.DB.session.query(models.AuthUser).filter_by(auth_type=models.AuthUserType.GOOGLE.value, email=data['email']).first()
     else:
+        print('updating existing user')
         user.username = data['user']
         user.picUrl = data['pic']
     connection = models.DB.session.query(models.CurrentConnections).filter_by(sid=request.sid).first()
@@ -176,6 +195,7 @@ def on_room_entry_request(data):
         "room entry accepted",
         room=request.sid
     )
+    flask_socketio.join_room(str(data['roomId']))
     print("room entry accepted")
     emit_room_history(request.sid)
     emit_all_users(USERS_RECEIVED_CHANNEL)
@@ -183,13 +203,16 @@ def on_room_entry_request(data):
 
 @socketio.on("leave room")
 def accept_room_departure(data):
-    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=request.sid).first()
+    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=request.sid).first()[0]
+    room_id = models.DB.session.query(models.EnteredRooms.room).filter_by(user=user_id).first()[0]
     models.DB.session.query(models.EnteredRooms).filter_by(user=user_id).delete()
     models.DB.session.commit()
     socketio.emit(
         "left room",
         room=request.sid,
     )
+    flask_socketio.leave_room(str(room_id))
+    print("user {} left room {}".format(user_id, room_id))
     emit_joined_rooms(request.sid)
     emit_all_users(USERS_RECEIVED_CHANNEL)
 
