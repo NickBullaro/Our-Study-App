@@ -23,17 +23,17 @@ function JoinedRoomsList() {
   setup();
 
   return (
-    <div id="joinedRoomList">
-      <ul>
-        {roomsList.map((room, index) => (
-          <li key={index} className="RoomListElement">
-            <p className="RoomListName">{room.roomName}</p>
-            <button className="RoomListButton" onClick={(event) => enterRoom(room.roomId[0])} type="submit">Enter room</button>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
+      <div id="roomlist_container">
+     <div id="joinedRoomList">
+       {roomsList.map((room, index) => (
+         <div key={index} className="RoomListElement">
+           <p className="RoomListName">{room.roomName}</p>
+           <button className="RoomListButton" onClick={(event) => enterRoom(room.roomId)} type="submit">Enter room</button>
+         </div>
+       ))}
+     </div>
+     </div>
+    );
+  }
 
 export default JoinedRoomsList;

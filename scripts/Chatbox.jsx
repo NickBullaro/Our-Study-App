@@ -15,7 +15,7 @@ function Chatbox() {
     });
 
     React.useEffect(() => {
-      Socket.on('sending message history', (data) => {
+      Socket.on('sending message history',(data) => {
         setMessages(data.allMessages);
         const chatBox = document.getElementById('chatbox');
         chatBox.scrollTop = chatBox.scrollHeight;
@@ -27,9 +27,8 @@ function Chatbox() {
 
   return (
     <div>
-      <h3>HI</h3>
+      <h3>Chatbox</h3>
       <div className="userList">
-        <h1>Messages!</h1>
         <ul id="chatbox">
           {
             messages.map((message, index) => <li key={index}>{message}</li>)

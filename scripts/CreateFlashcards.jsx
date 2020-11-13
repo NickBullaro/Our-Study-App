@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 import PropTypes from 'prop-types';
 import Socket from './Socket';
 import Flashcards from './Flashcards';
@@ -44,34 +43,34 @@ export default function CreateFlashcards({ cards }) {
       ? <Flashcards />
       : (
         <div>
-            {fields.map((field, idx) => (
-              <div key={`${field+idx}`} className="form-row">
+          {fields.map((field, idx) => (
+            <div key={`${field + idx}`} className="form-row">
 
-                <div className="col-5">
-                  <input type="text" className="question" placeholder="Enter question" value={field.question} onChange={(e) => handleQuestion(idx, e)} />
-                </div>
-                <div className="col-5">
-                  <input type="text" className="answer" placeholder="Enter answer" value={field.answer} onChange={e => handleAnswer(idx, e)} />
-                </div>
-          
-                  <button type="button" onClick={() => handleRemove(idx)}>X</button>
-
+              <div className="col-5">
+                <input type="text" className="question" placeholder="Enter question" value={field.question} onChange={(e) => handleQuestion(idx, e)} />
               </div>
-            ))}
+              <div className="col-5">
+                <input type="text" className="answer" placeholder="Enter answer" value={field.answer} onChange={(e) => handleAnswer(idx, e)} />
+              </div>
 
-            <div className="row">
-              <span>
-                <button type="button" id="addCard" onClick={handleAdd}>Add Card</button>
-              </span>
+              <button type="button" onClick={() => handleRemove(idx)}>X</button>
 
             </div>
+          ))}
 
-            <input type="button" value="Done" onClick={handleSubmit} />
-            
+          <div className="row">
+            <span>
+              <button type="button" id="addCard" onClick={handleAdd}>Add Card</button>
+            </span>
+
           </div>
-      
-  )
-  
+
+          <input type="button" value="Done" onClick={handleSubmit} />
+
+        </div>
+
+      )
+
   );
 }
 

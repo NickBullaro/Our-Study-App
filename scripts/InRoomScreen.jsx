@@ -30,19 +30,19 @@ function InRoomScreen() {
 
   return (
     <div id="inRoomScreen">
-      <p>Insert room HTML and components here</p>
       <WhiteboardButton />
-      <p>Chatbox</p>
+      <div className="inRoom_chat_usr_container">
         <Chatbox />
-        <ul className="userLis">
+        <ul className="userListing">
           {
             users.map((user, index) => <li key={index}>{user}</li>)
         }
         </ul>
-
+      </div>
+        <div id="flashcards">
           <Flashcards />
-    
-          <button onClick={fakeRoomLeave} type="submit">FakeLeaveRoom</button>
+        </div>
+      <button onClick={fakeRoomLeave} type="submit">FakeLeaveRoom</button>
     </div>
   );
 }

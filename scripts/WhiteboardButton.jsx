@@ -9,7 +9,7 @@ function WhiteboardButton() {
   }
 
   return (
-    <div id="whiteboard componant">
+    <div id="whiteboard_component">
       <button type="button" onClick={switchDisplay}> Whiteboard </button>
       {
        display

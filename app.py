@@ -113,7 +113,10 @@ def emit_room_history(room_id):
 
 
 def emit_all_users(channel, roomID):
-    all_users = models.DB.session.query(models.EnteredRooms.user).filter_by(room=roomID).all()
+    all_user_ids = models.DB.session.query(models.EnteredRooms.user).filter_by(room=roomID).all()
+    all_users = []
+    for i in all_user_ids:
+        all_users.append(models.DB.session.query(models.AuthUser.username).filter_by(id=i).first()[0])
     print("users: ", all_users)
     socketio.emit(channel, {"all_users": all_users})
 
@@ -147,7 +150,6 @@ def on_disconnect():
     elif disconnected_user.user is not None:
         # Remove the user from any rooms they are currently in
         user_room = get_room(request.sid)
-        print("user room: ", user_room)
         models.DB.session.query(models.EnteredRooms).filter_by(user=disconnected_user.user).delete()
         models.DB.session.commit()
         # Update the room memebers for anyone still in the room
