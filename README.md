@@ -33,7 +33,8 @@
     * 
 
 2. Mitchell Mecca: 
-    * 
+    * Create skeleton of webapp
+    * Whiteboard component
 
 3. Nick Bullaro: 
     * Handle Google Auth
