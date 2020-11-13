@@ -33,7 +33,8 @@
     * 
 
 2. Mitchell Mecca: 
-    * 
+    * Create skeleton of webapp
+    * Whiteboard component
 
 3. Nick Bullaro: 
     * Handle Google Auth
@@ -42,7 +43,9 @@
     * 
 
 4. Navado Wray: 
-    * 
+    * Create Flashcard component
+    * Create Flashcard DB Model
+    * Ablility to edit flashcards (add/delete/modify)
 
 5. George Alvarado: 
     * 
