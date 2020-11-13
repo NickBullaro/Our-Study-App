@@ -1,3 +1,6 @@
+# Heroku Link: 'https://your-study.herokuapp.com'
+
+
 # Contributors
 
 - Jason Molisani
@@ -5,6 +8,7 @@
 - Nick Bullaro
 - Navado Wray
 - George Alvarado
+
 
 # Getting Up and Running (do this once)
 1. Clone this repository and navigate to the root folder within the terminal
@@ -17,6 +21,30 @@
 4. Prep the resetup script:
    - `chmod 764 restart.sh`
 
+
 # Getting Back Up and Running Locally (Do this every time other than the first)
 1. In one terminal, navigate to the repository's root folder and execute `./restart.sh`
 2. Leaving that running, open a second terminal, navigate to the root folder (again) and start the app with `python app.py`
+
+
+# Individualized Information
+
+1. Jason Molisani: 
+    * 
+
+2. Mitchell Mecca: 
+    * Create skeleton of webapp
+    * Whiteboard component
+
+3. Nick Bullaro: 
+    * Handle Google Auth
+    * Create Chatbox component
+    * Create User List component
+    * 
+
+4. Navado Wray: 
+    * 
+
+5. George Alvarado: 
+    * 
+
