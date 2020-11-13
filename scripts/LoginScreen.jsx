@@ -4,7 +4,8 @@ import GoogleButton from './GoogleButton';
 function LoginScreen() {
   return (
     <div id="loginScreen">
-      <h1>Sign in with Google to continue!</h1>
+     <h1>Chatbox</h1>
+      <h2>Sign in with Google to continue!</h2>
       <GoogleButton />
     </div>
   );

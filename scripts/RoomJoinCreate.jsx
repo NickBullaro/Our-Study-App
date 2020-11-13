@@ -39,21 +39,24 @@ function RoomJoinCreate() {
 
   return (
     <div id="roomJoinCreateButtons">
-      <button onClick={switchToCreate} type="submit">Create a new Room</button>
-      <button onClick={switchToJoin} type="submit">Join an existing room</button>
+      <div id="main_buttons_container">
+      <button id="start_create" onClick={switchToCreate} type="submit">Create Room</button>
+      <button id="start_join" onClick={switchToJoin} type="submit">Join Room</button>
+      </div>
       {
         createRoom
-          ? (
+          ?
+          (
             <form onSubmit={createNewRoom} id="createRoomForm">
               <input id="create_input" placeholder="Enter room name here" />
-              <button id="create_room_button" type="submit">Create New Room</button>
+              <button id="create_room_button" type="submit">Create</button>
             </form>
           )
           : (
             <form onSubmit={joinExistingRoom} id="joinRoomForm">
               <input id="join_room_id_input" placeholder="Enter room id here" />
               <input id="join_room_password_input" placeholder="Enter room password here" />
-              <button id="join_room_button" type="submit">Join Room</button>
+              <button id="join_room_button" type="submit">Join</button>
             </form>
           )
       }
