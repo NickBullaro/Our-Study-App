@@ -286,8 +286,8 @@ def new_cards(data):
 
 @socketio.on("drawing stroke input")
 def on_drawing_stroke(data):
-    room_id = request.sid
-    socketio.emit("drawing stroke output", data)
+    room_id = get_room(request.sid)
+    socketio.emit("drawing stroke output", data, room=room_id)
 
 
 @APP.route("/")
