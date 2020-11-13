@@ -43,7 +43,9 @@
     * 
 
 4. Navado Wray: 
-    * 
+    * Create Flashcard component
+    * Create Flashcard DB Model
+    * Ablility to edit flashcards (add/delete/modify)
 
 5. George Alvarado: 
     * 
