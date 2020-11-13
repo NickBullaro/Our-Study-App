@@ -148,7 +148,7 @@ def on_disconnect():
         # Remove the user from any rooms they are currently in
         models.DB.session.query(models.EnteredRooms).filter_by(user=disconnected_user.user).delete()
         models.DB.session.commit()
-        # Update the room memebers for anyone still in the room
+        # Update the room members for anyone still in the room
         user_room = get_room(request.sid)
         print("user room: ", user_room)
         emit_all_users(USERS_RECEIVED_CHANNEL, user_room)
