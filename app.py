@@ -133,7 +133,7 @@ def clear_non_persistent_tables():
 @socketio.on("connect")
 def on_connect():
     print("Someone connected!")
-    models.DB.session.add(models.CurrentConnections(request.sid, None))
+    models.DB.session.add(models.CurrentConnections(flask.request.sid, None))
     models.DB.session.commit()
 
 

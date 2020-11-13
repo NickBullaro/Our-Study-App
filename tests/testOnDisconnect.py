@@ -18,7 +18,7 @@ class mockMockDBQuery():
         self.db = mock_db_dict
 
 class testOnDisconnect(unittest.TestCase):
-    def setup(self):
+    def setUp(self):
         self.test_on_disconnect_params = [
             {
                 KEY_INPUT: 
