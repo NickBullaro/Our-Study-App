@@ -48,5 +48,7 @@
     * Ablility to edit flashcards (add/delete/modify)
 
 5. George Alvarado: 
-    * 
+    * Created all HTML functions
+    * Created all CSS functionns 
+    
 
