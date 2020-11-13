@@ -4,7 +4,6 @@ Main module for the app
 """
 import os
 from dotenv import load_dotenv
-from flask import request
 import flask
 import flask_socketio
 import models
@@ -143,13 +142,13 @@ def on_disconnect():
     When a user disconnects, make sure they are removed from any rooms that they had entered and 
     stop associating the user with that connection
     '''
-    disconnected_user = models.CurrentConnections.query.filter_by(sid=request.sid).first()
+    disconnected_user = models.CurrentConnections.query.filter_by(sid=flask.request.sid).first()
     if not disconnected_user:
         print("Database error on disconnect")
         return
     elif disconnected_user.user is not None:
         # Remove the user from any rooms they are currently in
-        user_room = get_room(request.sid)
+        user_room = get_room(flask.request.sid)
         models.DB.session.query(models.EnteredRooms).filter_by(user=disconnected_user.user).delete()
         models.DB.session.commit()
         # Update the room members for anyone still in the room
@@ -167,7 +166,7 @@ def on_disconnect():
 @socketio.on("new room creation request")
 def on_new_room_creation(data):
     print("received a new room creation request: {}".format(data["roomName"]))
-    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=request.sid).first()
+    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=flask.request.sid).first()
     new_room = models.Rooms(user_id, data['roomName'])
     models.DB.session.add(new_room)
     models.DB.session.commit()
@@ -175,7 +174,7 @@ def on_new_room_creation(data):
     models.DB.session.add(models.JoinedRooms(user_id, new_room.id))
     models.DB.session.commit()
     print("created new room:\n\t{}".format(new_room))
-    emit_joined_rooms(request.sid)
+    emit_joined_rooms(flask.request.sid)
     emit_all_users(USERS_RECEIVED_CHANNEL, new_room.id)
     emit_all_messages(new_room.id)
 
@@ -187,11 +186,11 @@ def on_join_room_request(data):
             data["roomId"], data["roomPassword"]
         )
     )
-    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=request.sid).first()
+    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=flask.request.sid).first()
     room = models.DB.session.query(models.Rooms).filter_by(id=data['roomId'], password=data['roomPassword']).first()
     if room:
         models.DB.session.add(models.JoinedRooms(user_id, room.id))
-    emit_joined_rooms(request.sid)
+    emit_joined_rooms(flask.request.sid)
     emit_all_users(USERS_RECEIVED_CHANNEL, room.id)
     emit_all_messages(room.id)
 
@@ -200,7 +199,7 @@ def on_join_room_request(data):
 def accept_google_login(data):
     socketio.emit(
         "login accepted",
-        room=request.sid
+        room=flask.request.sid
     )
     user = models.DB.session.query(models.AuthUser).filter_by(auth_type=models.AuthUserType.GOOGLE.value, email=data['email']).first()
     if not user:
@@ -212,40 +211,40 @@ def accept_google_login(data):
         print('updating existing user')
         user.username = data['user']
         user.picUrl = data['pic']
-    connection = models.DB.session.query(models.CurrentConnections).filter_by(sid=request.sid).first()
+    connection = models.DB.session.query(models.CurrentConnections).filter_by(sid=flask.request.sid).first()
     connection.user = user.id
     models.DB.session.commit()
     print("{} logged in".format(user.username))
-    emit_joined_rooms(request.sid)
+    emit_joined_rooms(flask.request.sid)
 
 
 @socketio.on("room entry request")
 def on_room_entry_request(data):
     print(data)
-    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=request.sid).first()
+    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=flask.request.sid).first()
     models.DB.session.add(models.EnteredRooms(user_id, data['roomId']))
     models.DB.session.commit()
-    socketio.emit("room entry accepted", room=request.sid)
+    socketio.emit("room entry accepted", room=flask.request.sid)
     flask_socketio.join_room(str(data['roomId']))
     print("room entry accepted")
-    emit_room_history(request.sid)
+    emit_room_history(flask.request.sid)
     emit_all_users(USERS_RECEIVED_CHANNEL, data['roomId'])
-    emit_all_messages(get_room(request.sid))
+    emit_all_messages(get_room(flask.request.sid))
 
 
 @socketio.on("leave room")
 def accept_room_departure(data):
-    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=request.sid).first()[0]
+    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=flask.request.sid).first()[0]
     room_id = models.DB.session.query(models.EnteredRooms.room).filter_by(user=user_id).first()[0]
     models.DB.session.query(models.EnteredRooms).filter_by(user=user_id).delete()
     models.DB.session.commit()
     socketio.emit(
         "left room",
-        room=request.sid,
+        room=flask.request.sid,
     )
     flask_socketio.leave_room(str(room_id))
     print("user {} left room {}".format(user_id, room_id))
-    emit_joined_rooms(request.sid)
+    emit_joined_rooms(flask.request.sid)
     emit_all_users(USERS_RECEIVED_CHANNEL, room_id)
 
 
@@ -253,13 +252,13 @@ def accept_room_departure(data):
 def on_new_message(data):
     print("Got an event for new message input with data:", data)
     user = {}
-    user["sid"] = request.sid
-    user["room"] = get_room(request.sid)  # TODO: get room_id from the sender request.sid
-    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=request.sid).first()[0]
+    user["sid"] = flask.request.sid
+    user["room"] = get_room(flask.request.sid)  # TODO: get room_id from the sender request.sid
+    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=flask.request.sid).first()[0]
     user["username"] = models.DB.session.query(models.AuthUser.username).filter_by(id=user_id).first()[0]
     models.DB.session.add(models.Messages(user, user['username'] + ": " + data['message']))
     models.DB.session.commit()
-    emit_all_messages(get_room(request.sid))
+    emit_all_messages(get_room(flask.request.sid))
 
 
 @socketio.on(NEW_CARDS)
@@ -269,7 +268,7 @@ def new_cards(data):
     """
 
     print("New cards:", data)
-    room = get_room(request.sid)
+    room = get_room(flask.request.sid)
 
     models.DB.session.query(models.Flashcards).delete()
     models.DB.session.commit()
@@ -286,7 +285,7 @@ def new_cards(data):
 
 @socketio.on("drawing stroke input")
 def on_drawing_stroke(data):
-    room_id = get_room(request.sid)
+    room_id = get_room(flask.request.sid)
     socketio.emit("drawing stroke output", data, room=room_id)
 
 
