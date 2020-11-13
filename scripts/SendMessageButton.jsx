@@ -17,7 +17,7 @@ function SendMessageButton() {
   return (
     <form onSubmit={handleSubmit} className="submitButton">
       <input id="message_input" placeholder="Enter a message" className="input" autoComplete="off" />
-      <button className="addButton" type="submit">Chat!</button>
+      <button className="addButton" type="submit">Send</button>
     </form>
   );
 }

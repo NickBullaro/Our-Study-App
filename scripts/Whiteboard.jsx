@@ -61,8 +61,8 @@ function Whiteboard() {
       canvas.addEventListener('mousedown', startDraw, false);
       canvas.addEventListener('mousemove', draw, false);
       canvas.addEventListener('mouseup', endDraw, false);
-      canvas.height = 500;
-      canvas.width = 500;
+      canvas.height = 400;
+      canvas.width = 400;
       setListersOff(false);
     }
     const context = canvas.getContext('2d');
@@ -73,7 +73,7 @@ function Whiteboard() {
     context.stroke();
   }, [doDraw]);
   return (
-    <div id="whiteboard componant">
+    <div id="whiteboard_component">
       <canvas ref={canvasRef} />
       <form onChange={changeColor}>
         <label htmlFor="black">
