@@ -133,7 +133,7 @@ def clear_non_persistent_tables():
 @socketio.on("connect")
 def on_connect():
     print("Someone connected!")
-    models.DB.session.add(models.CurrentConnections(request.sid, None))
+    models.DB.session.add(models.CurrentConnections(flask.request.sid, None))
     models.DB.session.commit()
 
 
@@ -152,7 +152,7 @@ def on_disconnect():
         user_room = get_room(request.sid)
         models.DB.session.query(models.EnteredRooms).filter_by(user=disconnected_user.user).delete()
         models.DB.session.commit()
-        # Update the room memebers for anyone still in the room
+        # Update the room members for anyone still in the room
         emit_all_users(USERS_RECEIVED_CHANNEL, user_room)
         # get the disconnected user's username
         disconnected_username = models.AuthUser.query.filter_by(id=disconnected_user.user).first().username

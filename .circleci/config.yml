@@ -18,6 +18,9 @@ jobs:
       - run:
           command: python ./tests/mocked-unit-tests.py
           name: MockedTest
+      - run:
+          command: python ./tests/testOnConnect.py
+          name: TestOnConnect
 
 workflows:
   main:
