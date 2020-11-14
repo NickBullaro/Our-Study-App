@@ -142,7 +142,7 @@ def on_disconnect():
     When a user disconnects, make sure they are removed from any rooms that they had entered and 
     stop associating the user with that connection
     '''
-    disconnected_user = models.CurrentConnections.query.filter_by(sid=flask.request.sid).first()
+    disconnected_user = models.DB.session.query(models.CurrentConnections).filter_by(sid=flask.request.sid).first()
     if not disconnected_user:
         print("Database error on disconnect")
         return
@@ -154,7 +154,7 @@ def on_disconnect():
         # Update the room members for anyone still in the room
         emit_all_users(USERS_RECEIVED_CHANNEL, user_room)
         # get the disconnected user's username
-        disconnected_username = models.AuthUser.query.filter_by(id=disconnected_user.user).first().username
+        disconnected_username = models.DB.session.query(models.AuthUser).filter_by(id=disconnected_user.user).first().username
     else:
         disconnected_username = 'unlogged-in user'
     print("{} disconnected!".format(disconnected_username))
@@ -255,7 +255,7 @@ def on_new_message(data):
     user["sid"] = flask.request.sid
     user["room"] = get_room(flask.request.sid)  # TODO: get room_id from the sender request.sid
     user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=flask.request.sid).first()[0]
-    user["username"] = models.DB.session.query(models.AuthUser.username).filter_by(id=user_id).first()[0]
+    user["username"] = models.DB.session.query(models.AuthUser.username).filter_by(id=user_id).first()[0] 
     models.DB.session.add(models.Messages(user, user['username'] + ": " + data['message']))
     models.DB.session.commit()
     emit_all_messages(get_room(flask.request.sid))

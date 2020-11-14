@@ -30,7 +30,25 @@
 # Individualized Information
 
 1. Jason Molisani: 
-    * 
+    * Updated code skeleton to implement react and switch between 3 screens
+      * Main
+      * Content
+      * InRoomScreen
+      * LoggedInContent
+      * LoginScreen
+      * Main
+      * RoomSelectionScreen
+      * Socket
+    * Added room functionality and all related databases and components
+      * Rooms DB
+      * CurrentConnections DB
+      * EnteredRooms DB
+      * JoinedRooms DB
+      * JoinedRoomsList
+      * RoomJoinCreate
+    * Set up tests
+      * OnConnect
+      * OnDisconnect
 
 2. Mitchell Mecca: 
     * Create skeleton of webapp
