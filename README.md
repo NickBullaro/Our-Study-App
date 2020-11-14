@@ -30,7 +30,8 @@
 # Individualized Information
 
 1. Jason Molisani: 
-    * 
+    * Create Room making component
+    * Create Room joining component
 
 2. Mitchell Mecca: 
     * Create skeleton of webapp
