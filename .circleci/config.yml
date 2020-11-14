@@ -20,7 +20,10 @@ jobs:
           name: MockedTest
       - run:
           command: python ./tests/testOnConnect.py
-          name: TestOnConnect
+          name: Test_OnConnect()
+      - run:
+          command: python ./tests/testOnDisconnect.py
+          name: Test_OnDisconnect()
 
 workflows:
   main:
