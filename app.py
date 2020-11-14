@@ -267,7 +267,7 @@ def new_cards(data):
     """
 
     print("New cards:", data)
-    room = get_room(request.sid)
+    room = get_room(flask.request.sid)
 
     models.Flashcards.query.delete()
     models.DB.session.commit()
