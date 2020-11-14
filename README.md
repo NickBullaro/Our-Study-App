@@ -30,7 +30,25 @@
 # Individualized Information
 
 1. Jason Molisani: 
-    * 
+    * Updated code skeleton to implement react and switch between 3 screens
+      * Main
+      * Content
+      * InRoomScreen
+      * LoggedInContent
+      * LoginScreen
+      * Main
+      * RoomSelectionScreen
+      * Socket
+    * Added room functionality and all related databases and components
+      * Rooms DB
+      * CurrentConnections DB
+      * EnteredRooms DB
+      * JoinedRooms DB
+      * JoinedRoomsList
+      * RoomJoinCreate
+    * Set up tests
+      * OnConnect
+      * OnDisconnect
 
 2. Mitchell Mecca: 
     * Create skeleton of webapp
@@ -43,8 +61,12 @@
     * 
 
 4. Navado Wray: 
-    * 
+    * Create Flashcard component
+    * Create Flashcard DB Model
+    * Ablility to edit flashcards (add/delete/modify)
 
 5. George Alvarado: 
-    * 
+    * Created all HTML functions
+    * Created all CSS functionns 
+    
 
