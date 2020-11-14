@@ -82,9 +82,7 @@ class Flashcards(DB.Model):
         self.room = room
 
     def __repr__(self):
-        return "<card> question: {} answer: {} </card>\n".format(
-            self.question, self.answer
-        )
+        return (self.question, self.answer, self.room)
 
 class CurrentConnections(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True)
