@@ -21,6 +21,9 @@ jobs:
       - run:
           command: python ./tests/testOnConnect.py
           name: TestOnConnect
+      - run:
+          command: python ./tests/test_on_drawing_stroke.py
+          name: TestOnStroke
 
 workflows:
   main:
