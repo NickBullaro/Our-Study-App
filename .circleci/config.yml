@@ -24,6 +24,9 @@ jobs:
       - run:
           command: python ./tests/testOnDisconnect.py
           name: Test_OnDisconnect()
+      - run:
+          command: python ./tests/test_on_drawing_stroke.py
+          name: TestOnStroke()
 
 workflows:
   main:
