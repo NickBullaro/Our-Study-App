@@ -74,6 +74,15 @@ class testOnNewCards(unittest.TestCase):
                 self.assertEqual(query.answer, expected[1])  
                 self.assertEqual(query.question, expected[0])  
 
+class MockedFlashCards:
+    answer = ''
+    question = ''
+    room = ''
+    def __init__(self, question, answer, room):
+        self.answer = answer
+        self.question = question
+        self.room = room
+        
 class testEmitFlashCards(unittest.TestCase):
      def setUp(self):
         self.success_test_params = [
@@ -91,8 +100,10 @@ class testEmitFlashCards(unittest.TestCase):
         self.hold = ''
             
      def mock_emit(self, sid, data, room='default'):
-        self.hold - {KEY_EMIT_ID: sid, KEY_DATA: data, KEY_EMIT_ROOM: room}
-        
+        self.hold = {KEY_EMIT_ID: sid, KEY_DATA: data, KEY_EMIT_ROOM: room}
+    
+     def mocked_cards(self):
+         return [MockedFlashCards('question', 'answer', '123456789ABCDEF')]
      @mock.patch('app.flask')
      def test_emit_cards_success(self, mock_flash):
         session = UnifiedAlchemyMagicMock()
@@ -100,8 +111,9 @@ class testEmitFlashCards(unittest.TestCase):
             mock_flash.request.sid = test[KEY_INPUT][KEY_SID]
             
             with mock.patch("models.DB.session", session):
+                session.query(models.Flashcards).all.return_value = self.mocked_cards()
                 with mock.patch("flask_socketio.SocketIO.emit", self.mock_emit):
-                    app.emit_flashcards(test[KEY_INPUT][KEY_DATA])
+                    print(app.emit_flashcards(test[KEY_INPUT][KEY_DATA]))
         
                
 

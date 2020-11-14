@@ -84,7 +84,7 @@ def get_room(client_sid):
 
 def emit_flashcards(room):
     """Emit all the flashcards for a specific room"""
-    all_cards = models.Flashcards.query.all()
+    all_cards = models.DB.session.query(models.Flashcards).all()
     cards = []
     for card in all_cards:
         card_dict = {}
@@ -93,6 +93,8 @@ def emit_flashcards(room):
         cards.append(card_dict)
 
     socketio.emit(CARDS, cards, room=room)
+    
+    return cards
 
 def emit_all_messages(room_id):
     # TODO properly load the messages realted to the room from the database
