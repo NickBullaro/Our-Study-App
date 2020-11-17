@@ -16,12 +16,19 @@ function RoomStats() {
       
   }
   
+  function resetPassword () {
+    Socket.emit('reset password', {
+      msg: '',
+    });
+  }
+  
   setup();
 
   return (
     <div id="roomStats">
       <p>Room Id: { roomId }</p>
       <p>Room Password: { roomPassword }</p>
+      <button onClick={resetPassword} type="submit">ResetPassword</button>
     </div>
   );
 }
