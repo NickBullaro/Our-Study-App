@@ -3,6 +3,8 @@ import Socket from './Socket';
 import Flashcards from './Flashcards';
 import Chatbox from './Chatbox';
 import WhiteboardButton from './WhiteboardButton';
+import RoomStats from './RoomStats';
+
 
 function InRoomScreen() {
   const [users, setUsers] = React.useState([]);
@@ -33,6 +35,7 @@ function InRoomScreen() {
 
   return (
     <div id="inRoomScreen">
+      <RoomStats />
       <WhiteboardButton />
       <div className="inRoom_chat_usr_container">
         <Chatbox />
