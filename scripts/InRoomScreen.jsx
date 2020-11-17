@@ -6,6 +6,8 @@ import WhiteboardButton from './WhiteboardButton';
 
 function InRoomScreen() {
   const [users, setUsers] = React.useState([]);
+  const [picUrls, setUrls] = React.useState([]);
+  
   function fakeRoomLeave() {
     Socket.emit('leave room', {
       msg: '',
@@ -15,18 +17,19 @@ function InRoomScreen() {
   function updateUsers(data) {
     console.log(`Received new user: ${data.all_users}`);
     setUsers(data.all_users);
+    setUrls(data.all_user_pics);
   }
 
-  function getNewuser() {
+  function getNewUser() {
     React.useEffect(() => {
-      Socket.on('users received', updateUsers);
-      return () => {
-        Socket.off('users received', updateUsers);
-      };
+      Socket.on('users received', (data) => {
+        setUsers(data.all_users);
+        setUrls(data.all_user_pics);
+      })
     });
   }
 
-  getNewuser();
+  getNewUser();
 
   return (
     <div id="inRoomScreen">
@@ -34,9 +37,10 @@ function InRoomScreen() {
       <div className="inRoom_chat_usr_container">
         <Chatbox />
         <ul className="userListing">
+          <h1 className="UserTitle"> Users: </h1>
           {
-            users.map((user, index) => <li key={index}>{user}</li>)
-        }
+            users.map((user, index) => <li key={index}><img src={picUrls[index]} className="img"></img> {user}</li>)
+          }
         </ul>
       </div>
         <div id="flashcards">

@@ -117,10 +117,12 @@ def emit_room_history(room_id):
 def emit_all_users(channel, roomID):
     all_user_ids = models.DB.session.query(models.EnteredRooms.user).filter_by(room=roomID).all()
     all_users = []
+    all_user_pics = []
     for i in all_user_ids:
         all_users.append(models.DB.session.query(models.AuthUser.username).filter_by(id=i).first()[0])
+        all_user_pics.append(models.DB.session.query(models.AuthUser.picUrl).filter_by(id=i).first()[0])
     print("users: ", all_users)
-    socketio.emit(channel, {"all_users": all_users})
+    socketio.emit(channel, {"all_users": all_users, 'all_user_pics': all_user_pics})
 
 def clear_non_persistent_tables():
     '''
