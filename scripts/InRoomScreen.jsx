@@ -4,34 +4,16 @@ import Flashcards from './Flashcards';
 import Chatbox from './Chatbox';
 import WhiteboardButton from './WhiteboardButton';
 import RoomStats from './RoomStats';
+import UsersInRoomList from './UsersInRoomList';
 
 
 function InRoomScreen() {
-  const [users, setUsers] = React.useState([]);
-  const [picUrls, setUrls] = React.useState([]);
   
-  function fakeRoomLeave() {
+  function tempRoomLeave() {
     Socket.emit('leave room', {
       msg: '',
     });
   }
-
-  function updateUsers(data) {
-    console.log(`Received new user: ${data.all_users}`);
-    setUsers(data.all_users);
-    setUrls(data.all_user_pics);
-  }
-
-  function getNewUser() {
-    React.useEffect(() => {
-      Socket.on('users received', (data) => {
-        setUsers(data.all_users);
-        setUrls(data.all_user_pics);
-      })
-    });
-  }
-
-  getNewUser();
 
   return (
     <div id="inRoomScreen">
@@ -39,17 +21,10 @@ function InRoomScreen() {
       <WhiteboardButton />
       <div className="inRoom_chat_usr_container">
         <Chatbox />
-        <ul className="userListing">
-          <h1 className="UserTitle"> Users: </h1>
-          {
-            users.map((user, index) => <li key={index}><img src={picUrls[index]} className="img"></img> {user}</li>)
-          }
-        </ul>
+        <UsersInRoomList />
       </div>
-        <div id="flashcards">
-          <Flashcards />
-        </div>
-      <button onClick={fakeRoomLeave} type="submit">FakeLeaveRoom</button>
+      <Flashcards />
+      <button onClick={tempRoomLeave} type="submit">LeaveRoom</button>
     </div>
   );
 }
