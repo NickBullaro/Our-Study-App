@@ -8,7 +8,7 @@ function RoomStats() {
   
   function setup() {
     React.useEffect(() => {
-      Socket.on('room stats emitted', (data) => {
+      Socket.on('room stats update', (data) => {
         setRoomId(data.roomId);
         setRoomPassword(data.roomPassword);
       })

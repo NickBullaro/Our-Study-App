@@ -71,6 +71,9 @@ def get_room(client_sid):
     Takes in the a client's personal room sid and returns the room id of the room the client is 
     currently in. If the client is not currently in any rooms, this just returns the client's
     personal sid
+    
+    NOTE: This will always output a string. This matches with the socketio emits, but does not work 
+    with any database filters. Make sure to convert back to an int for database queries.
     '''
     user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=client_sid).first()
     entered_room = models.DB.session.query(models.EnteredRooms.room).filter_by(user=user_id).first()
@@ -79,7 +82,6 @@ def get_room(client_sid):
     else:
         return client_sid
     
-
 def emit_flashcards(room):
     """Emit all the flashcards for a specific room"""
     all_cards = models.DB.session.query(models.Flashcards).all()
@@ -107,7 +109,6 @@ def emit_all_messages(client_sid):
         "sending message history", {"allMessages": all_messages, 'all_user_pics': all_user_pics}, room=room_id
     )
 
-
 def emit_room_history(room_id):
 
     emit_flashcards(room_id)
@@ -127,6 +128,15 @@ def emit_all_users(channel, roomID):
     print("users: ", all_users)
     socketio.emit(channel, {"all_users": all_users, 'all_user_pics': all_user_pics})
 
+def emit_room_stats(client_sid):
+    room_id = get_room(client_sid)
+    # If the user isn't in a room, emit nothing
+    if room_id == client_sid:
+        return
+    room_password = models.DB.session.query(models.Rooms.password).filter_by(id=int(room_id)).first()[0]
+    socketio.emit("room stats update", {'roomId':room_id, 'roomPassword': room_password}, room=room_id)
+    
+
 def clear_non_persistent_tables():
     '''
     EnteredRooms and CurrentConnections are tables the server uses to track the current state of rooms. Both
@@ -135,7 +145,6 @@ def clear_non_persistent_tables():
     models.DB.session.query(models.CurrentConnections).delete()
     models.DB.session.query(models.EnteredRooms).delete()
     models.DB.session.commit()
-
 
 @socketio.on("connect")
 def on_connect():
@@ -234,6 +243,7 @@ def on_room_entry_request(data):
     emit_room_history(flask.request.sid)
     emit_all_users(USERS_RECEIVED_CHANNEL, data['roomId'])
     emit_all_messages(flask.request.sid)
+    emit_room_stats(flask.request.sid)
 
 
 @socketio.on("leave room")
@@ -250,7 +260,24 @@ def accept_room_departure():
     print("user {} left room {}".format(user_id, room_id))
     emit_joined_rooms(flask.request.sid)
     emit_all_users(USERS_RECEIVED_CHANNEL, room_id)
-
+    
+@socketio.on("reset password")
+def reset_room_password():
+    print("Received password change request")
+    client_sid = flask.request.sid
+    room_id = get_room(client_sid)
+    if client_sid == room_id:
+        print("\tPassword not changed since sender is not in a room")
+        return
+    client_user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=client_sid).first()[0]
+    room = models.DB.session.query(models.Rooms).filter_by(id=int(room_id)).first()
+    if client_user_id != room.creator:
+        print("\tPassword not changed since sender is not room creator")
+        return
+    room.password = models.GenerateCharacterPin(models.ROOM_PASSWORD_LENGTH)
+    print("\tPassword for room {} changed to {}".format(room.id, room.password))
+    models.DB.session.commit()
+    emit_room_stats(client_sid)
 
 @socketio.on("new message input")
 def on_new_message(data):
