@@ -16,11 +16,13 @@ class Messages(DB.Model):
     message = DB.Column(DB.Text, nullable=False)
     room = DB.Column(DB.String(120))
     sid = DB.Column(DB.String(120))
+    picUrl = DB.Column(DB.Text)
 
     def __init__(self, user, message):
         self.sid = user["sid"]
         self.username = user["username"]
         self.room = user["room"]
+        self.picUrl = user['picUrl']
         self.message = message
 
     def __repr__(self):
@@ -28,6 +30,7 @@ class Messages(DB.Model):
             "name": self.username,
             "sid": self.sid,
             "room": self.room,
+            "picUrl": self.picUrl,
             "message": self.message,
         }
 
@@ -82,9 +85,7 @@ class Flashcards(DB.Model):
         self.room = room
 
     def __repr__(self):
-        return "<card> question: {} answer: {} </card>\n".format(
-            self.question, self.answer
-        )
+        return (self.question, self.answer, self.room)
 
 class CurrentConnections(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True)
