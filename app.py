@@ -69,7 +69,7 @@ def emit_joined_rooms(client_room):
 def get_room(client_sid):
     '''
     Takes in the a client's personal room sid and returns the room id of the room the client is 
-    currently in. If the client is not currently in any rooms, this just returns the client's \
+    currently in. If the client is not currently in any rooms, this just returns the client's
     personal sid
     '''
     user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=client_sid).first()
@@ -94,8 +94,11 @@ def emit_flashcards(room):
     
     return cards
 
-def emit_all_messages(room_id):
-    # TODO properly load the messages realted to the room from the database
+def emit_all_messages(client_sid):
+    room_id = get_room(client_sid)
+    # If the user isn't in a room, emit nothing
+    if room_id == client_sid:
+        return
     all_messages = models.DB.session.query(models.Messages.message).filter_by(room=room_id).all()
     all_user_pics = models.DB.session.query(models.Messages.picUrl).filter_by(room=room_id).all()
     print("--", all_user_pics)
@@ -180,9 +183,6 @@ def on_new_room_creation(data):
     models.DB.session.commit()
     print("created new room:\n\t{}".format(new_room))
     emit_joined_rooms(flask.request.sid)
-    emit_all_users(USERS_RECEIVED_CHANNEL, new_room.id)
-    #emit_user_pics(URLS_RECEIVED_CHANNEL, get_room(flask.request.sid))
-    emit_all_messages(new_room.id)
 
 
 @socketio.on("join room request")
@@ -197,8 +197,6 @@ def on_join_room_request(data):
     if room:
         models.DB.session.add(models.JoinedRooms(user_id, room.id))
     emit_joined_rooms(flask.request.sid)
-    emit_all_users(USERS_RECEIVED_CHANNEL, room.id)
-    emit_all_messages(room.id)
 
 
 @socketio.on("new google user login")
@@ -235,7 +233,7 @@ def on_room_entry_request(data):
     print("room entry accepted")
     emit_room_history(flask.request.sid)
     emit_all_users(USERS_RECEIVED_CHANNEL, data['roomId'])
-    emit_all_messages(get_room(flask.request.sid))
+    emit_all_messages(flask.request.sid)
 
 
 @socketio.on("leave room")
@@ -265,7 +263,7 @@ def on_new_message(data):
     user["picUrl"] = models.DB.session.query(models.AuthUser.picUrl).filter_by(username=user['username']).first()[0]
     models.DB.session.add(models.Messages(user, user['username'] + ": " + data['message']))
     models.DB.session.commit()
-    emit_all_messages(get_room(flask.request.sid))
+    emit_all_messages(flask.request.sid)
 
 
 @socketio.on(NEW_CARDS)
