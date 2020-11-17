@@ -39,7 +39,6 @@ socketio.init_app(APP, cors_allowed_origins="*")
 username_sid_dict = {}
 
 USERS_RECEIVED_CHANNEL = "users received"
-testUsers = ["Nick", "Jason", "Mitchell", "George", "Navado"]
 
 NEW_CARDS = "new cards"
 CARDS = "cards"
@@ -98,9 +97,11 @@ def emit_flashcards(room):
 def emit_all_messages(room_id):
     # TODO properly load the messages realted to the room from the database
     all_messages = models.DB.session.query(models.Messages.message).filter_by(room=room_id).all()
-    print("messages: ", all_messages)
+    all_user_pics = models.DB.session.query(models.Messages.picUrl).filter_by(room=room_id).all()
+    print("--", all_user_pics)
+
     socketio.emit(
-        "sending message history", {"allMessages": all_messages}, room=room_id
+        "sending message history", {"allMessages": all_messages, 'all_user_pics': all_user_pics}, room=room_id
     )
 
 
@@ -178,6 +179,7 @@ def on_new_room_creation(data):
     print("created new room:\n\t{}".format(new_room))
     emit_joined_rooms(flask.request.sid)
     emit_all_users(USERS_RECEIVED_CHANNEL, new_room.id)
+    #emit_user_pics(URLS_RECEIVED_CHANNEL, get_room(flask.request.sid))
     emit_all_messages(new_room.id)
 
 
@@ -257,7 +259,8 @@ def on_new_message(data):
     user["sid"] = flask.request.sid
     user["room"] = get_room(flask.request.sid)  # TODO: get room_id from the sender request.sid
     user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=flask.request.sid).first()[0]
-    user["username"] = models.DB.session.query(models.AuthUser.username).filter_by(id=user_id).first()[0] 
+    user["username"] = models.DB.session.query(models.AuthUser.username).filter_by(id=user_id).first()[0]
+    user["picUrl"] = models.DB.session.query(models.AuthUser.picUrl).filter_by(username=user['username']).first()[0]
     models.DB.session.add(models.Messages(user, user['username'] + ": " + data['message']))
     models.DB.session.commit()
     emit_all_messages(get_room(flask.request.sid))

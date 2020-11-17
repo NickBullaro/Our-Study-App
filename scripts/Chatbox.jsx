@@ -4,34 +4,30 @@ import Socket from './Socket';
 
 function Chatbox() {
   const [messages, setMessages] = React.useState([]);
+  const [picUrls, setUrls] = React.useState([]);
 
   function getNewMessage() {
-    React.useEffect(() => {
-      Socket.on('sending room data', (data) => {
-        setMessages(data.allMessages);
-        const chatBox = document.getElementById('chatbox');
-        chatBox.scrollTop = chatBox.scrollHeight;
-      });
-    });
 
     React.useEffect(() => {
-      Socket.on('sending message history',(data) => {
+      Socket.on('sending message history', (data) => {
         setMessages(data.allMessages);
+        setUrls(data.all_user_pics);
         const chatBox = document.getElementById('chatbox');
         chatBox.scrollTop = chatBox.scrollHeight;
       });
     });
   }
+  
 
   getNewMessage();
 
   return (
     <div>
       <h3>Chatbox</h3>
-      <div className="userList">
-        <ul id="chatbox">
+      <div className="userList"  id="chatbox">
+        <ul>
           {
-            messages.map((message, index) => <li key={index}>{message}</li>)
+            messages.map((message, index) => <li key={index}><img src={picUrls[index]} className="img"></img> {message}</li>)
           }
         </ul>
       </div>
