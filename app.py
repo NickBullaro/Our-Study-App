@@ -237,7 +237,7 @@ def on_room_entry_request(data):
 
 
 @socketio.on("leave room")
-def accept_room_departure(data):
+def accept_room_departure():
     user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=flask.request.sid).first()[0]
     room_id = models.DB.session.query(models.EnteredRooms.room).filter_by(user=user_id).first()[0]
     models.DB.session.query(models.EnteredRooms).filter_by(user=user_id).delete()

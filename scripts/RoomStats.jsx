@@ -17,9 +17,7 @@ function RoomStats() {
   }
   
   function resetPassword () {
-    Socket.emit('reset password', {
-      msg: '',
-    });
+    Socket.emit('reset password');
   }
   
   setup();

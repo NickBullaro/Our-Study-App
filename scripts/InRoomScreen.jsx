@@ -10,9 +10,7 @@ import UsersInRoomList from './UsersInRoomList';
 function InRoomScreen() {
   
   function tempRoomLeave() {
-    Socket.emit('leave room', {
-      msg: '',
-    });
+    Socket.emit('leave room');
   }
 
   return (
