@@ -76,37 +76,40 @@ function CreateFlashcards({ cards }) {
   }
 
   return (
-    submitted
-      ? <Flashcards />
-      : (
-        <div>
-          {fields.map((field, idx) => (
-            <div key={`${field + idx}`} className="form-row">
-
-              <div className="col-5">
-                <input type="text" className="question" placeholder="Enter question" value={field.question} onChange={(e) => handleQuestion(idx, e)} />
+    <div id="flashcards">
+      { submitted
+        ? <Flashcards />
+        : (
+          <div>
+            {fields.map((field, idx) => (
+              <div key={`${field + idx}`} className="form-row">
+  
+                <div className="col-5">
+                  <input type="text" className="question" placeholder="Enter question" value={field.question} onChange={(e) => handleQuestion(idx, e)} />
+                </div>
+                <div className="col-5">
+                  <input type="text" className="answer" placeholder="Enter answer" value={field.answer} onChange={(e) => handleAnswer(idx, e)} />
+                </div>
+  
+                <button type="button" onClick={() => handleRemove(idx)}>X</button>
+  
               </div>
-              <div className="col-5">
-                <input type="text" className="answer" placeholder="Enter answer" value={field.answer} onChange={(e) => handleAnswer(idx, e)} />
-              </div>
-
-              <button type="button" onClick={() => handleRemove(idx)}>X</button>
-
+            ))}
+  
+            <div className="row">
+              <span>
+                <button type="button" id="addCard" onClick={handleAdd}>Add Card</button>
+              </span>
+  
             </div>
-          ))}
-
-          <div className="row">
-            <span>
-              <button type="button" id="addCard" onClick={handleAdd}>Add Card</button>
-            </span>
-
+  
+            <input type="button" value="Done" onClick={handleSubmit} />
+  
           </div>
-
-          <input type="button" value="Done" onClick={handleSubmit} />
-
-        </div>
-
-      )
+  
+        )
+      }
+    </div>
 
   );
 }
