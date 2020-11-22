@@ -23,15 +23,16 @@ function UsersInRoomList() {
   getNewUser();
 
   return (
-    <div className="UsersInRoomList">
-      <ul className="userListing">
-        <h1 className="UserTitle">Users:</h1>
-        {
-          users.map((user, index) => <li key={index}><img src={picUrls[index]} className="img"></img> {user}</li>)
-        }
-      </ul>
-    </div>
+      <div className="container userListing">
+      <div className="userListing">
+          {
+            users.map((user, index) => <div id="user" key={index}>{user}</div>)
+          }
+        </div>
+      </div>
   );
 }
 
 export default UsersInRoomList;
+
+// this fails: users.map((user,index) => <div id="user" key={index}><img src={picUrls[index]}/></div>)

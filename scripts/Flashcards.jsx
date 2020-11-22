@@ -76,41 +76,25 @@ function CreateFlashcards({ cards }) {
   }
 
   return (
-    <div id="flashcards">
-      { submitted
+    submitted
         ? <Flashcards />
         : (
-          <div>
-            {fields.map((field, idx) => (
-              <div key={`${field + idx}`} className="form-row">
-  
-                <div className="col-5">
-                  <input type="text" className="question" placeholder="Enter question" value={field.question} onChange={(e) => handleQuestion(idx, e)} />
+            <div id="editing_cards" className="container">
+                <div id="flashcards_editor">
+                    {fields.map((field, idx) => (
+                    <div key={`${field + idx}`} className="form_row">
+                        <input type="text" className="question" placeholder="Enter question" value={field.question} onChange={(e) => handleQuestion(idx, e)} />
+                        <input type="text" className="answer" placeholder="Enter answer" value={field.answer} onChange={(e) => handleAnswer(idx, e)} />
+                        <button type="button" onClick={() => handleRemove(idx)}>X</button>
+                    </div>
+                    ))}
                 </div>
-                <div className="col-5">
-                  <input type="text" className="answer" placeholder="Enter answer" value={field.answer} onChange={(e) => handleAnswer(idx, e)} />
+                <div className="flashcard_button_row">
+                    <button type="button" id="addCard" onClick={handleAdd}>Add Card</button>
+                    <button type="button" onClick={handleSubmit}>Done</button>
                 </div>
-  
-                <button type="button" onClick={() => handleRemove(idx)}>X</button>
-  
-              </div>
-            ))}
-  
-            <div className="row">
-              <span>
-                <button type="button" id="addCard" onClick={handleAdd}>Add Card</button>
-              </span>
-  
             </div>
-  
-            <input type="button" value="Done" onClick={handleSubmit} />
-  
-          </div>
-  
         )
-      }
-    </div>
-
   );
 }
 
