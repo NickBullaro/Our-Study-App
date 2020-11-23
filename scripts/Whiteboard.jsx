@@ -77,7 +77,7 @@ function Whiteboard() {
       <canvas ref={canvasRef} />
       <form onChange={changeColor}>
         <label htmlFor="black">
-          <input type="radio" id="black" name="color" value="#000000" />
+          <input type="radio" id="black" name="color" value="#000000" checked="checked" />
           Black
         </label>
         <label htmlFor="red">
