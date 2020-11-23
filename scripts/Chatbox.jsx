@@ -4,6 +4,7 @@ import Socket from './Socket';
 
 function Chatbox() {
   const [messages, setMessages] = React.useState([]);
+  const [picUrls, setUrls] = React.useState([]);
 
   function getNewMessage() {
     React.useEffect(() => {
@@ -26,14 +27,11 @@ function Chatbox() {
   getNewMessage();
 
   return (
-    <div>
-      <h3>Chatbox</h3>
-      <div className="userList">
-        <ul id="chatbox">
+    <div className="container" id="chatbox">
+      <div className="chat_messages">
           {
-            messages.map((message, index) => <li key={index}>{message}</li>)
+            messages.map((message, index) => <div className="container" id="registered_message" key={index}><img src={picUrls[index]} className="img"/>{message}</div>)
           }
-        </ul>
       </div>
       <SendMessageButton />
     </div>

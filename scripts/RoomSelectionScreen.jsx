@@ -5,7 +5,7 @@ import RoomJoinCreate from './RoomJoinCreate';
 function RoomSelectionScreen() {
   return (
     <div id="roomSelectionScreen">
-    <h2>Existing Rooms</h2>
+    <h2 className="header">Existing Rooms</h2>
       <JoinedRoomsList />
       <RoomJoinCreate />
     </div>

@@ -3,46 +3,35 @@ import Socket from './Socket';
 import Flashcards from './Flashcards';
 import Chatbox from './Chatbox';
 import WhiteboardButton from './WhiteboardButton';
+import RoomStats from './RoomStats';
+import UsersInRoomList from './UsersInRoomList';
+
 
 function InRoomScreen() {
-  const [users, setUsers] = React.useState([]);
-  function fakeRoomLeave() {
-    Socket.emit('leave room', {
-      msg: '',
-    });
-  }
 
-  function updateUsers(data) {
-    console.log(`Received new user: ${data.all_users}`);
-    setUsers(data.all_users);
+  function tempRoomLeave() {
+    Socket.emit('leave room');
   }
-
-  function getNewuser() {
-    React.useEffect(() => {
-      Socket.on('users received', updateUsers);
-      return () => {
-        Socket.off('users received', updateUsers);
-      };
-    });
-  }
-
-  getNewuser();
 
   return (
     <div id="inRoomScreen">
-      <WhiteboardButton />
-      <div className="inRoom_chat_usr_container">
+      <RoomStats />
+      <div id="grid_container">
+      <h2 className="header"> Room Name</h2>
+      <div className="container" id="chat_and_users"style={{background:"none"}}>
+        <UsersInRoomList />
         <Chatbox />
-        <ul className="userListing">
-          {
-            users.map((user, index) => <li key={index}>{user}</li>)
-        }
-        </ul>
       </div>
-        <div id="flashcards">
+      <WhiteboardButton />
+      <div className="container" id="flashcards_container">
           <Flashcards />
-        </div>
-      <button onClick={fakeRoomLeave} type="submit">FakeLeaveRoom</button>
+      </div>
+      </div>
+      <div className="button_area" id="inRoomScreen">
+        <button id="leave_room" onClick={tempRoomLeave} type="submit">Leave Room</button>
+        <button id="room_settings" onClick={roomSettings} type="submit">Settings</button>
+        <button id="logout" onClick={logout} type="submit">Log Out</button>
+      </div>
     </div>
   );
 }

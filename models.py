@@ -8,7 +8,7 @@ import json
 import flask_sqlalchemy
 
 DB = flask_sqlalchemy.SQLAlchemy()
-
+ROOM_PASSWORD_LENGTH = 4
 
 class Messages(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True)
@@ -16,11 +16,13 @@ class Messages(DB.Model):
     message = DB.Column(DB.Text, nullable=False)
     room = DB.Column(DB.String(120))
     sid = DB.Column(DB.String(120))
+    picUrl = DB.Column(DB.Text)
 
     def __init__(self, user, message):
         self.sid = user["sid"]
         self.username = user["username"]
         self.room = user["room"]
+        self.picUrl = user['picUrl']
         self.message = message
 
     def __repr__(self):
@@ -28,6 +30,7 @@ class Messages(DB.Model):
             "name": self.username,
             "sid": self.sid,
             "room": self.room,
+            "picUrl": self.picUrl,
             "message": self.message,
         }
 
@@ -60,12 +63,12 @@ class Rooms(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True)
     creator = DB.Column(DB.Integer, DB.ForeignKey(AuthUser.id), nullable=False)
     name = DB.Column(DB.String(50))
-    password = DB.Column(DB.String(4))
+    password = DB.Column(DB.String(ROOM_PASSWORD_LENGTH))
     
     def __init__(self, roomCreator, roomName):
         self.creator = roomCreator
         self.name = roomName
-        self.password = GenerateCharacterPin(4)
+        self.password = GenerateCharacterPin(ROOM_PASSWORD_LENGTH)
     
     def __repr__(self):
         return "{} (id: {} password: {}), created by {}".format(self.name, self.id, self.password, self.creator)
