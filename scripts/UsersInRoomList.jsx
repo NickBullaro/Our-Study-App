@@ -32,20 +32,21 @@ function UsersInRoomList() {
   getNewUser();
 
   return (
-    <div className="UsersInRoomList">
-      <ul className="userListing">
-        <h1 className="UserTitle">Users:</h1>
+    <div className="container userListing">
+      <div className="userListing">
         {
-          users.map((user, index) =>
-          <li key={index}>
+          users.map((user, index) => 
+          <div id="user" key={index}>
             <img src={picUrls[index]} className="img"></img>
             <p>{user}</p>
             <button onClick={(event) => kickUser(userIds[index][0])} type="submit">Kick</button>
-          </li>)
+          </div>)
         }
-      </ul>
+      </div>
     </div>
   );
 }
 
 export default UsersInRoomList;
+
+// this fails: users.map((user,index) => <div id="user" key={index}><img src={picUrls[index]}/></div>)
