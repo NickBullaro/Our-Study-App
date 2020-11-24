@@ -117,7 +117,6 @@ def emit_room_history(room_id):
     data = {"allMessages": message_history}
     socketio.emit("sending room data", data, room=room_id)
 
-
 def emit_all_users(channel, roomID):
     all_user_ids = models.DB.session.query(models.EnteredRooms.user).filter_by(room=roomID).all()
     all_users = []
@@ -126,7 +125,7 @@ def emit_all_users(channel, roomID):
         all_users.append(models.DB.session.query(models.AuthUser.username).filter_by(id=i).first()[0])
         all_user_pics.append(models.DB.session.query(models.AuthUser.picUrl).filter_by(id=i).first()[0])
     print("users: ", all_users)
-    socketio.emit(channel, {"all_users": all_users, 'all_user_pics': all_user_pics})
+    socketio.emit(channel, {"all_users": all_users, 'all_user_pics': all_user_pics, 'all_user_ids': all_user_ids})
 
 def emit_room_stats(client_sid):
     room_id = get_room(client_sid)
@@ -135,7 +134,6 @@ def emit_room_stats(client_sid):
         return
     room_password = models.DB.session.query(models.Rooms.password).filter_by(id=int(room_id)).first()[0]
     socketio.emit("room stats update", {'roomId':room_id, 'roomPassword': room_password}, room=room_id)
-    
 
 def clear_non_persistent_tables():
     '''
@@ -151,7 +149,6 @@ def on_connect():
     print("Someone connected!")
     models.DB.session.add(models.CurrentConnections(flask.request.sid, None))
     models.DB.session.commit()
-
 
 @socketio.on("disconnect")
 def on_disconnect():
@@ -179,7 +176,6 @@ def on_disconnect():
     models.DB.session.delete(disconnected_user)
     models.DB.session.commit()
 
-
 @socketio.on("new room creation request")
 def on_new_room_creation(data):
     print("received a new room creation request: {}".format(data["roomName"]))
@@ -193,7 +189,6 @@ def on_new_room_creation(data):
     print("created new room:\n\t{}".format(new_room))
     emit_joined_rooms(flask.request.sid)
 
-
 @socketio.on("join room request")
 def on_join_room_request(data):
     print(
@@ -206,7 +201,6 @@ def on_join_room_request(data):
     if room:
         models.DB.session.add(models.JoinedRooms(user_id, room.id))
     emit_joined_rooms(flask.request.sid)
-
 
 @socketio.on("new google user login")
 def accept_google_login(data):
@@ -230,10 +224,8 @@ def accept_google_login(data):
     print("{} logged in".format(user.username))
     emit_joined_rooms(flask.request.sid)
 
-
 @socketio.on("room entry request")
 def on_room_entry_request(data):
-    print(data)
     user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=flask.request.sid).first()
     models.DB.session.add(models.EnteredRooms(user_id, data['roomId']))
     models.DB.session.commit()
@@ -244,7 +236,6 @@ def on_room_entry_request(data):
     emit_all_users(USERS_RECEIVED_CHANNEL, data['roomId'])
     emit_all_messages(flask.request.sid)
     emit_room_stats(flask.request.sid)
-
 
 @socketio.on("leave room")
 def accept_room_departure():
@@ -279,6 +270,48 @@ def reset_room_password():
     models.DB.session.commit()
     emit_room_stats(client_sid)
 
+@socketio.on("kick user request")
+def kick_user(data):
+    kick_target_id = data['kickedUserId']
+    client_sid = flask.request.sid
+    room_id = get_room(client_sid)
+    print("Received request to kick user {} from room {}".format(kick_target_id, room_id))
+    if client_sid == room_id:
+        print("\tUser not kicked since room id was invalid")
+        return
+    client_user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=client_sid).first()[0]
+    room = models.DB.session.query(models.Rooms).filter_by(id=room_id).first()
+    if client_user_id != room.creator:
+        print("\tUser not kicked since the request did not come from the room creator")
+        return
+    if kick_target_id == room.creator:
+        print("\tUser not kicked since you can't kick the room creator")
+        return
+    kicked_entered_room_query = models.DB.session.query(models.EnteredRooms).filter_by(user=kick_target_id).filter_by(room=room_id)
+    if kicked_entered_room_query.first():
+        kicked_entered_room_query.delete()
+    kicked_joined_room_query = models.DB.session.query(models.JoinedRooms).filter_by(user=kick_target_id).filter_by(room=room_id)
+    if kicked_joined_room_query.first():
+        kicked_joined_room_query.delete()
+    kicked_current_connections_query = models.DB.session.query(models.CurrentConnections).filter_by(user=kick_target_id)
+    if kicked_current_connections_query.first():
+        kicked_sid = kicked_current_connections_query.first().sid
+        socketio.emit('kicked', {'roomId': room_id}, room=kicked_sid)
+    models.DB.session.commit()
+    print("\tUser {} was kicked from room {}".format(kick_target_id, room_id))
+
+@socketio.on("i was kicked")
+def simple_leave_room(data):
+    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=flask.request.sid).first()[0]
+    room_id = data['roomId']
+    socketio.emit(
+        "left room",
+        room=flask.request.sid,
+    )
+    flask_socketio.leave_room(str(room_id))
+    emit_joined_rooms(flask.request.sid)
+    emit_all_users(USERS_RECEIVED_CHANNEL, room_id)
+
 @socketio.on("new message input")
 def on_new_message(data):
     print("Got an event for new message input with data:", data)
@@ -291,7 +324,6 @@ def on_new_message(data):
     models.DB.session.add(models.Messages(user, user['username'] + ": " + data['message']))
     models.DB.session.commit()
     emit_all_messages(flask.request.sid)
-
 
 @socketio.on(NEW_CARDS)
 def new_cards(data):
@@ -313,7 +345,6 @@ def new_cards(data):
 
     models.DB.session.commit()
     emit_flashcards(room)
-
 
 @socketio.on("drawing stroke input")
 def on_drawing_stroke(data):
