@@ -11,6 +11,7 @@ function Whiteboard() {
     oldx: 0, oldy: 0, newx: 0, newy: 0, color: '#000000',
   }));
   const [listersOff, setListersOff] = React.useState(true);
+  const [checkBlack, setCheckBlack] = React.useState(true);
 
   function startDraw(cursor) {
     isDrawing[0] = true;
@@ -44,6 +45,7 @@ function Whiteboard() {
   function changeColor(event) {
     stroke.color = event.target.value;
     setStroke(stroke);
+    setCheckBlack(false);
   }
 
   function fOutputDoStroke(data) {
@@ -77,7 +79,9 @@ function Whiteboard() {
       <canvas ref={canvasRef} />
       <form onChange={changeColor}>
         <label htmlFor="black">
-          <input type="radio" id="black" name="color" value="#000000" checked="checked" />
+          
+  
+          <input type="radio" id="black" name="color" value="#000000" defaultChecked/>
           Black
         </label>
         <label htmlFor="red">
