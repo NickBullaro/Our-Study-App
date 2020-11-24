@@ -10,7 +10,7 @@ function WhiteboardButton() {
 
   return (
     <div id="whiteboard_component">
-      <button type="button" onClick={switchDisplay}> Whiteboard </button>
+      <button type="button" onClick={switchDisplay}>Whiteboard</button>
       {
        display
          ? <Whiteboard />

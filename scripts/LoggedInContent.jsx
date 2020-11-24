@@ -5,7 +5,22 @@ import Socket from './Socket';
 
 function LoggedInContent() {
   const [joinedRoom, setRoomParticipation] = React.useState(false);
-
+  const [kickedAlready, setKickedAlready] = React.useState(false);
+      
+  function sendLeaveRoom(roomId) {
+    if (!kickedAlready) {
+      setKickedAlready(true);
+      Socket.emit('i was kicked', {
+        roomId: roomId
+      });
+    }
+  }
+  
+  function leaveRoom() {
+    setRoomParticipation(false);
+    setKickedAlready(true);
+  }
+  
   function setup() {
     React.useEffect(() => {
       Socket.on('room entry accepted', () => {
@@ -15,7 +30,13 @@ function LoggedInContent() {
 
     React.useEffect(() => {
       Socket.on('left room', () => {
-        setRoomParticipation(false);
+        leaveRoom();
+      });
+    });
+    
+    React.useEffect(() => {
+      Socket.on('kicked', (data) => {
+        sendLeaveRoom(data.roomId);
       });
     });
   }

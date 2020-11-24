@@ -8,21 +8,38 @@ import UsersInRoomList from './UsersInRoomList';
 
 
 function InRoomScreen() {
-  
+
   function tempRoomLeave() {
     Socket.emit('leave room');
+  }
+  
+  function roomSettings() {
+    return;
+  }
+  
+  function logout() {
+    return;
   }
 
   return (
     <div id="inRoomScreen">
       <RoomStats />
-      <WhiteboardButton />
-      <div className="inRoom_chat_usr_container">
-        <Chatbox />
+      <div id="grid_container">
+      <h2 className="header"> Room Name</h2>
+      <div className="container" id="chat_and_users"style={{background:"none"}}>
         <UsersInRoomList />
+        <Chatbox />
       </div>
-      <Flashcards />
-      <button onClick={tempRoomLeave} type="submit">LeaveRoom</button>
+      <WhiteboardButton />
+      <div className="container" id="flashcards_container">
+          <Flashcards />
+      </div>
+      </div>
+      <div className="button_area" id="inRoomScreen">
+        <button id="leave_room" onClick={tempRoomLeave} type="submit">Leave Room</button>
+        <button id="room_settings" onClick={roomSettings} type="submit">Settings</button>
+        <button id="logout" onClick={logout} type="submit">Log Out</button>
+      </div>
     </div>
   );
 }

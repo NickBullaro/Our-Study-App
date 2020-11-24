@@ -73,7 +73,7 @@ function Whiteboard() {
     context.stroke();
   }, [doDraw]);
   return (
-    <div id="whiteboard_component">
+    <div id="whiteboard_component" className="container">
       <canvas ref={canvasRef} />
       <form onChange={changeColor}>
         <label htmlFor="black">
