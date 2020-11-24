@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Socket from './Socket';
 
 const TEST_FLASHCARDS  = [
       {
@@ -25,38 +26,24 @@ const TEST_FLASHCARDS  = [
 export default function FlashcardTest() {
     
     const [flashcards, setFlashcards] = useState(TEST_FLASHCARDS);
-    const [questions, setQuestions] = useState([]);
-    const [answers, setAnswers] = useState([]);
-    const [numberOfCards, setCardLength] = useState(0);
+    const [key, setKey] = useState([]);
     const [test, setTest] = useState([{}]);
+    const [result, setResult] = useState([]);
+    const [fields, setFields] = useState([]);
+    const [correct, setCorrect] = useState(false);
     
-    const [fields, setFields] = useState([TEST_FLASHCARDS]);
- 
-
-  function handleQuestion(i, event) {
-    const values = [...fields];
-    values[i].question = event.target.value;
-    setFields(values);
-  }
+    const QUIZ_ANSWERS = 'quiz answers';
+    const NEW_CARDS = 'new cards';
+    const QUIZ_RESULT = 'quiz result';
 
   function handleAnswer(i, event) {
     const values = [...fields];
-    values[i].answer = event.target.value;
+    values[i] = event.target.value;
     setFields(values);
-  }
-
-  function handleAdd() {
-    const values = [...fields];
-    values.push({ question: '', answer: '' });
-    setFields(values);
-  }
-
-  function handleRemove(i) {
-    const values = [...fields];
-    values.splice(i, 1);
-    setFields(values);
-  }
   
+  }
+
+
     function shuffle(array) {
       var currentIndex = array.length, temporaryValue, randomIndex;
     
@@ -76,53 +63,86 @@ export default function FlashcardTest() {
       return array;
     }
     
+    function handleSubmit(event) {
+    event.preventDefault();
+    if (fields.length == test.length){
+        console.log("All answers filled");
+        Socket.emit(QUIZ_ANSWERS, [key, fields]);
+   
+    }
+    else {
+        alert("You did not fill out the quiz");
+    }
+  }
+    
     function setUp() {
-        React.useEffect( () => {setFlashcards(shuffle(flashcards));
-        let i = 0;
-        var answers = [];
-        var questions = [];
-        for (i; i < flashcards.length; i++) {
+        React.useEffect( () => {
+        Socket.emit(NEW_CARDS, flashcards);    
+        
+        
+        let answers = [];
+        let questions = [];
+        
+        for (let i = 0; i < flashcards.length; i++) {
             questions.push(flashcards[i].question);
             answers.push(flashcards[i].answer);
+           
         }
         
         shuffle(questions);
         shuffle(answers);
-        setQuestions(questions);
-        setAnswers(answers);
-        var tests = [];
+
+        let tests = [];
+        let answer_key = [];
         for(let i = 0; i < flashcards.length; i++){
             let test = {'question' : questions[i], 'answer': answers[i]};
+            answer_key.push(
+                {
+                    'answer' : flashcards.find( ({ question }) => question === questions[i] ).answer, 
+                    'question' : questions[i],
+                }
+            
+            );
+           
             tests.push(test);
         }
-        
+  
         setTest(tests);
-        setCardLength(tests.length);
-        
+        setKey(answer_key);
+     
     }, [flashcards]);
     }
     
-    console.log(flashcards);
-    setUp();
-    //React.useEffect( () => setUp());//setFlashcards(shuffle(flashcards)));
-    
-    for(let i = 0; i < numberOfCards; i++){
-        console.log(String.fromCharCode(i+97));
+    function checkQuiz() {
+        useEffect( () => {
+           Socket.on(QUIZ_RESULT, data => {
+               console.log("Res:",result);
+               for(let i in data){
+                   if (data[i] == 1){
+                       result[i] = true;
+                   }
+                   else{
+                       result[i] = false;
+                   }
+               }
+               
+             setResult(result);  
+           });
+        }, [result]);
     }
-
+    
+    checkQuiz();
+    setUp();
   return (
    <div>
-    
+    Possible Answers  
    {
    test.map( (flashcard, index) =>
    <div>
-              
+                
             <div className='row'>
-                <div className='col-5'>
-                    <p>{(index+1) + ".  " + flashcard.question}</p>
-                </div>
-                <div className='col-5'>
-                    <p>{String.fromCharCode(97+index) + ".  " +  flashcard.answer}</p>
+                <div className='col-12'>
+                    <p>{flashcard.answer}</p>
                 </div>
             </div>
     </div>
@@ -130,21 +150,30 @@ export default function FlashcardTest() {
    }
      <div>
         Answer the following questions:
-            {/*fields.map((field, idx) => (
+        <br/>
+        <form>
+            {test.map((field, idx) => (
               <div key={`${field + idx}`} className="form-row">
-  
-                <div className="col-5">
-                  <input type="text" className="question" placeholder="Enter question" value={field.question} onChange={(e) => handleQuestion(idx, e)} />
+             
+                <div className='col-5'>
+                    <label htmlFor='answer'>{field.question}</label>
+                
                 </div>
+      
                 <div className="col-5">
-                  <input type="text" className="answer" placeholder="Enter answer" value={field.answer} onChange={(e) => handleAnswer(idx, e)} />
+                   <input type="text" className={`answer ${result[idx] ? 'correct' : '' }`} placeholder="Enter answer" onChange={(e) => handleAnswer(idx, e)} />
+                      
+                  
                 </div>
-  
-                <button type="button" onClick={() => handleRemove(idx)}>X</button>
+            
+                
   
               </div>
-            ))}*/
-            }
+            ))}
+            
+            <input type='button' value="Submit quiz" onClick={handleSubmit} />
+        </form>
+            
     </div>
     
     </div>

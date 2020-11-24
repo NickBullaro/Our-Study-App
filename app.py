@@ -42,6 +42,8 @@ USERS_RECEIVED_CHANNEL = "users received"
 
 NEW_CARDS = "new cards"
 CARDS = "cards"
+QUIZ_ANSWERS = 'quiz answers'
+QUIZ_RESULT = 'quiz result'
 
 SAMPLE_MESSAGES = []
 
@@ -95,7 +97,11 @@ def emit_flashcards(room):
     socketio.emit(CARDS, cards, room=room)
     
     return cards
-
+    
+def emit_quiz_result(room, correct_answers):
+    socketio.emit(QUIZ_RESULT, correct_answers)
+    
+    
 def emit_all_messages(client_sid):
     room_id = get_room(client_sid)
     # If the user isn't in a room, emit nothing
@@ -300,7 +306,7 @@ def new_cards(data):
     """
 
     print("New cards:", data)
-    room = get_room(flask.request.sid)
+    room = 2#get_room(flask.request.sid)
 
     models.Flashcards.query.delete()
     models.DB.session.commit()
@@ -314,6 +320,24 @@ def new_cards(data):
     models.DB.session.commit()
     emit_flashcards(room)
 
+@socketio.on(QUIZ_ANSWERS)
+def quiz_answers(data):
+    correct = 0
+    room = 2
+    result = [0 for i in range(len(data[1])) ]
+    i = 0
+    for key, answer in zip(data[0], data[1]):
+        if key['answer'].lower() == answer.lower():
+            print("Correct: ", key['question'] )
+            correct += 1
+            result[i] = 1
+            
+        i += 1        
+    print(correct, 'correct answers')
+    print(result)
+    
+    emit_quiz_result(room, result)
+    
 
 @socketio.on("drawing stroke input")
 def on_drawing_stroke(data):
