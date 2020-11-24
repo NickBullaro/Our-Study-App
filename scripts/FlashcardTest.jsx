@@ -167,7 +167,6 @@ export default function FlashcardTest() {
                 </div>
             
                 
-  
               </div>
             ))}
             
