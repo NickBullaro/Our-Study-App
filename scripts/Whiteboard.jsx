@@ -4,14 +4,13 @@ import Socket from './Socket';
 function Whiteboard() {
   const [isDrawing, setIsDrawing] = React.useState(() => [false]);
   const [doDraw, setDoDraw] = React.useState({
-    oldx: 0, oldy: 0, newx: 0, newy: 0, color: '#000000',
+    oldx: 0, oldy: 0, newx: 0, newy: 0, color: '#000000', size:1
   });
   const canvasRef = React.useRef(null);
   const [stroke, setStroke] = React.useState(() => ({
-    oldx: 0, oldy: 0, newx: 0, newy: 0, color: '#000000',
+    oldx: 0, oldy: 0, newx: 0, newy: 0, color: '#000000', size:1
   }));
   const [listersOff, setListersOff] = React.useState(true);
-  const [checkBlack, setCheckBlack] = React.useState(true);
 
   function startDraw(cursor) {
     isDrawing[0] = true;
@@ -45,7 +44,11 @@ function Whiteboard() {
   function changeColor(event) {
     stroke.color = event.target.value;
     setStroke(stroke);
-    setCheckBlack(false);
+  }
+  
+  function changeSize(event) {
+    stroke.size = event.target.value;
+    setStroke(stroke);
   }
 
   function fOutputDoStroke(data) {
@@ -69,7 +72,17 @@ function Whiteboard() {
     }
     const context = canvas.getContext('2d');
     context.beginPath();
+    if(doDraw.color == '#ff00ff')
+    {
+      context.globalCompositeOperation = 'destination-out';
+    }
+    else
+    {
+      context.globalCompositeOperation = 'source-over';
+    }
+    context.lineWidth = doDraw.size;
     context.strokeStyle = doDraw.color;
+    context.lineCap = 'round'
     context.moveTo(doDraw.oldx, doDraw.oldy);
     context.lineTo(doDraw.newx, doDraw.newy);
     context.stroke();
@@ -79,8 +92,6 @@ function Whiteboard() {
       <canvas ref={canvasRef} />
       <form onChange={changeColor}>
         <label htmlFor="black">
-          
-  
           <input type="radio" id="black" name="color" value="#000000" defaultChecked/>
           Black
         </label>
@@ -95,6 +106,16 @@ function Whiteboard() {
         <label htmlFor="green">
           <input type="radio" id="Green" name="color" value="#00ff00" />
           Green
+        </label>
+        <label htmlFor="green">
+          <input type="radio" id="Green" name="color" value="#ff00ff" />
+          Erase
+        </label>
+      </form>
+      <form onChange={changeSize}>
+        <label htmlFor="size">
+          <input type="number" id="size" name="size" defaultValue="1" min="1" max="50"/>
+          Size
         </label>
       </form>
     </div>
