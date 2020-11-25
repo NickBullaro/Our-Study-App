@@ -2,7 +2,7 @@ import * as React from 'react';
 import LoggedInContent from './LoggedInContent';
 import LoginScreen from './LoginScreen';
 import Socket from './Socket';
-import FlashcardTest from './FlashcardTest';
+
 
 function Content() {
   const [loggedIn, setLoginState] = React.useState(false);
@@ -22,7 +22,7 @@ function Content() {
       {
         loggedIn
           ? <LoggedInContent />
-          : <FlashcardTest />//<LoginScreen />
+          : <LoginScreen />
       }
     </div>
   );
