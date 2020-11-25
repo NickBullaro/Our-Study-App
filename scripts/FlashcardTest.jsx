@@ -28,13 +28,8 @@ export default function FlashcardTest() {
     const [flashcards, setFlashcards] = useState(TEST_FLASHCARDS);
     const [key, setKey] = useState([]);
     const [test, setTest] = useState([{}]);
-    const [result, setResult] = useState([]);
-    const [fields, setFields] = useState([]);
-    const [correct, setCorrect] = useState(false);
     
-    const QUIZ_ANSWERS = 'quiz answers';
-    const NEW_CARDS = 'new cards';
-    const QUIZ_RESULT = 'quiz result';
+    const [fields, setFields] = useState([]);
 
   function handleAnswer(i, event) {
     const values = [...fields];
@@ -66,9 +61,7 @@ export default function FlashcardTest() {
     function handleSubmit(event) {
     event.preventDefault();
     if (fields.length == test.length){
-        console.log("All answers filled");
-        Socket.emit(QUIZ_ANSWERS, [key, fields]);
-   
+        checkQuiz();
     }
     else {
         alert("You did not fill out the quiz");
@@ -77,7 +70,7 @@ export default function FlashcardTest() {
     
     function setUp() {
         React.useEffect( () => {
-        Socket.emit(NEW_CARDS, flashcards);    
+       
         
         
         let answers = [];
@@ -106,7 +99,7 @@ export default function FlashcardTest() {
            
             tests.push(test);
         }
-  
+        
         setTest(tests);
         setKey(answer_key);
      
@@ -114,24 +107,26 @@ export default function FlashcardTest() {
     }
     
     function checkQuiz() {
-        useEffect( () => {
-           Socket.on(QUIZ_RESULT, data => {
-               console.log("Res:",result);
-               for(let i in data){
-                   if (data[i] == 1){
-                       result[i] = true;
-                   }
-                   else{
-                       result[i] = false;
-                   }
-               }
-               
-             setResult(result);  
-           });
-        }, [result]);
+           for (let i in fields) {
+                let field = document.getElementById(`field${i}`);
+                if (key[i]['answer'].toLowerCase() === fields[i].toLowerCase()) {
+                     field.className = "answer form-control correct";
+                    
+                }
+                
+                else {
+                    field.className = "answer form-control wrong";
+                }
+           
+           
+            
+        
+        }
+     
+        
     }
     
-    checkQuiz();
+    
     setUp();
   return (
    <div>
@@ -153,15 +148,15 @@ export default function FlashcardTest() {
         <br/>
         <form>
             {test.map((field, idx) => (
-              <div key={`${field + idx}`} className="form-row">
+              <div key={`${field + idx}`} className='form-row'>
              
                 <div className='col-5'>
                     <label htmlFor='answer'>{field.question}</label>
                 
                 </div>
-      
-                <div className="col-5">
-                   <input type="text" className={`answer ${result[idx] ? 'correct' : '' }`} placeholder="Enter answer" onChange={(e) => handleAnswer(idx, e)} />
+                
+                <div className='col-5 input-group mb-3'>
+                   <input type="text" className='answer form-control' id={`field${idx}`} placeholder="Enter answer" onChange={(e) => handleAnswer(idx, e)} />
                       
                   
                 </div>
