@@ -6,8 +6,7 @@ function WhiteboardButton() {
   const [display, setDisplay] = React.useState(false);
   const [picked, setPicked] = React.useState(false);
   const [whiteboards, setWhiteboards] = React.useState([]);
-  const [boardPicked, setBoardPicked] = React.useState(false);
-  const [boardID, setBoardID] = React.useState("");
+  const [newName, setNewName] = React.useState("");
   function switchDisplay() {
     if(display)
     {
@@ -24,8 +23,15 @@ function WhiteboardButton() {
   }
   
   function handleJoin(itx) {
-    setBoardPicked(true);
-    setBoardID(whiteboards[itx].id);
+    setPicked(true);
+    Socket.emit("join whiteboard", whiteboards[itx])
+  }
+  function handleName(event){
+    setNewName(event.target.value);
+  }
+  
+  function createBoard(){
+    Socket.emit("make whiteboard", {name:newName})
   }
   
   function fGotWhiteboards(data) {
@@ -40,7 +46,7 @@ function WhiteboardButton() {
   function Picking(){
       if(picked)
       {
-        return (<Whiteboard board={boardPicked}/>)
+        return (<Whiteboard />)
       }
       return(
         <div>
@@ -51,9 +57,9 @@ function WhiteboardButton() {
             </div>
           ))}
         <label>New Board:
-          <input id="new" name="new" type="text" />
+          <input id="new" name="new" type="text" onChange={(e) => handleName(e)}/>
         </label>
-        <input type="submit" id="new" name="new" value="Create" />
+        <button type="button" onClick={createBoard}>Create</button>
       </div>
       )
   }
