@@ -28,7 +28,7 @@ function JoinedRoomsList() {
        {roomsList.map((room, index) => (
          <div key={index} className="RoomListElement">
            <p className="RoomListName">{room.roomName}</p>
-           <button className="RoomListButton" onClick={(event) => enterRoom(room.roomId[0])} type="submit">Enter room</button>
+           <button className="RoomListButton" onClick={(event) => enterRoom(room.roomId)} type="submit">Enter room</button>
          </div>
        ))}
      </div>

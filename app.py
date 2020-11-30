@@ -52,15 +52,16 @@ def emit_joined_rooms(client_room):
     Takes in a clients personal room sid and uses it to identify the user in the database. It then checks
     the database to see which rooms the user has joined and emits that as a list to rhe client_room
     '''
-    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=client_room).first()
-    room_id_list = models.DB.session.query(models.JoinedRooms.room).filter_by(user=user_id).all()
+    user_id = models.DB.session.query(models.CurrentConnections).filter_by(sid=client_room).first().user
+    room_id_list = models.DB.session.query(models.JoinedRooms).filter_by(user=user_id).all()
     models.DB.session.commit()
     room_list = []
     for room_id in room_id_list:
         room_list.append({
-            'roomName': models.DB.session.query(models.Rooms.name).filter_by(id=room_id).first(),
-            'roomId': room_id
+            'roomName': models.DB.session.query(models.Rooms.name).filter_by(id=room_id.room).first(),
+            'roomId': room_id.room
         })
+    print(room_list)
     socketio.emit(
         "updated room list",
         {"rooms": room_list},
@@ -96,11 +97,7 @@ def emit_flashcards(room):
     socketio.emit(CARDS, cards, room=room)
     
     return cards
-    
-def emit_quiz_result(room, correct_answers):
-    socketio.emit(QUIZ_RESULT, correct_answers)
-    
-    
+
 def emit_all_messages(client_sid):
     room_id = get_room(client_sid)
     # If the user isn't in a room, emit nothing
@@ -156,8 +153,7 @@ def on_connect():
     print("Someone connected!")
     models.DB.session.add(models.CurrentConnections(flask.request.sid, None))
     models.DB.session.commit()
-
-
+   
 @socketio.on("disconnect")
 def on_disconnect():
     '''
@@ -290,9 +286,10 @@ def on_new_message(data):
     user = {}
     user["sid"] = flask.request.sid
     user["room"] = get_room(flask.request.sid)  # TODO: get room_id from the sender request.sid
-    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=flask.request.sid).first()[0]
-    user["username"] = models.DB.session.query(models.AuthUser.username).filter_by(id=user_id).first()[0]
-    user["picUrl"] = models.DB.session.query(models.AuthUser.picUrl).filter_by(username=user['username']).first()[0]
+    print('SID:', flask.request.sid)
+    user_id = models.DB.session.query(models.CurrentConnections).filter_by(sid=flask.request.sid).first().user
+    user["username"] = models.DB.session.query(models.AuthUser).filter_by(id=user_id).first().username
+    user["picUrl"] = models.DB.session.query(models.AuthUser).filter_by(username=user['username']).first().picUrl
     models.DB.session.add(models.Messages(user, user['username'] + ": " + data['message']))
     models.DB.session.commit()
     emit_all_messages(flask.request.sid)
