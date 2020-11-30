@@ -331,6 +331,20 @@ def new_cards(data):
     models.DB.session.commit()
     emit_flashcards(room)
 
+def emit_boards(my_sid):
+    my_room = get_room(sid)
+    to_send = []
+    boards = models.Db.session.query(models.Whiteboards).filter_by(room=int(my_room))
+    for board in boards
+        to_send.append({"name":board.name, "id":board.id})
+    socketio.emit("got whiteboard", to_send, room=my_sid)
+
+@socketio.on("make whiteboard")
+def on_make_whiteboard(data):
+    room = get_room(socketio.client_sid)
+    models.DB.session.add(models.Whiteboards(room, data["name"]))
+    models.DB.session.commit()
+    emit_boards(socketio.client_sid)
 
 @socketio.on("drawing stroke input")
 def on_drawing_stroke(data):
