@@ -81,6 +81,22 @@ def get_room(client_sid):
         return str(entered_room[0])
     else:
         return client_sid
+        
+def get_board(client_sid):
+    '''
+    Takes in the a client's personal room sid and returns the whiteboard id of the room the client is 
+    currently in. If the client is not currently in any rooms, this just returns the client's
+    personal sid
+    
+    NOTE: This will always output a string. This matches with the socketio emits, but does not work 
+    with any database filters. Make sure to convert back to remove w and cast to int for database queries.
+    '''
+    board_room = models.DB.session.query(models.WhiteboardConnections.user).filter_by(sid=client_sid).first()
+    
+    if board_room:
+        return "w{}".format(board_room[0])
+    else:
+        return client_sid
     
 def emit_flashcards(room):
     """Emit all the flashcards for a specific room"""
@@ -92,7 +108,8 @@ def emit_flashcards(room):
         card_dict["answer"] = card.answer
         cards.append(card_dict)
 
-    socketio.emit(CARDS, cards, room=room)
+    
+    .emit(CARDS, cards, room=room)
     
     return cards
 
@@ -317,7 +334,7 @@ def new_cards(data):
 
 @socketio.on("drawing stroke input")
 def on_drawing_stroke(data):
-    room_id = get_room(flask.request.sid)
+    room_id = get_board(flask.request.sid)
     socketio.emit("drawing stroke output", data, room=room_id)
 
 
