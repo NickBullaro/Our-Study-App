@@ -12,6 +12,14 @@ function InRoomScreen() {
   function tempRoomLeave() {
     Socket.emit('leave room');
   }
+  
+  function roomSettings() {
+    return;
+  }
+  
+  function logout() {
+    return;
+  }
 
   return (
     <div id="inRoomScreen">
