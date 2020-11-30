@@ -30,9 +30,6 @@ function InRoomScreen() {
 
   newCards();
   return (
-    test ?
-    <FlashcardTest />
-    :
     <div id="inRoomScreen">
       <RoomStats />
       <WhiteboardButton />
@@ -40,8 +37,8 @@ function InRoomScreen() {
         <Chatbox />
         <UsersInRoomList />
       </div>
-      <Flashcards flashcards={flashcards} />
-      <button onClick={takeTest} value='Take Test' />
+      <Flashcards />
+      <FlashcardTest />
       <button onClick={tempRoomLeave} type="submit">LeaveRoom</button>
     </div>
   );

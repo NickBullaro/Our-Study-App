@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import Socket from './Socket';
+import InRoomScreen from './InRoomScreen';
 import PropTypes from 'prop-types';
 
 const TEST_FLASHCARDS = [
@@ -23,12 +25,16 @@ const TEST_FLASHCARDS = [
   },
 ];
 
-export default function FlashcardTest({ flashcards }) {
+export default function FlashcardTest() {
   // const [flashcards, setFlashcards] = useState(TEST_FLASHCARDS);
   const [key, setKey] = useState([]);
   const [test, setTest] = useState([{}]);
-
+  const [flashcards, setFlashcards] = useState([]);
+  
+  const [home, setHome] = useState(false);
   const [fields, setFields] = useState([]);
+  
+  const CARDS = 'cards';
 
   function handleAnswer(i, event) {
     const values = [...fields];
@@ -55,6 +61,13 @@ export default function FlashcardTest({ flashcards }) {
     }
 
     return array;
+  }
+   function newCards() {
+    useEffect(() => {
+      Socket.on(CARDS, (data) => {
+        setFlashcards(data);
+      });
+    });
   }
   function checkQuiz() {
     for (let i = 0; i < fields.length; i += 1) {
@@ -109,9 +122,17 @@ export default function FlashcardTest({ flashcards }) {
       setKey(answerKey);
     }, [flashcards]);
   }
-
+  
+  function back(event) {
+    event.preventDefault();
+    setHome(true);
+  
+  }
+  newCards();
   setUp();
+  
   return (
+    home ? <InRoomScreen /> :
     <div>
       Possible Answers
       {
@@ -147,6 +168,7 @@ export default function FlashcardTest({ flashcards }) {
           ))}
 
           <input type="button" value="Submit quiz" onClick={handleSubmit} />
+          <input type='button' value="Back" onClick={back} />
         </form>
 
       </div>
