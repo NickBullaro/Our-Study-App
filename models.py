@@ -130,6 +130,6 @@ class WhiteboardConnections
     leader = DB.Column(DB.Integer, nullable=False)
     
     def __init__(self, whiteboard, sid, leader):
-        self.whiteboard = room
+        self.whiteboard = whiteboard
         self.sid = sid
         self.leader = leader

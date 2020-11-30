@@ -176,6 +176,7 @@ def on_disconnect():
     When a user disconnects, make sure they are removed from any rooms that they had entered and 
     stop associating the user with that connection
     '''
+    disconnect_whiteboard(flask.request.sid)
     disconnected_user = models.DB.session.query(models.CurrentConnections).filter_by(sid=flask.request.sid).first()
     if not disconnected_user:
         print("Database error on disconnect")
@@ -265,6 +266,7 @@ def on_room_entry_request(data):
 
 @socketio.on("leave room")
 def accept_room_departure():
+    disconnect_whiteboard(flask.request.sid)
     user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=flask.request.sid).first()[0]
     room_id = models.DB.session.query(models.EnteredRooms.room).filter_by(user=user_id).first()[0]
     models.DB.session.query(models.EnteredRooms).filter_by(user=user_id).delete()
@@ -355,6 +357,33 @@ def on_make_whiteboard(data):
     models.DB.session.query(models.Whiteboards).filter_by(id=data["id"]).delete()
     models.DB.commit()
     emit_boards(flask.request.sid)
+    
+@socketio.on("join whiteboard")
+def on_join_whiteboard(data):
+    my_leader = 1
+    any_leader = models.DB.session.query(models.WhiteboardConnections).filter_by(whiteboard=data["id"], leader=1)
+    if any_leader:
+        my_leader = 0
+    models.DB.session.add(models.WhiteboardConnections(data["id"], flask.request.sid, my_leader))
+    models.DB.commit()
+    flask_socketio.join_room("w{}".format((data['id']))
+    
+@socketio.on("disconnect whiteboard")
+def on_disconnect_whiteboard():
+    disconnect_whiteboard(flask.request.sid)
+
+def disconnect_whiteboard(my_sid):
+    my_board = get_board(my_sid)
+    int_board = int(my_board[1:])
+    flask_socketio.leave_room(my_board, my_sid)
+    models.DB.session.query(models.WhiteboardConnections).filter_by(sid=my_sid).delete()
+    models.DB.commit()
+    any_leader = models.DB.session.query(models.WhiteboardConnections).filter_by(whiteboard=int_board), leader=1)
+    if not any_leader:
+        make_leader = models.DB.session.query(models.WhiteboardConnections).filter_by(whiteboard=int_board).first()
+        if make_leader:
+            make_leader.update(leader=1)
+            models.DB.commit()
 
 @socketio.on("drawing stroke input")
 def on_drawing_stroke(data):
