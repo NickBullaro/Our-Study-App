@@ -109,7 +109,7 @@ def emit_flashcards(room):
         cards.append(card_dict)
 
     
-    .emit(CARDS, cards, room=room)
+    socketio.emit(CARDS, cards, room=room)
     
     return cards
 
@@ -337,7 +337,7 @@ def emit_boards(my_sid):
     my_room = get_room(sid)
     to_send = []
     boards = models.Db.session.query(models.Whiteboards).filter_by(room=int(my_room))
-    for board in boards
+    for board in boards:
         to_send.append({"name":board.name, "id":board.id})
     socketio.emit("got whiteboard", to_send, room=my_sid)
 
@@ -366,8 +366,8 @@ def on_join_whiteboard(data):
         my_leader = 0
     models.DB.session.add(models.WhiteboardConnections(data["id"], flask.request.sid, my_leader))
     models.DB.commit()
-    flask_socketio.join_room("w{}".format((data['id']))
-    
+    flask_socketio.join_room("w{}".format((data['id'])))
+
 @socketio.on("disconnect whiteboard")
 def on_disconnect_whiteboard():
     disconnect_whiteboard(flask.request.sid)
@@ -378,7 +378,7 @@ def disconnect_whiteboard(my_sid):
     flask_socketio.leave_room(my_board, my_sid)
     models.DB.session.query(models.WhiteboardConnections).filter_by(sid=my_sid).delete()
     models.DB.commit()
-    any_leader = models.DB.session.query(models.WhiteboardConnections).filter_by(whiteboard=int_board), leader=1)
+    any_leader = models.DB.session.query(models.WhiteboardConnections).filter_by(whiteboard=int_board, leader=1)
     if not any_leader:
         make_leader = models.DB.session.query(models.WhiteboardConnections).filter_by(whiteboard=int_board).first()
         if make_leader:

@@ -14,6 +14,7 @@ function WhiteboardButton() {
     }
     else
     {
+      Socket.emit("disconnect whiteboard")
       setPicked(false)
     }
     setDisplay(!display);
@@ -32,6 +33,7 @@ function WhiteboardButton() {
   
   function createBoard(){
     Socket.emit("make whiteboard", {name:newName})
+    console.log(newName)
   }
   
   function fGotWhiteboards(data) {
@@ -57,7 +59,7 @@ function WhiteboardButton() {
             </div>
           ))}
         <label>New Board:
-          <input id="new" name="new" type="text" onChange={(e) => handleName(e)}/>
+          <input id="new" name="new" type="text" value={newName} onChange={(e) => handleName(e)}/>
         </label>
         <button type="button" onClick={createBoard}>Create</button>
       </div>
