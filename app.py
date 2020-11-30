@@ -341,10 +341,20 @@ def emit_boards(my_sid):
 
 @socketio.on("make whiteboard")
 def on_make_whiteboard(data):
-    room = get_room(socketio.client_sid)
+    room = get_room(flask.request.sid)
     models.DB.session.add(models.Whiteboards(room, data["name"]))
     models.DB.session.commit()
-    emit_boards(socketio.client_sid)
+    emit_boards(flask.request.sid)
+    
+@socketio.on("get whiteboards")
+def on_make_whiteboard():
+    emit_boards(flask.request.sid)
+    
+@socketio.on("remove whiteboard")
+def on_make_whiteboard(data):
+    models.DB.session.query(models.Whiteboards).filter_by(id=data["id"]).delete()
+    models.DB.commit()
+    emit_boards(flask.request.sid)
 
 @socketio.on("drawing stroke input")
 def on_drawing_stroke(data):
