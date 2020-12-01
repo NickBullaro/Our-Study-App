@@ -43,6 +43,7 @@ USERS_RECEIVED_CHANNEL = "users received"
 NEW_CARDS = "new cards"
 CARDS = "cards"
 
+
 SAMPLE_MESSAGES = []
 
 
@@ -51,15 +52,16 @@ def emit_joined_rooms(client_room):
     Takes in a clients personal room sid and uses it to identify the user in the database. It then checks
     the database to see which rooms the user has joined and emits that as a list to rhe client_room
     '''
-    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=client_room).first()
-    room_id_list = models.DB.session.query(models.JoinedRooms.room).filter_by(user=user_id).all()
+    user_id = models.DB.session.query(models.CurrentConnections).filter_by(sid=client_room).first().user
+    room_id_list = models.DB.session.query(models.JoinedRooms).filter_by(user=user_id).all()
     models.DB.session.commit()
     room_list = []
     for room_id in room_id_list:
         room_list.append({
-            'roomName': models.DB.session.query(models.Rooms.name).filter_by(id=room_id).first(),
-            'roomId': room_id
+            'roomName': models.DB.session.query(models.Rooms.name).filter_by(id=room_id.room).first(),
+            'roomId': room_id.room
         })
+
     socketio.emit(
         "updated room list",
         {"rooms": room_list},
@@ -77,14 +79,18 @@ def get_room(client_sid):
     '''
     user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=client_sid).first()
     entered_room = models.DB.session.query(models.EnteredRooms.room).filter_by(user=user_id).first()
+ 
+    print("Entered room:",entered_room)
     if entered_room:
         return str(entered_room[0])
     else:
         return client_sid
     
-def emit_flashcards(room):
+def emit_flashcards(client_sid):
     """Emit all the flashcards for a specific room"""
-    all_cards = models.DB.session.query(models.Flashcards).all()
+    room = get_room(client_sid)
+    
+    all_cards = models.DB.session.query(models.Flashcards).filter_by(room=room).all()
     cards = []
     for card in all_cards:
         card_dict = {}
@@ -132,7 +138,7 @@ def emit_room_stats(client_sid):
     # If the user isn't in a room, emit nothing
     if room_id == client_sid:
         return
-    room_password = models.DB.session.query(models.Rooms.password).filter_by(id=int(room_id)).first()[0]
+    room_password = models.DB.session.query(models.Rooms).filter_by(id=int(room_id)).first().password
     socketio.emit("room stats update", {'roomId':room_id, 'roomPassword': room_password}, room=room_id)
 
 def clear_non_persistent_tables():
@@ -235,12 +241,13 @@ def on_room_entry_request(data):
     emit_room_history(flask.request.sid)
     emit_all_users(USERS_RECEIVED_CHANNEL, data['roomId'])
     emit_all_messages(flask.request.sid)
+    emit_flashcards(flask.request.sid)
     emit_room_stats(flask.request.sid)
 
 @socketio.on("leave room")
 def accept_room_departure():
-    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=flask.request.sid).first()[0]
-    room_id = models.DB.session.query(models.EnteredRooms.room).filter_by(user=user_id).first()[0]
+    user_id = models.DB.session.query(models.CurrentConnections).filter_by(sid=flask.request.sid).first().user
+    room_id = models.DB.session.query(models.EnteredRooms).filter_by(user=user_id).first().room
     models.DB.session.query(models.EnteredRooms).filter_by(user=user_id).delete()
     models.DB.session.commit()
     socketio.emit(
@@ -257,11 +264,13 @@ def reset_room_password():
     print("Received password change request")
     client_sid = flask.request.sid
     room_id = get_room(client_sid)
+   
     if client_sid == room_id:
         print("\tPassword not changed since sender is not in a room")
         return
-    client_user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=client_sid).first()[0]
+    client_user_id = models.DB.session.query(models.CurrentConnections).filter_by(sid=client_sid).first().user
     room = models.DB.session.query(models.Rooms).filter_by(id=int(room_id)).first()
+   
     if client_user_id != room.creator:
         print("\tPassword not changed since sender is not room creator")
         return
@@ -318,9 +327,9 @@ def on_new_message(data):
     user = {}
     user["sid"] = flask.request.sid
     user["room"] = get_room(flask.request.sid)  # TODO: get room_id from the sender request.sid
-    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=flask.request.sid).first()[0]
-    user["username"] = models.DB.session.query(models.AuthUser.username).filter_by(id=user_id).first()[0]
-    user["picUrl"] = models.DB.session.query(models.AuthUser.picUrl).filter_by(username=user['username']).first()[0]
+    user_id = models.DB.session.query(models.CurrentConnections).filter_by(sid=flask.request.sid).first().user
+    user["username"] = models.DB.session.query(models.AuthUser).filter_by(id=user_id).first().username
+    user["picUrl"] = models.DB.session.query(models.AuthUser).filter_by(username=user['username']).first().picUrl
     models.DB.session.add(models.Messages(user, user['username'] + ": " + data['message']))
     models.DB.session.commit()
     emit_all_messages(flask.request.sid)
@@ -330,11 +339,9 @@ def new_cards(data):
     """Listen for new cards event from client.
     Update the database by replacing the old cards with the new cards.
     """
-
-    print("New cards:", data)
     room = get_room(flask.request.sid)
 
-    models.Flashcards.query.delete()
+    models.Flashcards.query.filter_by(room=room).delete()
     models.DB.session.commit()
 
     for card in data:
@@ -344,8 +351,8 @@ def new_cards(data):
         models.DB.session.add(models.Flashcards(question, answer, room))
 
     models.DB.session.commit()
-    emit_flashcards(room)
-
+    emit_flashcards(flask.request.sid)
+   
 @socketio.on("drawing stroke input")
 def on_drawing_stroke(data):
     room_id = get_room(flask.request.sid)

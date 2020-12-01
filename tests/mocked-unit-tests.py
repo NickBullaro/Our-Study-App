@@ -69,7 +69,7 @@ class testOnNewCards(unittest.TestCase):
             
                 query = session.query(models.Flashcards).all()[0]
                 expected = test[KEY_EXPECTED]
-                print(query.room)
+                
                 self.assertEqual(query.room, expected[2])
                 self.assertEqual(query.answer, expected[1])  
                 self.assertEqual(query.question, expected[0])  
