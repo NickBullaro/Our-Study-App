@@ -79,6 +79,8 @@ def get_room(client_sid):
     '''
     user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=client_sid).first()
     entered_room = models.DB.session.query(models.EnteredRooms.room).filter_by(user=user_id).first()
+    print("UID:", user_id)
+    print(entered_room)
     if entered_room:
         return str(entered_room[0])
     else:
@@ -267,6 +269,8 @@ def reset_room_password():
     print("Received password change request")
     client_sid = flask.request.sid
     room_id = get_room(client_sid)
+    print("CSID:", client_sid)
+    print("RID:", room_id)
     if client_sid == room_id:
         print("\tPassword not changed since sender is not in a room")
         return
@@ -300,8 +304,6 @@ def new_cards(data):
     """Listen for new cards event from client.
     Update the database by replacing the old cards with the new cards.
     """
-
-    print("New cards:", data)
     room = get_room(flask.request.sid)
 
     models.Flashcards.query.delete()
