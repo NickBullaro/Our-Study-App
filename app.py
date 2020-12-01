@@ -61,7 +61,7 @@ def emit_joined_rooms(client_room):
             'roomName': models.DB.session.query(models.Rooms.name).filter_by(id=room_id.room).first(),
             'roomId': room_id.room
         })
-    print(room_list)
+
     socketio.emit(
         "updated room list",
         {"rooms": room_list},
@@ -79,16 +79,18 @@ def get_room(client_sid):
     '''
     user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=client_sid).first()
     entered_room = models.DB.session.query(models.EnteredRooms.room).filter_by(user=user_id).first()
-    print("UID:", user_id)
-    print(entered_room)
+ 
+    print("Entered room:",entered_room)
     if entered_room:
         return str(entered_room[0])
     else:
         return client_sid
     
-def emit_flashcards(room):
+def emit_flashcards(client_sid):
     """Emit all the flashcards for a specific room"""
-    all_cards = models.DB.session.query(models.Flashcards).all()
+    room = get_room(client_sid)
+    
+    all_cards = models.DB.session.query(models.Flashcards).filter_by(room=room).all()
     cards = []
     for card in all_cards:
         card_dict = {}
@@ -239,6 +241,7 @@ def on_room_entry_request(data):
     emit_room_history(flask.request.sid)
     emit_all_users(USERS_RECEIVED_CHANNEL, data['roomId'])
     emit_all_messages(flask.request.sid)
+    emit_flashcards(flask.request.sid)
     emit_room_stats(flask.request.sid)
 
 @socketio.on("leave room")
@@ -261,15 +264,13 @@ def reset_room_password():
     print("Received password change request")
     client_sid = flask.request.sid
     room_id = get_room(client_sid)
-    print("CSID:", client_sid)
-    print("RID:", room_id)
+   
     if client_sid == room_id:
         print("\tPassword not changed since sender is not in a room")
         return
     client_user_id = models.DB.session.query(models.CurrentConnections).filter_by(sid=client_sid).first().user
     room = models.DB.session.query(models.Rooms).filter_by(id=int(room_id)).first()
-    print("Creator:", room.creator)
-    print("CID:", client_user_id)
+   
     if client_user_id != room.creator:
         print("\tPassword not changed since sender is not room creator")
         return
@@ -326,7 +327,6 @@ def on_new_message(data):
     user = {}
     user["sid"] = flask.request.sid
     user["room"] = get_room(flask.request.sid)  # TODO: get room_id from the sender request.sid
-    print('SID:', flask.request.sid)
     user_id = models.DB.session.query(models.CurrentConnections).filter_by(sid=flask.request.sid).first().user
     user["username"] = models.DB.session.query(models.AuthUser).filter_by(id=user_id).first().username
     user["picUrl"] = models.DB.session.query(models.AuthUser).filter_by(username=user['username']).first().picUrl
@@ -341,7 +341,7 @@ def new_cards(data):
     """
     room = get_room(flask.request.sid)
 
-    models.Flashcards.query.delete()
+    models.Flashcards.query.filter_by(room=room).delete()
     models.DB.session.commit()
 
     for card in data:
@@ -351,8 +351,8 @@ def new_cards(data):
         models.DB.session.add(models.Flashcards(question, answer, room))
 
     models.DB.session.commit()
-    emit_flashcards(room)
-
+    emit_flashcards(flask.request.sid)
+   
 @socketio.on("drawing stroke input")
 def on_drawing_stroke(data):
     room_id = get_room(flask.request.sid)

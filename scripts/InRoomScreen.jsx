@@ -33,6 +33,7 @@ function InRoomScreen() {
       <WhiteboardButton />
       <div className="container" id="flashcards_container">
           <Flashcards />
+          <FlashcardTest />
       </div>
       </div>
       <div className="button_area" id="inRoomScreen">
@@ -41,9 +42,8 @@ function InRoomScreen() {
         <button id="logout" onClick={logout} type="submit">Log Out</button>
       </div>
 
-      <Flashcards />
-      <FlashcardTest />
-      <button onClick={tempRoomLeave} type="submit">LeaveRoom</button>
+     
+      
     </div>
   );
 }
