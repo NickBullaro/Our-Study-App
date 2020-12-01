@@ -44,7 +44,7 @@ export default function CreateFlashcards({ cards }) {
       : (
         <div>
           {fields.map((field, idx) => (
-            <div key={`${field + idx}`} className="form-row">
+            <div key={`${field + idx}`} className="row">
 
               <div className="col-5">
                 <input type="text" className="question" placeholder="Enter question" value={field.question} onChange={(e) => handleQuestion(idx, e)} />

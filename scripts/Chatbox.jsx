@@ -7,29 +7,31 @@ function Chatbox() {
   const [picUrls, setUrls] = React.useState([]);
 
   function getNewMessage() {
+    React.useEffect(() => {
+      Socket.on('sending room data', (data) => {
+        setMessages(data.allMessages);
+        const chatBox = document.getElementById('chatbox');
+        chatBox.scrollTop = chatBox.scrollHeight;
+      });
+    });
 
     React.useEffect(() => {
-      Socket.on('sending message history', (data) => {
+      Socket.on('sending message history',(data) => {
         setMessages(data.allMessages);
-        setUrls(data.all_user_pics);
         const chatBox = document.getElementById('chatbox');
         chatBox.scrollTop = chatBox.scrollHeight;
       });
     });
   }
-  
 
   getNewMessage();
 
   return (
-    <div>
-      <h3>Chatbox</h3>
-      <div className="userList"  id="chatbox">
-        <ul>
+    <div className="container" id="chatbox">
+      <div className="chat_messages">
           {
-            messages.map((message, index) => <li key={index}><img src={picUrls[index]} className="img"></img> {message}</li>)
+            messages.map((message, index) => <div className="container" id="registered_message" key={index}><img src={picUrls[index]} className="img"/>{message}</div>)
           }
-        </ul>
       </div>
       <SendMessageButton />
     </div>

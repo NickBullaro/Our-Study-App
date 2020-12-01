@@ -8,35 +8,39 @@ import UsersInRoomList from './UsersInRoomList';
 import FlashcardTest from './FlashcardTest';
 
 function InRoomScreen() {
-  const [test, setTest] = React.useState(false);
-  const [flashcards, setFlashcards] = React.useState([]);
   function tempRoomLeave() {
     Socket.emit('leave room');
   }
   
-  function takeTest(event) {
-    event.preventDefault();
-    setTest(true);
-  }
-     const CARDS = 'cards';
 
-  function newCards() {
-    React.useEffect(() => {
-      Socket.on(CARDS, (data) => {
-        setFlashcards(data);
-      });
-    });
+  function roomSettings() {
+    return;
+  }
+  
+  function logout() {
+    return;
   }
 
-  newCards();
   return (
     <div id="inRoomScreen">
       <RoomStats />
-      <WhiteboardButton />
-      <div className="inRoom_chat_usr_container">
-        <Chatbox />
+      <div id="grid_container">
+      <h2 className="header"> Room Name</h2>
+      <div className="container" id="chat_and_users"style={{background:"none"}}>
         <UsersInRoomList />
+        <Chatbox />
       </div>
+      <WhiteboardButton />
+      <div className="container" id="flashcards_container">
+          <Flashcards />
+      </div>
+      </div>
+      <div className="button_area" id="inRoomScreen">
+        <button id="leave_room" onClick={tempRoomLeave} type="submit">Leave Room</button>
+        <button id="room_settings" onClick={roomSettings} type="submit">Settings</button>
+        <button id="logout" onClick={logout} type="submit">Log Out</button>
+      </div>
+
       <Flashcards />
       <FlashcardTest />
       <button onClick={tempRoomLeave} type="submit">LeaveRoom</button>
