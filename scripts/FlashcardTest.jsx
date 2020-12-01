@@ -30,8 +30,7 @@ export default function FlashcardTest() {
   const [key, setKey] = useState([]);
   const [test, setTest] = useState([{}]);
   const [flashcards, setFlashcards] = useState([]);
-  
-  const [home, setHome] = useState(false);
+
   const [fields, setFields] = useState([]);
   
   const CARDS = 'cards';
@@ -123,16 +122,11 @@ export default function FlashcardTest() {
     }, [flashcards]);
   }
   
-  function back(event) {
-    event.preventDefault();
-    setHome(true);
-  
-  }
+
   newCards();
   setUp();
   
   return (
-    home ? <InRoomScreen /> :
     <div>
       Possible Answers
       {
@@ -168,7 +162,7 @@ export default function FlashcardTest() {
           ))}
 
           <input type="button" value="Submit quiz" onClick={handleSubmit} />
-          <input type='button' value="Back" onClick={back} />
+       
         </form>
 
       </div>

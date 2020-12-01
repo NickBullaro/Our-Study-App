@@ -137,7 +137,7 @@ def emit_room_stats(client_sid):
     # If the user isn't in a room, emit nothing
     if room_id == client_sid:
         return
-    room_password = models.DB.session.query(models.Rooms.password).filter_by(id=int(room_id)).first()[0]
+    room_password = models.DB.session.query(models.Rooms).filter_by(id=int(room_id)).first().password
     socketio.emit("room stats update", {'roomId':room_id, 'roomPassword': room_password}, room=room_id)
     
 
@@ -167,6 +167,7 @@ def on_disconnect():
         print("Database error on disconnect")
         return
     elif disconnected_user.user is not None:
+        print("DIC:", disconnected_user.user)
         # Remove the user from any rooms they are currently in
         user_room = get_room(flask.request.sid)
         models.DB.session.query(models.EnteredRooms).filter_by(user=disconnected_user.user).delete()
@@ -251,8 +252,8 @@ def on_room_entry_request(data):
 
 @socketio.on("leave room")
 def accept_room_departure():
-    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=flask.request.sid).first()[0]
-    room_id = models.DB.session.query(models.EnteredRooms.room).filter_by(user=user_id).first()[0]
+    user_id = models.DB.session.query(models.CurrentConnections).filter_by(sid=flask.request.sid).first().user
+    room_id = models.DB.session.query(models.EnteredRooms).filter_by(user=user_id).first().room
     models.DB.session.query(models.EnteredRooms).filter_by(user=user_id).delete()
     models.DB.session.commit()
     socketio.emit(
@@ -274,8 +275,10 @@ def reset_room_password():
     if client_sid == room_id:
         print("\tPassword not changed since sender is not in a room")
         return
-    client_user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=client_sid).first()[0]
+    client_user_id = models.DB.session.query(models.CurrentConnections).filter_by(sid=client_sid).first().user
     room = models.DB.session.query(models.Rooms).filter_by(id=int(room_id)).first()
+    print("Creator:", room.creator)
+    print("CID:", client_user_id)
     if client_user_id != room.creator:
         print("\tPassword not changed since sender is not room creator")
         return

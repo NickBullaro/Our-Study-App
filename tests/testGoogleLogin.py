@@ -78,17 +78,12 @@ class testOnGoogleLogin(unittest.TestCase):
             session = UnifiedAlchemyMagicMock()
             for test in self.success_test_params:
                 mock_flask.request.sid = test[KEY_INPUT][KEY_SID]
-                mocked_connection = mock.MagicMock()
-                mocked_connection.user = 1
-                mocked_connection.sid = test[KEY_INPUT][KEY_SID]
-                #app.accept_google_login.connection = mocked_connection
+               
                 
                 with mock.patch("models.DB.session", session):
                     session.add(models.CurrentConnections(mock_flask.request.sid, 1))
                     session.commit()
-                    session.query(models.AuthUser).filter_by.return_value.first.return_value = self.mocked_user()
-                    
-                    session.query(models.CurrentConnections).filter_by.return_value.first.return_value = self.mocked_connection()
+                   
                     print("Mocked Login")
                     
                     app.accept_google_login(test[KEY_INPUT][KEY_DATA])
