@@ -354,3 +354,11 @@ canvas {
     width: 150px;
     text-align: center;
 }
+
+.correct {
+    outline: .1em solid green;
+}
+
+.wrong {
+    outline: .1em solid red;
+}
