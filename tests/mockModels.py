@@ -17,7 +17,7 @@ import models
 from models import AuthUserType
 from models import GenerateCharacterPin
 
-class Messages():
+class Messages:
     # THIS PART IS NEW FOR THE MOCKED CLASS
     _db_dict = {}
     _id = 0
@@ -29,6 +29,10 @@ class Messages():
 
     def add(self):
         type(self)._db_dict[self.id] = self
+    
+    def remove(self):
+        if self.id in type(self)._db_dict:
+            type(self)._db_dict.pop(self.id)
 
     # THIS PART IS COPIED AND PASTED FROM MODELS.PY (adding two lines to __init__ for self.id)
     def __init__(self, user, message):
@@ -49,7 +53,7 @@ class Messages():
             "message": self.message,
         }
 
-class AuthUser(DB.Model):
+class AuthUser:
     # THIS PART IS NEW FOR THE MOCKED CLASS
     _db_dict = {}
     _id = 0
@@ -61,6 +65,10 @@ class AuthUser(DB.Model):
 
     def add(self):
         type(self)._db_dict[self.id] = self
+    
+    def remove(self):
+        if self.id in type(self)._db_dict:
+            type(self)._db_dict.pop(self.id)
 
     # THIS PART IS COPIED AND PASTED FROM MODELS.PY (adding two lines to __init__ for self.id)
     def __init__(self, auth_type, name, email, pic=''):
@@ -72,7 +80,7 @@ class AuthUser(DB.Model):
         self.email = email
         self.picUrl = pic
         
-class Rooms(DB.Model):
+class Rooms:
     # THIS PART IS NEW FOR THE MOCKED CLASS
     _db_dict = {}
     _id = 0
@@ -84,6 +92,10 @@ class Rooms(DB.Model):
 
     def add(self):
         type(self)._db_dict[self.id] = self
+    
+    def remove(self):
+        if self.id in type(self)._db_dict:
+            type(self)._db_dict.pop(self.id)
 
     # THIS PART IS COPIED AND PASTED FROM MODELS.PY (adding two lines to __init__ for self.id)
     def __init__(self, roomCreator, roomName):
@@ -96,7 +108,7 @@ class Rooms(DB.Model):
     def __repr__(self):
         return "{} (id: {} password: {}), created by {}".format(self.name, self.id, self.password, self.creator)
 
-class Flashcards(DB.Model):
+class Flashcards:
     # THIS PART IS NEW FOR THE MOCKED CLASS
     _db_dict = {}
     _id = 0
@@ -108,6 +120,10 @@ class Flashcards(DB.Model):
 
     def add(self):
         type(self)._db_dict[self.id] = self
+    
+    def remove(self):
+        if self.id in type(self)._db_dict:
+            type(self)._db_dict.pop(self.id)
 
     # THIS PART IS COPIED AND PASTED FROM MODELS.PY (adding two lines to __init__ for self.id)
     def __init__(self, question, answer, room):
@@ -120,7 +136,7 @@ class Flashcards(DB.Model):
     def __repr__(self):
         return (self.question, self.answer, self.room)
 
-class CurrentConnections(DB.Model):
+class CurrentConnections:
     # THIS PART IS NEW FOR THE MOCKED CLASS
     _db_dict = {}
     _id = 0
@@ -132,6 +148,10 @@ class CurrentConnections(DB.Model):
 
     def add(self):
         type(self)._db_dict[self.id] = self
+    
+    def remove(self):
+        if self.id in type(self)._db_dict:
+            type(self)._db_dict.pop(self.id)
 
     # THIS PART IS COPIED AND PASTED FROM MODELS.PY (adding two lines to __init__ for self.id)
     def __init__(self, sid, user):
@@ -157,7 +177,7 @@ class CurrentConnections(DB.Model):
         self.user = user
         self.room = room
 
-class EnteredRooms(DB.Model):
+class EnteredRooms:
     # THIS PART IS NEW FOR THE MOCKED CLASS
     _db_dict = {}
     _id = 0
@@ -169,6 +189,10 @@ class EnteredRooms(DB.Model):
 
     def add(self):
         type(self)._db_dict[self.id] = self
+    
+    def remove(self):
+        if self.id in type(self)._db_dict:
+            type(self)._db_dict.pop(self.id)
 
     # THIS PART IS COPIED AND PASTED FROM MODELS.PY (adding two lines to __init__ for self.id)
     def __init__(self, user, room):

@@ -4,25 +4,58 @@ class MockSession:
     '''
     def __init__(self):
         return
-    
+
     class query:
-        def init(self, dict_db):
-            self.db = dict_db.copy()
-            for key in self.db:
-                self.db[key] = dict_db[key].copy()
-        
+        def init(self, mocked_database_class):
+            self.db = mocked_database_class.get_db().copy()
+
         def filter_by(**kwargs):
-            for column in kwargs:
-                if column = 'id':
-                    for row_id in self.db:
-                        if kwargs[column] != row_id:
-                            self.db.pop(row_id)
-                else:
-                    for row_id in self.db:
-                        if column in self.db[row_id]:
-                            if kwargs[column] != self.db[row_id][column]:
-                                self.db.pop(row_id)
+            for attribute_name in kwargs:
+                rows_to_remove = []
+                for row in self.db:
+                    try:
+                        row_attribute = getattr(self.db[row], attribute_name)
+                        if row_attribute != kwargs[attribute_name]:
+                            rows_to_remove.append(row)
+                    except AttributeError:
+                        rows_to_remove.append(row)
+                for row in rows_to_remove:
+                    removed_value = self.db.pop(row, 'key not in dict')
+                        
             return self
-        
+
         def all(self):
-            return self.db
+            rows = []
+            for key in self.db:
+                rows.append(self.db[key])
+            return rows
+
+        def first(self):
+            rows = []
+            for key in self.db:
+                rows.append(self.db[key])
+                break
+            if rows == []:
+                return None
+            else:
+                return rows[0]
+
+        def delete(self):
+            rows_to_remove_locally = []
+            for row in self.db:
+                rows_to_remove_locally.append(row)
+                self.db[row].remove()
+            for row in rows_to_remove_locally:
+                removed_value = self.db.pop(row, 'key not in dict')
+
+    def add(self, mocked_database_row):
+        mocked_database_row.add()
+
+    def commit(self):
+        pass
+
+    def delete(self, mocked_database_row):
+        mocked_database_row.remove()
+
+    def refresh(self, mocked_database_row):
+        pass
