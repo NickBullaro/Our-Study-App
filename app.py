@@ -167,7 +167,6 @@ def on_disconnect():
         print("Database error on disconnect")
         return
     elif disconnected_user.user is not None:
-        print("DIC:", disconnected_user.user)
         # Remove the user from any rooms they are currently in
         user_room = get_room(flask.request.sid)
         models.DB.session.query(models.EnteredRooms).filter_by(user=disconnected_user.user).delete()

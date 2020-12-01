@@ -20,6 +20,8 @@ KEY_ROOM = 'room'
 KEY_DATA = 'data'
 KEY_CHANNEL = 'channel'
 KEY_ROOM_NAME = 'roomName'
+KEY_JOINED = 'joined rooms'
+KEY_ROOMS = 'rooms'
 
 KEY_CURRENT_CONNECTIONS_DB = 'curr_con'
 KEY_SID = 'request_sid'
@@ -43,8 +45,12 @@ class testNewRoomCreation(unittest.TestCase):
                     KEY_SID: '123456789ABCDEF',
                     
                     },
-            
-                },
+                KEY_EXPECTED : {
+                    KEY_ROOMS : 1,
+                    KEY_JOINED : 1
+                }
+                    
+                    },
         ]
  
         self.hold = ''
@@ -59,14 +65,16 @@ class testNewRoomCreation(unittest.TestCase):
             mock_flash.request.sid = test[KEY_INPUT][KEY_SID]
             
             with mock.patch("models.DB.session", session):
-              
+                print("Rooms:", session.query(models.JoinedRooms).count())
                 session.add(models.CurrentConnections(test[KEY_INPUT][KEY_SID], 1))
-                session.add(models.JoinedRooms(1,2))
+                
                 session.commit()
                 with mock.patch("flask_socketio.SocketIO.emit", self.mock_emit):
-                    print(app.on_new_room_creation(test[KEY_INPUT][KEY_DATA]))
-        
-               
+                    app.on_new_room_creation(test[KEY_INPUT][KEY_DATA])
+                
+                response = {KEY_JOINED : session.query(models.JoinedRooms).count(), KEY_ROOMS : session.query(models.Rooms).count()}
+                expected = test[KEY_EXPECTED]
+                self.assertDictEqual(response, expected)
 
     
 if __name__ == "__main__":
