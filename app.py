@@ -51,14 +51,14 @@ def emit_joined_rooms(client_room):
     Takes in a clients personal room sid and uses it to identify the user in the database. It then checks
     the database to see which rooms the user has joined and emits that as a list to rhe client_room
     '''
-    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=client_room).first()
-    room_id_list = models.DB.session.query(models.JoinedRooms.room).filter_by(user=user_id).all()
+    user_id = models.DB.session.query(models.CurrentConnections).filter_by(sid=client_room).first().user
+    joined_room_list = models.DB.session.query(models.JoinedRooms).filter_by(user=user_id).all()
     models.DB.session.commit()
     room_list = []
-    for room_id in room_id_list:
+    for room in joined_room_list:
         room_list.append({
-            'roomName': models.DB.session.query(models.Rooms.name).filter_by(id=room_id).first(),
-            'roomId': room_id
+            'roomName': models.DB.session.query(models.Rooms).filter_by(id=room.room).first().name,
+            'roomId': room.room
         })
     socketio.emit(
         "updated room list",
@@ -218,7 +218,7 @@ def accept_google_login(data):
         print('updating existing user')
         user.username = data['user']
         user.picUrl = data['pic']
-    connection = (models.CurrentConnections).filter_by(sid=flask.request.sid).first()
+    connection = models.DB.session.query(models.CurrentConnections).filter_by(sid=flask.request.sid).first()
     connection.user = user.id
     models.DB.session.commit()
     print("{} logged in".format(user.username))
@@ -226,7 +226,7 @@ def accept_google_login(data):
 
 @socketio.on("room entry request")
 def on_room_entry_request(data):
-    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=flask.request.sid).first()
+    user_id = models.DB.session.query(models.CurrentConnections).filter_by(sid=flask.request.sid).first().user
     models.DB.session.add(models.EnteredRooms(user_id, data['roomId']))
     models.DB.session.commit()
     socketio.emit("room entry accepted", room=flask.request.sid)
