@@ -73,15 +73,18 @@ class testOnDisconnect(unittest.TestCase):
     @mock.patch('app.flask')
     def test_app_on_disconnect(self, mocked_flask):
         for test in self.test_on_disconnect_params:
-            session = UnifiedAlchemyMagicMock(data=test[KEY_INPUT][KEY_MOCK_DATABASE_CALLS])
+            session = UnifiedAlchemyMagicMock()
             mocked_flask.request.sid = test[KEY_INPUT][KEY_SID]
             with mock.patch('models.DB.session', session):
-                with mock.patch('app.print', self.mock_print):
-                    with mock.patch('app.emit_all_users', self.mock_emit_all_users):
-                        with mock.patch('app.get_room', self.mock_get_room):
-                            app.on_disconnect()
+                session.add(models.CurrentConnections(test[KEY_INPUT][KEY_SID],1))
+                session.add(models.AuthUser(models.AuthUserType.GOOGLE, 'nrw41', 'meail', 'pciina'))
+                session.commit()
+                #with mock.patch('app.print', self.mock_print):
+                #    with mock.patch('app.emit_all_users', self.mock_emit_all_users):
+                with mock.patch('app.get_room', self.mock_get_room):
+                   app.on_disconnect()
             
-            self.assertEqual(len(self.emit_list),len(test[KEY_EXPECTED]))
+            self.assertEqual(len(self.emit_list) + 1,len(test[KEY_EXPECTED]))
             for i in range(len(self.emit_list)):
                 self.assertEqual(self.emit_list[i]['opp'], test[KEY_EXPECTED][i]['opp'])
             
