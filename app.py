@@ -101,9 +101,12 @@ def emit_all_messages(client_sid):
     # If the user isn't in a room, emit nothing
     if room_id == client_sid:
         return
-    all_messages = models.DB.session.query(models.Messages.message).filter_by(room=room_id).all()
-    all_user_pics = models.DB.session.query(models.Messages.picUrl).filter_by(room=room_id).all()
-    print("--", all_user_pics)
+    all_message_rows = models.DB.session.query(models.Messages).filter_by(room=room_id).all()
+    all_messages = []
+    all_user_pics = []
+    for message_row in all_message_rows:
+        all_messages.append(message_row.message)
+        all_user_pics.append(message_row.picUrl)
 
     socketio.emit(
         "sending message history", {"allMessages": all_messages, 'all_user_pics': all_user_pics}, room=room_id
