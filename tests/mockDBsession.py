@@ -6,16 +6,16 @@ class MockSession:
         return
 
     class query:
-        def init(self, mocked_database_class):
-            self.db = mocked_database_class.get_db().copy()
+        def __init__(self, mocked_database_class):
+            self.db = mocked_database_class._db_dict.copy()
 
-        def filter_by(**kwargs):
-            for attribute_name in kwargs:
+        def filter_by(self, **kwargs):
+            for attribute_name, attribute_value in kwargs.items():
                 rows_to_remove = []
                 for row in self.db:
                     try:
                         row_attribute = getattr(self.db[row], attribute_name)
-                        if row_attribute != kwargs[attribute_name]:
+                        if row_attribute != attribute_value:
                             rows_to_remove.append(row)
                     except AttributeError:
                         rows_to_remove.append(row)
@@ -47,6 +47,9 @@ class MockSession:
                 self.db[row].remove()
             for row in rows_to_remove_locally:
                 removed_value = self.db.pop(row, 'key not in dict')
+        
+        def count(self):
+            return len(self.db)
 
     def add(self, mocked_database_row):
         mocked_database_row.add()
