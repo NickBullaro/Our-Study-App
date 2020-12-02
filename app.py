@@ -121,12 +121,14 @@ def emit_room_history(room_id):
     socketio.emit("sending room data", data, room=room_id)
 
 def emit_all_users(channel, roomID):
-    all_user_ids = models.DB.session.query(models.EnteredRooms.user).filter_by(room=roomID).all()
+    entered_room_rows = models.DB.session.query(models.EnteredRooms).filter_by(room=roomID).all()
+    all_user_ids = []
     all_users = []
     all_user_pics = []
-    for i in all_user_ids:
-        all_users.append(models.DB.session.query(models.AuthUser.username).filter_by(id=i).first()[0])
-        all_user_pics.append(models.DB.session.query(models.AuthUser.picUrl).filter_by(id=i).first()[0])
+    for entered_room_row in entered_room_rows:
+        all_users.append(models.DB.session.query(models.AuthUser).filter_by(id=entered_room_row.user).first().username)
+        all_user_pics.append(models.DB.session.query(models.AuthUser).filter_by(id=entered_room_row.user).first().picUrl)
+        all_user_ids.append(entered_room_row.user)
     print("users: ", all_users)
     socketio.emit(channel, {"all_users": all_users, 'all_user_pics': all_user_pics, 'all_user_ids': all_user_ids})
 
