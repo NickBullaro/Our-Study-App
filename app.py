@@ -184,7 +184,7 @@ def on_disconnect():
 @socketio.on("new room creation request")
 def on_new_room_creation(data):
     print("received a new room creation request: {}".format(data["roomName"]))
-    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=flask.request.sid).first()
+    user_id = models.DB.session.query(models.CurrentConnections).filter_by(sid=flask.request.sid).first().user
     new_room = models.Rooms(user_id, data['roomName'])
     models.DB.session.add(new_room)
     models.DB.session.commit()
