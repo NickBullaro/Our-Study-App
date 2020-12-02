@@ -39,7 +39,6 @@ socketio.init_app(APP, cors_allowed_origins="*")
 username_sid_dict = {}
 
 USERS_RECEIVED_CHANNEL = "users received"
-
 NEW_CARDS = "new cards"
 CARDS = "cards"
 
@@ -201,7 +200,7 @@ def on_join_room_request(data):
             data["roomId"], data["roomPassword"]
         )
     )
-    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=flask.request.sid).first()
+    user_id = models.DB.session.query(models.CurrentConnections).filter_by(sid=flask.request.sid).first().user
     room = models.DB.session.query(models.Rooms).filter_by(id=data['roomId'], password=data['roomPassword']).first()
     if room:
         models.DB.session.add(models.JoinedRooms(user_id, room.id))
