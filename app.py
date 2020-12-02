@@ -276,6 +276,7 @@ def reset_room_password():
 
 @socketio.on("kick user request")
 def kick_user(data):
+    print(data)
     kick_target_id = data['kickedUserId']
     client_sid = flask.request.sid
     room_id = get_room(client_sid)
