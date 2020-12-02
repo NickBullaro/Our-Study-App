@@ -75,10 +75,10 @@ def get_room(client_sid):
     NOTE: This will always output a string. This matches with the socketio emits, but does not work 
     with any database filters. Make sure to convert back to an int for database queries.
     '''
-    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=client_sid).first()
-    entered_room = models.DB.session.query(models.EnteredRooms.room).filter_by(user=user_id).first()
+    user_id = models.DB.session.query(models.CurrentConnections).filter_by(sid=client_sid).first().user
+    entered_room = models.DB.session.query(models.EnteredRooms).filter_by(user=user_id).first().room
     if entered_room:
-        return str(entered_room[0])
+        return str(entered_room)
     else:
         return client_sid
     
