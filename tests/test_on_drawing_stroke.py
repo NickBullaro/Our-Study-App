@@ -74,6 +74,9 @@ class TestOnDrawingStroke(unittest.TestCase):
 
     def mock_emit(self, my_id, data, room="default"):
         self.hold = {KEY_EMIT_ID: my_id, KEY_DATA: data, KEY_EMIT_ROOM: room}
+    
+    def mock_get_room(self, client_sid):
+        return client_sid
 
     @mock.patch("app.flask")
     def test_app_on_connect(self, mocked_flask):
@@ -81,7 +84,7 @@ class TestOnDrawingStroke(unittest.TestCase):
         for test in self.test_on_stroke_params:
             mocked_flask.request.sid = test[KEY_INPUT][KEY_SID]
             with mock.patch("flask_socketio.SocketIO.emit", self.mock_emit):
-                with mock.patch("models.DB.session", session):
+                with mock.patch("app.get_room", self.mock_get_room):
                     app.on_drawing_stroke(test[KEY_INPUT][KEY_DATA])
 
             self.assertDictEqual(self.hold, test[KEY_EXPECTED])
