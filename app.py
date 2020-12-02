@@ -322,10 +322,10 @@ def on_new_message(data):
     print("Got an event for new message input with data:", data)
     user = {}
     user["sid"] = flask.request.sid
-    user["room"] = get_room(flask.request.sid)  # TODO: get room_id from the sender request.sid
-    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=flask.request.sid).first()[0]
-    user["username"] = models.DB.session.query(models.AuthUser.username).filter_by(id=user_id).first()[0]
-    user["picUrl"] = models.DB.session.query(models.AuthUser.picUrl).filter_by(username=user['username']).first()[0]
+    user["room"] = get_room(flask.request.sid)
+    user_id = models.DB.session.query(models.CurrentConnections).filter_by(sid=flask.request.sid).first().user
+    user["username"] = models.DB.session.query(models.AuthUser).filter_by(id=user_id).first().username
+    user["picUrl"] = models.DB.session.query(models.AuthUser).filter_by(username=user['username']).first().picUrl
     models.DB.session.add(models.Messages(user, user['username'] + ": " + data['message']))
     models.DB.session.commit()
     emit_all_messages(flask.request.sid)
@@ -339,7 +339,7 @@ def new_cards(data):
     print("New cards:", data)
     room = get_room(flask.request.sid)
 
-    models.Flashcards.query.delete()
+    models.DB.session.query(modles.Flashcards).delete()
     models.DB.session.commit()
 
     for card in data:
