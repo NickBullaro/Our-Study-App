@@ -264,7 +264,7 @@ def reset_room_password():
     if client_sid == room_id:
         print("\tPassword not changed since sender is not in a room")
         return
-    client_user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=client_sid).first()[0]
+    client_user_id = models.DB.session.query(models.CurrentConnections).filter_by(sid=client_sid).first().user
     room = models.DB.session.query(models.Rooms).filter_by(id=int(room_id)).first()
     if client_user_id != room.creator:
         print("\tPassword not changed since sender is not room creator")
@@ -283,7 +283,7 @@ def kick_user(data):
     if client_sid == room_id:
         print("\tUser not kicked since room id was invalid")
         return
-    client_user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=client_sid).first()[0]
+    client_user_id = models.DB.session.query(models.CurrentConnections).filter_by(sid=client_sid).first().user
     room = models.DB.session.query(models.Rooms).filter_by(id=room_id).first()
     if client_user_id != room.creator:
         print("\tUser not kicked since the request did not come from the room creator")
@@ -306,7 +306,7 @@ def kick_user(data):
 
 @socketio.on("i was kicked")
 def simple_leave_room(data):
-    user_id = models.DB.session.query(models.CurrentConnections.user).filter_by(sid=flask.request.sid).first()[0]
+    user_id = models.DB.session.query(models.CurrentConnections).filter_by(sid=flask.request.sid).first().user
     room_id = data['roomId']
     socketio.emit(
         "left room",
