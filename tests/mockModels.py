@@ -31,7 +31,7 @@ class Messages:
         
     db_dict = property(get_db)
 
-    def add(self):
+    def add(self, id = None):
         if self.id == None:
             if id == None or not isinstance(id, int):
                 self.id = type(self)._id
@@ -79,7 +79,7 @@ class AuthUser:
         
     db_dict = property(get_db)
 
-    def add(self):
+    def add(self, id = None):
         if self.id == None:
             if id == None or not isinstance(id, int):
                 self.id = type(self)._id
@@ -118,7 +118,7 @@ class Rooms:
         
     db_dict = property(get_db)
 
-    def add(self):
+    def add(self, id = None):
         if self.id == None:
             if id == None or not isinstance(id, int):
                 self.id = type(self)._id
@@ -158,7 +158,7 @@ class Flashcards:
         
     db_dict = property(get_db)
 
-    def add(self):
+    def add(self, id = None):
         if self.id == None:
             if id == None or not isinstance(id, int):
                 self.id = type(self)._id
@@ -237,7 +237,7 @@ class EnteredRooms:
         
     db_dict = property(get_db)
 
-    def add(self):
+    def add(self, id = None):
         if self.id == None:
             if id == None or not isinstance(id, int):
                 self.id = type(self)._id

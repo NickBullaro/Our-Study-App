@@ -129,7 +129,7 @@ def emit_all_users(channel, roomID):
         all_user_pics.append(models.DB.session.query(models.AuthUser).filter_by(id=entered_room_row.user).first().picUrl)
         all_user_ids.append(entered_room_row.user)
     print("users: ", all_users)
-    socketio.emit(channel, {"all_users": all_users, 'all_user_pics': all_user_pics, 'all_user_ids': all_user_ids})
+    socketio.emit(channel, {"all_users": all_users, 'all_user_pics': all_user_pics, 'all_user_ids': all_user_ids}, room=roomID)
 
 def emit_room_stats(client_sid):
     room_id = get_room(client_sid)
