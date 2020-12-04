@@ -131,6 +131,9 @@ class testEmitUsers(unittest.TestCase):
                     {
                         KEY_HOLD_LIST:
                             [{
+                                KEY_HOLD_TYPE: KEY_HOLD_PRINT,
+                                KEY_PRINT_CONTENT: "users: ['John Smith', 'Jill Smith']"
+                            },{
                                 KEY_HOLD_TYPE: KEY_HOLD_EMIT,
                                 KEY_EMIT_ID: 'users received',
                                 KEY_DATA: 
@@ -168,13 +171,15 @@ class testEmitUsers(unittest.TestCase):
                     }
             }
         ]
- 
         self.hold = []
 
      def mock_emit(self, channel, data, room='default'):
         self.hold.append({KEY_HOLD_TYPE: KEY_HOLD_EMIT, KEY_EMIT_ID: channel, KEY_DATA: data, KEY_EMIT_ROOM: room})
         
-     def mock_print(self, string):
+     def mock_print(self, *args):
+        string = ''
+        for arg in args:
+            string += str(arg)
         self.hold.append({KEY_HOLD_TYPE: KEY_HOLD_PRINT, KEY_PRINT_CONTENT: str(string)})
 
      def mock_get_room(self, client_sid):
@@ -198,7 +203,8 @@ class testEmitUsers(unittest.TestCase):
                     with mock.patch("flask_socketio.SocketIO.emit", self.mock_emit):
                         with mock.patch("models.EnteredRooms", mockModels.EnteredRooms):
                             with mock.patch("models.AuthUser", mockModels.AuthUser):
-                                app.emit_all_users(test[KEY_INPUT][KEY_CHANNEL], test[KEY_INPUT][KEY_ROOM_ID])
+                                with mock.patch("builtins.print", self.mock_print):
+                                    app.emit_all_users(test[KEY_INPUT][KEY_CHANNEL], test[KEY_INPUT][KEY_ROOM_ID])
 
             # Verify that the table(s) state ageter execution matches what was expected
             createdTable = export_entered_rooms_table()
