@@ -52,6 +52,17 @@ class AuthUser(DB.Model):
 class AuthUserType(Enum):
     GOOGLE = "google"
     FACEBOOK = "facebook"
+    
+    @staticmethod
+    def matchEnum(val):
+        if (val == AuthUserType.GOOGLE.value):
+            return AuthUserType.GOOGLE
+        elif (val == AuthUserType.FACEBOOK.value):
+            return AuthUserType.FACEBOOK
+        else:
+            return None
+        
+        
 
 def GenerateCharacterPin(pin_length):
     pin = ''
