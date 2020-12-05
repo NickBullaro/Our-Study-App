@@ -618,6 +618,28 @@ inRoomScreen {
     height:calc(100% - 70px);
 }
 
+.img {
+    height: 35px;
+    width: 35px;
+    border-radius: 50%;
+}
+
+.videoRoom {
+    text-align: center;
+    margin-bottom: 2em;
+    display: inline-block;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    padding: 0 2em 2em;
+}
+video {
+  width: 100%;
+  max-width: 300px;
+  display: block;
+  margin: 0 auto;
+  border-radius: 6px;
+}
+
 /*inRoomScreen > #leave_room {*/
 /*    position: fixed;*/
 /*    top: calc(100vh - 20px);*/

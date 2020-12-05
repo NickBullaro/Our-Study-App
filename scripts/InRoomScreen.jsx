@@ -6,6 +6,7 @@ import WhiteboardButton from './WhiteboardButton';
 import RoomStats from './RoomStats';
 import UsersInRoomList from './UsersInRoomList';
 import FlashcardTest from './FlashcardTest';
+import Stream from './Stream';
 
 function InRoomScreen() {
   function tempRoomLeave() {
@@ -31,6 +32,7 @@ function InRoomScreen() {
         <Chatbox />
       </div>
       <WhiteboardButton />
+      <Stream />
       <div className="container" id="flashcards_container">
           <Flashcards />
           <FlashcardTest />

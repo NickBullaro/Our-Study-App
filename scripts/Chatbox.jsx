@@ -8,16 +8,9 @@ function Chatbox() {
 
   function getNewMessage() {
     React.useEffect(() => {
-      Socket.on('sending room data', (data) => {
-        setMessages(data.allMessages);
-        const chatBox = document.getElementById('chatbox');
-        chatBox.scrollTop = chatBox.scrollHeight;
-      });
-    });
-
-    React.useEffect(() => {
       Socket.on('sending message history',(data) => {
         setMessages(data.allMessages);
+        setUrls(data.all_user_pics);
         const chatBox = document.getElementById('chatbox');
         chatBox.scrollTop = chatBox.scrollHeight;
       });
