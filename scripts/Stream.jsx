@@ -32,7 +32,7 @@ const Stream = () => {
     return(
         <div>
         {tokens ? (
-            <VideoRooms token={tokens} roomName={roomName} handleLogout={handleLogout}/>
+            <VideoRooms token={tokens} roomName={roomName}/>
             ) : (
                 '')}
         </div>

@@ -2,9 +2,15 @@ import * as React from 'react';
 import Twilio from 'twilio-video';
 import Participant from './VideoParticipants';
 
-const Video = ({token, roomName, handleLogout}) => {
+const Video = ({token, roomName, username}) => {
   const [room, setRoom] = React.useState(null);
   const [participants, setParticipants] = React.useState([]);
+  const [usernamee, setUsername] = React.useState('');
+  
+  if(usernamee !== username)
+  {
+    setUsername(username);
+  }
 
   React.useEffect(() => {
     const participantConnected = participant => {
@@ -18,8 +24,8 @@ const Video = ({token, roomName, handleLogout}) => {
         prevParticipants.filter(p => p !== participant)
       );
     };
-    const videoDevices = [];
-    const audioDevices = [];
+    let videoDevices = [];
+    let audioDevices = [];
     window.navigator.mediaDevices.enumerateDevices()
     .then(function(devices) {
       devices.forEach(function(device) {
@@ -38,7 +44,7 @@ const Video = ({token, roomName, handleLogout}) => {
       Twilio.connect(String(token), {name: roomName}).then(room => {
         setRoom(room);
         room.on('participantConnected', participantConnected);
-        room.on('participantDisconnected', participantDisconnected);
+        room.once('participantDisconnected', participantDisconnected);
         room.participants.forEach(participantConnected);
       }).catch((error) => {
         console.log(error);
@@ -49,7 +55,7 @@ const Video = ({token, roomName, handleLogout}) => {
       Twilio.connect(String(token), {name: roomName, video: false, audio: true}).then(room => {
         setRoom(room);
         room.on('participantConnected', participantConnected);
-        room.on('participantDisconnected', participantDisconnected);
+        room.once('participantDisconnected', participantDisconnected);
         room.participants.forEach(participantConnected);
       }).catch((error) => {
         console.log(error);
@@ -59,7 +65,7 @@ const Video = ({token, roomName, handleLogout}) => {
       Twilio.connect(String(token), {name: roomName, video: false, audio: false}).then(room => {
         setRoom(room);
         room.on('participantConnected', participantConnected);
-        room.on('participantDisconnected', participantDisconnected);
+        room.once('participantDisconnected', participantDisconnected);
         room.participants.forEach(participantConnected);
       }).catch((error) => {
         console.log(error);
@@ -73,14 +79,13 @@ const Video = ({token, roomName, handleLogout}) => {
             trackPublication.track.stop();
           });
           currentRoom.disconnect();
-          console.log("$", participants);
           return null;
         } else {
           return currentRoom;
         }
       });
     };
-  }, [roomName]);
+  }, [usernamee]);
 
   const remoteParticipants = participants.map(participant => (
     <Participant key={participant.sid} participant={participant} />
@@ -88,25 +93,18 @@ const Video = ({token, roomName, handleLogout}) => {
 
   return (
     <div className="videoRoom">
-      <div className="local-participant">
+      <div>
         {room ? (
           <Participant
             key={room.localParticipant.sid}
             participant={room.localParticipant}
           />
         ) : (
-          'hi'
+          ''
         )}
       </div>
-      <div>
-        <ul>
-          {
-            participants.map((participant, index) => <li key={index}>{participant.identity}</li>)
-          }
-        </ul>
-      </div>
       <h3>Remote Participants</h3>
-      <div className="remote-participants">{remoteParticipants}</div>
+      <div>{remoteParticipants}</div>
     </div>
   );
 };
