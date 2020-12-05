@@ -19,7 +19,11 @@ function Content() {
 
   return (
     <div id="content">
-      <WhiteboardButton />
+      {
+        loggedIn
+          ? <LoggedInContent />
+          : <LoginScreen />
+      }
     </div>
   );
 }

@@ -118,10 +118,12 @@ class Whiteboards(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True)
     room = DB.Column(DB.Integer, DB.ForeignKey(Rooms.id), nullable=False)
     name = DB.Column(DB.String(32), nullable=False)
+    save_num = DB.Column(DB.Integer, nullable=False)
     
     def __init__(self, room, name):
         self.room = room
         self.name = name
+        self.save_num = 0
 
 class WhiteboardConnections(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True)
