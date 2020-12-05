@@ -18,15 +18,53 @@ const Video = ({token, roomName, handleLogout}) => {
         prevParticipants.filter(p => p !== participant)
       );
     };
-
-    Twilio.connect(String(token), {name: roomName}).then(room => {
-      setRoom(room);
-      room.on('participantConnected', participantConnected);
-      room.on('participantDisconnected', participantDisconnected);
-      room.participants.forEach(participantConnected);
-    }).catch((error) => {
-      console.log(error);
+    const videoDevices = [];
+    const audioDevices = [];
+    window.navigator.mediaDevices.enumerateDevices()
+    .then(function(devices) {
+      devices.forEach(function(device) {
+        if(device.kind == 'videoinput')
+        {
+          videoDevices.push(device.kind);
+        }
+        if(device.kind == 'audioinput')
+        {
+          audioDevices.push(device.kind);
+        }
+      });
     });
+    if(videoDevices[0] == 'videoinput' && audioDevices[0] == 'audioinput')
+    {
+      Twilio.connect(String(token), {name: roomName}).then(room => {
+        setRoom(room);
+        room.on('participantConnected', participantConnected);
+        room.on('participantDisconnected', participantDisconnected);
+        room.participants.forEach(participantConnected);
+      }).catch((error) => {
+        console.log(error);
+      });
+    }
+    else if(videoDevices[0] != 'videoinput' && audioDevices[0] == 'audioinput')
+    {
+      Twilio.connect(String(token), {name: roomName, video: false, audio: true}).then(room => {
+        setRoom(room);
+        room.on('participantConnected', participantConnected);
+        room.on('participantDisconnected', participantDisconnected);
+        room.participants.forEach(participantConnected);
+      }).catch((error) => {
+        console.log(error);
+      });
+    }
+    else{
+      Twilio.connect(String(token), {name: roomName, video: false, audio: false}).then(room => {
+        setRoom(room);
+        room.on('participantConnected', participantConnected);
+        room.on('participantDisconnected', participantDisconnected);
+        room.participants.forEach(participantConnected);
+      }).catch((error) => {
+        console.log(error);
+      });
+    }
 
     return () => {
       setRoom(currentRoom => {

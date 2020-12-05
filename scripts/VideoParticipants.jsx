@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 const Participant = ({ participant }) => {
+    console.log("first");
     const [videoTracks, setVideoTracks] = React.useState([]);
     const [audioTracks, setAudioTracks] = React.useState([]);
     
@@ -65,9 +66,13 @@ const Participant = ({ participant }) => {
   
   
     return (
-        <div className="participant">
+        <div className='participant'>
             <h3>{participant.identity.toString()}</h3>
-            <video ref={videoRef} autoPlay={true} />
+            { videoTracks[0] ? (
+                <video ref={videoRef} autoPlay={true}>i</video>
+                ) : (
+                <img className ='noCamera' src='../static/482929.svg'></img>)
+            }
             <audio ref={audioRef} autoPlay={true} muted={true} />
         </div>
     );

@@ -640,6 +640,11 @@ video {
   border-radius: 6px;
 }
 
+.noCamera {
+    width: 100%;
+    max-width: 200px;
+}
+
 /*inRoomScreen > #leave_room {*/
 /*    position: fixed;*/
 /*    top: calc(100vh - 20px);*/
