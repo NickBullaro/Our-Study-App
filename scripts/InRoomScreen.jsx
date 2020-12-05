@@ -33,7 +33,7 @@ function InRoomScreen() {
       <WhiteboardButton />
       <div className="container" id="flashcards_container">
           <Flashcards />
-          <FlashcardTest />
+          
       </div>
       </div>
       <div className="button_area" id="inRoomScreen">
