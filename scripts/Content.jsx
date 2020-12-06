@@ -4,6 +4,7 @@ import LoginScreen from './LoginScreen';
 import Socket from './Socket';
 import WhiteboardButton from './WhiteboardButton'
 
+
 function Content() {
   const [loggedIn, setLoginState] = React.useState(false);
 

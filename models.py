@@ -113,7 +113,7 @@ class EnteredRooms(DB.Model):
     def __init__(self, user, room):
         self.user = user
         self.room = room
-        
+   
 class Whiteboards(DB.Model):
     id = DB.Column(DB.Integer, primary_key=True)
     room = DB.Column(DB.Integer, DB.ForeignKey(Rooms.id), nullable=False)
@@ -133,5 +133,6 @@ class WhiteboardConnections(DB.Model):
     
     def __init__(self, whiteboard, sid, leader):
         self.whiteboard = whiteboard
+        self.sid = sid
         self.sid = sid
         self.leader = leader

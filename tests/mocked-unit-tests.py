@@ -57,7 +57,11 @@ class testOnNewCards(unittest.TestCase):
                 KEY_EXPECTED: ['<card> question: 2+2 answer: 4 room: 123456789ABCDEF</card>']
             },
             ]
-            
+
+    
+    def mock_get_room(self, client_sid):
+        return client_sid
+
     @mock.patch('app.flask')
     def test_new_cards_success(self, mock_flash):
             session = UnifiedAlchemyMagicMock()
@@ -65,11 +69,12 @@ class testOnNewCards(unittest.TestCase):
                 mock_flash.request.sid = test[KEY_INPUT][KEY_SID]
                 app.new_cards.room = test[KEY_INPUT][KEY_DATA][0][KEY_ROOM]
                 with mock.patch("models.DB.session", session):
-                    app.new_cards(test[KEY_INPUT][KEY_DATA])
+                    with mock.patch('app.get_room', self.mock_get_room):
+                        app.new_cards(test[KEY_INPUT][KEY_DATA])
             
                 query = session.query(models.Flashcards).all()[0]
                 expected = test[KEY_EXPECTED]
-                print(query.room)
+                
                 self.assertEqual(query.room, expected[2])
                 self.assertEqual(query.answer, expected[1])  
                 self.assertEqual(query.question, expected[0])  

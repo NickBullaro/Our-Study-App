@@ -5,14 +5,14 @@ import Chatbox from './Chatbox';
 import WhiteboardButton from './WhiteboardButton';
 import RoomStats from './RoomStats';
 import UsersInRoomList from './UsersInRoomList';
-
+import FlashcardTest from './FlashcardTest';
 
 function InRoomScreen() {
-
   function tempRoomLeave() {
     Socket.emit('leave room');
   }
   
+
   function roomSettings() {
     return;
   }
@@ -33,6 +33,7 @@ function InRoomScreen() {
       <WhiteboardButton />
       <div className="container" id="flashcards_container">
           <Flashcards />
+          <FlashcardTest />
       </div>
       </div>
       <div className="button_area" id="inRoomScreen">
@@ -40,6 +41,9 @@ function InRoomScreen() {
         <button id="room_settings" onClick={roomSettings} type="submit">Settings</button>
         <button id="logout" onClick={logout} type="submit">Log Out</button>
       </div>
+
+     
+      
     </div>
   );
 }

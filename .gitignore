@@ -1,4 +1,5 @@
 keys.env
 app.py
-.gitignore
 __pycache__
+htmlcov/
+.coverage
