@@ -53,7 +53,6 @@ SAMPLE_MESSAGES = []
 
 
 def emit_joined_rooms(client_room):
-<<<<<<< HEAD
     """
     Takes in a clients personal room sid and uses it to identify the user in the database.
     It then checks the database to see which rooms the user has joined and
@@ -70,29 +69,15 @@ def emit_joined_rooms(client_room):
     models.DB.session.commit()
     room_list = []
     for room_id in room_id_list:
+        print("HERE", room_id)
         room_list.append(
             {
                 "roomName": models.DB.session.query(models.Rooms.name)
                 .filter_by(id=room_id)
                 .first(),
-                "roomId": room_id,
+                "roomId": room_id[0],
             }
         )
-=======
-    '''
-    Takes in a clients personal room sid and uses it to identify the user in the database. It then checks
-    the database to see which rooms the user has joined and emits that as a list to rhe client_room
-    '''
-    user_id = models.DB.session.query(models.CurrentConnections).filter_by(sid=client_room).first().user
-    joined_room_list = models.DB.session.query(models.JoinedRooms).filter_by(user=user_id).all()
-    models.DB.session.commit()
-    room_list = []
-    for room in joined_room_list:
-        room_list.append({
-            'roomName': models.DB.session.query(models.Rooms).filter_by(id=room.room).first().name,
-            'roomId': room.room
-        })
->>>>>>> master
     socketio.emit(
         "updated room list",
         {"rooms": room_list},
@@ -108,7 +93,6 @@ def get_room(client_sid):
 
     NOTE: This will always output a string. This matches with the socketio emits, but does not work
     with any database filters. Make sure to convert back to an int for database queries.
-<<<<<<< HEAD
     """
     user_id = (
         models.DB.session.query(models.CurrentConnections.user)
@@ -145,17 +129,6 @@ def get_board(client_sid):
         return "w{}".format(board_room.whiteboard)
     return client_sid
 
-
-=======
-    '''
-    user_id = models.DB.session.query(models.CurrentConnections).filter_by(sid=client_sid).first().user
-    entered_room = models.DB.session.query(models.EnteredRooms).filter_by(user=user_id).first().room
-    if entered_room:
-        return str(entered_room)
-    else:
-        return client_sid
-    
->>>>>>> master
 def emit_flashcards(room):
     """Emit all the flashcards for a specific room"""
     all_cards = models.DB.session.query(models.Flashcards).all()
@@ -176,7 +149,6 @@ def emit_all_messages(client_sid):
     # If the user isn't in a room, emit nothing
     if room_id == client_sid:
         return
-<<<<<<< HEAD
     all_messages = (
         models.DB.session.query(models.Messages.message).filter_by(room=room_id).all()
     )
@@ -184,14 +156,6 @@ def emit_all_messages(client_sid):
         models.DB.session.query(models.Messages.picUrl).filter_by(room=room_id).all()
     )
     print("--", all_user_pics)
-=======
-    all_message_rows = models.DB.session.query(models.Messages).filter_by(room=room_id).all()
-    all_messages = []
-    all_user_pics = []
-    for message_row in all_message_rows:
-        all_messages.append(message_row.message)
-        all_user_pics.append(message_row.picUrl)
->>>>>>> master
 
     socketio.emit(
         "sending message history",
@@ -210,7 +174,6 @@ def emit_room_history(room_id):
 
 
 def emit_all_users(channel, roomID):
-<<<<<<< HEAD
     all_user_ids = (
         models.DB.session.query(models.EnteredRooms.user).filter_by(room=roomID).all()
     )
@@ -233,25 +196,11 @@ def emit_all_users(channel, roomID):
         },
     )
 
-=======
-    entered_room_rows = models.DB.session.query(models.EnteredRooms).filter_by(room=roomID).all()
-    all_user_ids = []
-    all_users = []
-    all_user_pics = []
-    for entered_room_row in entered_room_rows:
-        all_users.append(models.DB.session.query(models.AuthUser).filter_by(id=entered_room_row.user).first().username)
-        all_user_pics.append(models.DB.session.query(models.AuthUser).filter_by(id=entered_room_row.user).first().picUrl)
-        all_user_ids.append(entered_room_row.user)
-    print("users: ", all_users)
-    socketio.emit(channel, {"all_users": all_users, 'all_user_pics': all_user_pics, 'all_user_ids': all_user_ids}, room=roomID)
->>>>>>> master
-
 def emit_room_stats(client_sid):
     room_id = get_room(client_sid)
     # If the user isn't in a room, emit nothing
     if room_id == client_sid:
         return
-<<<<<<< HEAD
     room_password = (
         models.DB.session.query(models.Rooms.password)
         .filter_by(id=int(room_id))
@@ -263,10 +212,6 @@ def emit_room_stats(client_sid):
         room=room_id,
     )
 
-=======
-    room_password = models.DB.session.query(models.Rooms).filter_by(id=int(room_id)).first().password
-    socketio.emit("room stats update", {'roomId':room_id, 'roomPassword': room_password}, room=room_id)
->>>>>>> master
 
 def clear_non_persistent_tables():
     """
@@ -329,17 +274,12 @@ def on_disconnect():
 @socketio.on("new room creation request")
 def on_new_room_creation(data):
     print("received a new room creation request: {}".format(data["roomName"]))
-<<<<<<< HEAD
     user_id = (
         models.DB.session.query(models.CurrentConnections.user)
         .filter_by(sid=flask.request.sid)
         .first()
     )
     new_room = models.Rooms(user_id, data["roomName"])
-=======
-    user_id = models.DB.session.query(models.CurrentConnections).filter_by(sid=flask.request.sid).first().user
-    new_room = models.Rooms(user_id, data['roomName'])
->>>>>>> master
     models.DB.session.add(new_room)
     models.DB.session.commit()
     models.DB.session.refresh(new_room)
@@ -356,7 +296,6 @@ def on_join_room_request(data):
             data["roomId"], data["roomPassword"]
         )
     )
-<<<<<<< HEAD
     user_id = (
         models.DB.session.query(models.CurrentConnections.user)
         .filter_by(sid=flask.request.sid)
@@ -367,10 +306,6 @@ def on_join_room_request(data):
         .filter_by(id=data["roomId"], password=data["roomPassword"])
         .first()
     )
-=======
-    user_id = models.DB.session.query(models.CurrentConnections).filter_by(sid=flask.request.sid).first().user
-    room = models.DB.session.query(models.Rooms).filter_by(id=data['roomId'], password=data['roomPassword']).first()
->>>>>>> master
     if room:
         models.DB.session.add(models.JoinedRooms(user_id, room.id))
     emit_joined_rooms(flask.request.sid)
@@ -414,17 +349,12 @@ def accept_google_login(data):
 
 @socketio.on("room entry request")
 def on_room_entry_request(data):
-<<<<<<< HEAD
     user_id = (
         models.DB.session.query(models.CurrentConnections.user)
         .filter_by(sid=flask.request.sid)
         .first()
     )
     models.DB.session.add(models.EnteredRooms(user_id, data["roomId"]))
-=======
-    user_id = models.DB.session.query(models.CurrentConnections).filter_by(sid=flask.request.sid).first().user
-    models.DB.session.add(models.EnteredRooms(user_id, data['roomId']))
->>>>>>> master
     models.DB.session.commit()
     socketio.emit("room entry accepted", room=flask.request.sid)
     flask_socketio.join_room(str(data["roomId"]))
@@ -437,7 +367,6 @@ def on_room_entry_request(data):
 
 @socketio.on("leave room")
 def accept_room_departure():
-<<<<<<< HEAD
     disconnect_whiteboard(flask.request.sid)
     user_id = (
         models.DB.session.query(models.CurrentConnections.user)
@@ -449,10 +378,6 @@ def accept_room_departure():
         .filter_by(user=user_id)
         .first()[0]
     )
-=======
-    user_id = models.DB.session.query(models.CurrentConnections).filter_by(sid=flask.request.sid).first().user
-    room_id = models.DB.session.query(models.EnteredRooms).filter_by(user=user_id).first().room
->>>>>>> master
     models.DB.session.query(models.EnteredRooms).filter_by(user=user_id).delete()
     models.DB.session.commit()
     socketio.emit(
@@ -473,15 +398,11 @@ def reset_room_password():
     if client_sid == room_id:
         print("\tPassword not changed since sender is not in a room")
         return
-<<<<<<< HEAD
     client_user_id = (
         models.DB.session.query(models.CurrentConnections.user)
         .filter_by(sid=client_sid)
         .first()[0]
     )
-=======
-    client_user_id = models.DB.session.query(models.CurrentConnections).filter_by(sid=client_sid).first().user
->>>>>>> master
     room = models.DB.session.query(models.Rooms).filter_by(id=int(room_id)).first()
     if client_user_id != room.creator:
         print("\tPassword not changed since sender is not room creator")
@@ -494,12 +415,8 @@ def reset_room_password():
 
 @socketio.on("kick user request")
 def kick_user(data):
-<<<<<<< HEAD
-    kick_target_id = data["kickedUserId"]
-=======
     print(data)
     kick_target_id = data['kickedUserId']
->>>>>>> master
     client_sid = flask.request.sid
     room_id = get_room(client_sid)
     print(
@@ -508,15 +425,16 @@ def kick_user(data):
     if client_sid == room_id:
         print("\tUser not kicked since room id was invalid")
         return
-<<<<<<< HEAD
     client_user_id = (
         models.DB.session.query(models.CurrentConnections.user)
         .filter_by(sid=client_sid)
         .first()[0]
     )
-=======
-    client_user_id = models.DB.session.query(models.CurrentConnections).filter_by(sid=client_sid).first().user
->>>>>>> master
+    client_user_id = (
+        models.DB.session.query(models.CurrentConnections)
+        .filter_by(sid=client_sid).
+        first().user
+    )
     room = models.DB.session.query(models.Rooms).filter_by(id=room_id).first()
     if client_user_id != room.creator:
         print("\tUser not kicked since the request did not come from the room creator")
@@ -571,7 +489,6 @@ def on_new_message(data):
     print("Got an event for new message input with data:", data)
     user = {}
     user["sid"] = flask.request.sid
-<<<<<<< HEAD
     user["room"] = get_room(
         flask.request.sid
     )  # TODO: get room_id from the sender request.sid
@@ -593,13 +510,6 @@ def on_new_message(data):
     models.DB.session.add(
         models.Messages(user, user["username"] + ": " + data["message"])
     )
-=======
-    user["room"] = get_room(flask.request.sid)
-    user_id = models.DB.session.query(models.CurrentConnections).filter_by(sid=flask.request.sid).first().user
-    user["username"] = models.DB.session.query(models.AuthUser).filter_by(id=user_id).first().username
-    user["picUrl"] = models.DB.session.query(models.AuthUser).filter_by(username=user['username']).first().picUrl
-    models.DB.session.add(models.Messages(user, user['username'] + ": " + data['message']))
->>>>>>> master
     models.DB.session.commit()
     emit_all_messages(flask.request.sid)
 
