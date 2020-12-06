@@ -647,7 +647,7 @@ def on_save(data):
 
 
 @socketio.on("forced save")
-def on__forced_save(data):
+def on_forced_save(data):
     print("FORCED SAVE")
     board = get_board(flask.request.sid)
     save_num = do_save(data["blob"], board)
