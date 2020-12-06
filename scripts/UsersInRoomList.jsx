@@ -39,7 +39,7 @@ function UsersInRoomList() {
           <div id="user" key={index}>
             <img src={picUrls[index]} className="img"></img>
             <p>{user}</p>
-            <button onClick={(event) => kickUser(userIds[index][0])} type="submit">Kick</button>
+            <button onClick={(event) => kickUser(userIds[index])} type="submit">Kick</button>
           </div>)
         }
       </div>
@@ -48,5 +48,3 @@ function UsersInRoomList() {
 }
 
 export default UsersInRoomList;
-
-// this fails: users.map((user,index) => <div id="user" key={index}><img src={picUrls[index]}/></div>)
