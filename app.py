@@ -189,6 +189,7 @@ def on_disconnect():
     models.DB.session.delete(disconnected_user)
     models.DB.session.commit()
 
+
 @socketio.on("new room creation request")
 def on_new_room_creation(data):
     print("received a new room creation request: {}".format(data["roomName"]))
