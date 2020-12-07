@@ -48,8 +48,8 @@ class Messages:
 
     @staticmethod
     def reset_mock_database():
-        CurrentConnections._db_dict = {}
-        CurrentConnections._id = 0
+        Messages._db_dict = {}
+        Messages._id = 0
 
     # THIS PART IS COPIED AND PASTED FROM MODELS.PY (adding one line to __init__ for self.id)
     def __init__(self, user, message):
@@ -96,8 +96,8 @@ class AuthUser:
 
     @staticmethod
     def reset_mock_database():
-        CurrentConnections._db_dict = {}
-        CurrentConnections._id = 0
+        AuthUser._db_dict = {}
+        AuthUser._id = 0
 
     # THIS PART IS COPIED AND PASTED FROM MODELS.PY (adding one line to __init__ for self.id)
     def __init__(self, auth_type, name, email, pic=''): 
@@ -135,8 +135,8 @@ class Rooms:
 
     @staticmethod
     def reset_mock_database():
-        CurrentConnections._db_dict = {}
-        CurrentConnections._id = 0
+        Rooms._db_dict = {}
+        Rooms._id = 0
 
     # THIS PART IS COPIED AND PASTED FROM MODELS.PY (adding one line to __init__ for self.id)
     def __init__(self, roomCreator, roomName):
@@ -175,8 +175,8 @@ class Flashcards:
 
     @staticmethod
     def reset_mock_database():
-        CurrentConnections._db_dict = {}
-        CurrentConnections._id = 0
+        Flashcards._db_dict = {}
+        Flashcards._id = 0
 
     # THIS PART IS COPIED AND PASTED FROM MODELS.PY (adding one line to __init__ for self.id)
     def __init__(self, question, answer, room):
@@ -254,8 +254,8 @@ class EnteredRooms:
 
     @staticmethod
     def reset_mock_database():
-        CurrentConnections._db_dict = {}
-        CurrentConnections._id = 0
+        EnteredRooms._db_dict = {}
+        EnteredRooms._id = 0
 
     # THIS PART IS COPIED AND PASTED FROM MODELS.PY (adding one line to __init__ for self.id)
     def __init__(self, user, room):
