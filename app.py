@@ -111,13 +111,10 @@ def emit_all_messages(client_sid):
         "sending message history", {"allMessages": all_messages, 'all_user_pics': all_user_pics}, room=room_id
     )
 
-def emit_room_history(room_id):
-
+def emit_room_history(client_sid):
+    room_id = get_room(client_sid)
     emit_flashcards(room_id)
-    # TODO properly load the messages realted to the room from the database
-    message_history = SAMPLE_MESSAGES
-    data = {"allMessages": message_history}
-    socketio.emit("sending room data", data, room=room_id)
+    emit_all_messages(client_sid)
 
 def emit_all_users(channel, roomID):
     entered_room_rows = models.DB.session.query(models.EnteredRooms).filter_by(room=roomID).all()
