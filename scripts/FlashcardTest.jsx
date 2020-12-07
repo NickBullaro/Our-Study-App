@@ -1,36 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import Socket from './Socket';
-import InRoomScreen from './InRoomScreen';
 import PropTypes from 'prop-types';
 
-const TEST_FLASHCARDS = [
-  {
-    question: '2+2=',
-    answer: '4',
-  },
-
-  {
-    question: 'What is the capital of NJ?',
-    answer: 'Trenton',
-  },
-
-  {
-    question: 'Who is the first US President',
-    answer: 'George Washington',
-  },
-
-  {
-    question: 'Who is the best person in the world',
-    answer: 'Definitely You :)',
-  },
-];
-
 export default function FlashcardTest() {
-  // const [flashcards, setFlashcards] = useState(TEST_FLASHCARDS);
   const [key, setKey] = useState([]);
   const [test, setTest] = useState([{}]);
   const [flashcards, setFlashcards] = useState([]);
-
+  
   const [fields, setFields] = useState([]);
   
   const CARDS = 'cards';
@@ -48,7 +24,7 @@ export default function FlashcardTest() {
     const array = [...arr];
 
     // While there remain elements to shuffle...
-    while (currentIndex !== 0) {
+    /*while (currentIndex !== 0) {
       // Pick a remaining element...
       randomIndex = Math.floor(Math.random() * currentIndex);
       currentIndex -= 1;
@@ -57,8 +33,14 @@ export default function FlashcardTest() {
       temporaryValue = array[currentIndex];
       array[currentIndex] = array[randomIndex];
       array[randomIndex] = temporaryValue;
+    }*/
+    for(let i = arr.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * i);
+      const temp = arr[i];
+      arr[i] = arr[j];
+      arr[j] = temp;
     }
-
+    
     return array;
   }
    function newCards() {
@@ -97,7 +79,7 @@ export default function FlashcardTest() {
         questions.push(flashcards[i].question);
         answers.push(flashcards[i].answer);
       }
-      console.log(flashcards);
+      console.log("Test:", flashcards);
 
       shuffle(questions);
       shuffle(answers);
@@ -122,7 +104,7 @@ export default function FlashcardTest() {
     }, [flashcards]);
   }
   
-
+  
   newCards();
   setUp();
   
@@ -162,7 +144,7 @@ export default function FlashcardTest() {
           ))}
 
           <input type="button" value="Submit quiz" onClick={handleSubmit} />
-       
+
         </form>
 
       </div>
