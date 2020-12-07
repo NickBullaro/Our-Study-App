@@ -17,6 +17,7 @@ const Participant = ({ participant }) => {
         if (track.kind === 'video') {
           setVideoTracks(videoTracks => [...videoTracks, track]);
         } else {
+          console.log("audio");
           setAudioTracks(audioTracks => [...audioTracks, track]);
         }
       };
@@ -40,7 +41,7 @@ const Participant = ({ participant }) => {
         setAudioTracks([]);
         participant.removeAllListeners();
       };
-    }, [participant.sid]);
+    }, [participant]);
   
     React.useEffect(() => {
         const videoTrack = videoTracks[0];
@@ -56,8 +57,10 @@ const Participant = ({ participant }) => {
     React.useEffect(() => {
         const audioTrack = audioTracks[0];
         if (audioTrack) {
+          console.log("audioAttach", participant);
           audioTrack.attach(audioRef.current);
           return () => {
+            console.log("audioDetach");
             audioTrack.detach();
           };
         }
@@ -72,7 +75,7 @@ const Participant = ({ participant }) => {
                 ) : (
                 <img className ='noCamera' src='../static/482929.svg'></img>)
             }
-            <audio ref={audioRef} autoPlay={true} muted={false} />
+            <audio ref={audioRef} autoPlay={true}></audio>
         </div>
     );
 //}
