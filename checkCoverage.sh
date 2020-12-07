@@ -10,6 +10,7 @@ coverage run --source=. --omit=./tests/* -a tests/test_on_drawing_stroke.py
 coverage run --source=. --omit=./tests/* -a tests/testEmitAllMessages.py
 coverage run --source=. --omit=./tests/* -a tests/testEmitAllUsers.py
 coverage run --source=. --omit=./tests/* -a tests/testEmitRoomHistory.py
+coverage run --source=. --omit=./tests/* -a tests/testEmitRoomStats.py
 coverage run --source=. --omit=./tests/* -a tests/testGoogleLogin.py
 coverage run --source=. --omit=./tests/* -a tests/testOnConnect.py
 coverage run --source=. --omit=./tests/* -a tests/testOnDisconnect.py

@@ -20,13 +20,22 @@ jobs:
           name: MockedTest
       - run:
           command: python ./tests/testOnConnect.py
-          name: Test_OnConnect()
+          name: Test_on_connect()
       - run:
           command: python ./tests/testOnDisconnect.py
-          name: Test_OnDisconnect()
+          name: Test_on_disconnect()
       - run:
           command: python ./tests/test_on_drawing_stroke.py
-          name: TestOnStroke()
+          name: Test_on_stroke()
+      - run:
+          command: python ./tests/testEmitAllUsers.py
+          name: Test_emit_all_users()
+      - run:
+          command: python ./tests/testEmitRoomStats.py
+          name: Test_emit_room_stats()
+      - run:
+          command: python ./tests/testEmitRoomHistory.py
+          name: Test_emit_room_history()
 
 workflows:
   main:
