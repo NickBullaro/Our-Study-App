@@ -96,7 +96,7 @@ def export_users_table():
 class testEmitUsers(unittest.TestCase):
      def setUp(self):
         self.success_test_params = [
-            {
+            { # Databases only contain necessary data
                 KEY_INPUT: 
                     {
                         KEY_SID: '123456789ABCDEF',
@@ -169,6 +169,310 @@ class testEmitUsers(unittest.TestCase):
                                 'picUrl': ''
                             }]
                     }
+            },{ # Added superflorous data
+                KEY_INPUT: 
+                    {
+                        KEY_SID: '123456789ABCDEF',
+                        KEY_CHANNEL: 'users received',
+                        KEY_ROOM_ID: 0,
+                        KEY_ENTERED_ROOMS_DB:
+                            [{
+                                'id': 0,
+                                'room': 0,
+                                'user': 0
+                            },{
+                                'id': 1,
+                                'room': 0,
+                                'user': 1
+                            },{
+                                'id': 2,
+                                'room': 1,
+                                'user': 2
+                            }],
+                        KEY_AUTH_USER_DB:
+                            [{
+                                'id': 0,
+                                'auth_type': models.AuthUserType.GOOGLE,
+                                'username': 'John Smith',
+                                'email': 'jsmith@gmail.com',
+                                'picUrl': ''
+                            },{
+                                'id': 1,
+                                'auth_type': models.AuthUserType.GOOGLE,
+                                'username': 'Jill Smith',
+                                'email': 'jill_s@gmail.com',
+                                'picUrl': ''
+                            },{
+                                'id': 2,
+                                'auth_type': models.AuthUserType.GOOGLE,
+                                'username': 'Jane Doe',
+                                'email': 'jill_s@gmail.com',
+                                'picUrl': ''
+                            }]
+                    },
+                KEY_EXPECTED:
+                    {
+                        KEY_HOLD_LIST:
+                            [{
+                                KEY_HOLD_TYPE: KEY_HOLD_PRINT,
+                                KEY_PRINT_CONTENT: "users: ['John Smith', 'Jill Smith']"
+                            },{
+                                KEY_HOLD_TYPE: KEY_HOLD_EMIT,
+                                KEY_EMIT_ID: 'users received',
+                                KEY_DATA: 
+                                    {
+                                        'all_users': ['John Smith', 'Jill Smith'],
+                                        'all_user_pics': ['', ''],
+                                        'all_user_ids': [0, 1]
+                                    },
+                                KEY_EMIT_ROOM: 0
+                            }],
+                        KEY_ENTERED_ROOMS_DB:
+                            [{
+                                'id': 0,
+                                'room': 0,
+                                'user': 0
+                            },{
+                                'id': 1,
+                                'room': 0,
+                                'user': 1
+                            },{
+                                'id': 2,
+                                'room': 1,
+                                'user': 2
+                            }],
+                        KEY_AUTH_USER_DB:
+                            [{
+                                'id': 0,
+                                'auth_type': models.AuthUserType.GOOGLE,
+                                'username': 'John Smith',
+                                'email': 'jsmith@gmail.com',
+                                'picUrl': ''
+                            },{
+                                'id': 1,
+                                'auth_type': models.AuthUserType.GOOGLE,
+                                'username': 'Jill Smith',
+                                'email': 'jill_s@gmail.com',
+                                'picUrl': ''
+                            },{
+                                'id': 2,
+                                'auth_type': models.AuthUserType.GOOGLE,
+                                'username': 'Jane Doe',
+                                'email': 'jill_s@gmail.com',
+                                'picUrl': ''
+                            }]
+                    }
+            },{ # Grab a different portion of the test data
+                KEY_INPUT: 
+                    {
+                        KEY_SID: '123456789ABCDEF',
+                        KEY_CHANNEL: 'users received',
+                        KEY_ROOM_ID: 1,
+                        KEY_ENTERED_ROOMS_DB:
+                            [{
+                                'id': 0,
+                                'room': 0,
+                                'user': 0
+                            },{
+                                'id': 1,
+                                'room': 0,
+                                'user': 1
+                            },{
+                                'id': 2,
+                                'room': 1,
+                                'user': 2
+                            }],
+                        KEY_AUTH_USER_DB:
+                            [{
+                                'id': 0,
+                                'auth_type': models.AuthUserType.GOOGLE,
+                                'username': 'John Smith',
+                                'email': 'jsmith@gmail.com',
+                                'picUrl': ''
+                            },{
+                                'id': 1,
+                                'auth_type': models.AuthUserType.GOOGLE,
+                                'username': 'Jill Smith',
+                                'email': 'jill_s@gmail.com',
+                                'picUrl': ''
+                            },{
+                                'id': 2,
+                                'auth_type': models.AuthUserType.GOOGLE,
+                                'username': 'Jane Doe',
+                                'email': 'jill_s@gmail.com',
+                                'picUrl': ''
+                            }]
+                    },
+                KEY_EXPECTED:
+                    {
+                        KEY_HOLD_LIST:
+                            [{
+                                KEY_HOLD_TYPE: KEY_HOLD_PRINT,
+                                KEY_PRINT_CONTENT: "users: ['Jane Doe']"
+                            },{
+                                KEY_HOLD_TYPE: KEY_HOLD_EMIT,
+                                KEY_EMIT_ID: 'users received',
+                                KEY_DATA: 
+                                    {
+                                        'all_users': ['Jane Doe'],
+                                        'all_user_pics': [''],
+                                        'all_user_ids': [2]
+                                    },
+                                KEY_EMIT_ROOM: 1
+                            }],
+                        KEY_ENTERED_ROOMS_DB:
+                            [{
+                                'id': 0,
+                                'room': 0,
+                                'user': 0
+                            },{
+                                'id': 1,
+                                'room': 0,
+                                'user': 1
+                            },{
+                                'id': 2,
+                                'room': 1,
+                                'user': 2
+                            }],
+                        KEY_AUTH_USER_DB:
+                            [{
+                                'id': 0,
+                                'auth_type': models.AuthUserType.GOOGLE,
+                                'username': 'John Smith',
+                                'email': 'jsmith@gmail.com',
+                                'picUrl': ''
+                            },{
+                                'id': 1,
+                                'auth_type': models.AuthUserType.GOOGLE,
+                                'username': 'Jill Smith',
+                                'email': 'jill_s@gmail.com',
+                                'picUrl': ''
+                            },{
+                                'id': 2,
+                                'auth_type': models.AuthUserType.GOOGLE,
+                                'username': 'Jane Doe',
+                                'email': 'jill_s@gmail.com',
+                                'picUrl': ''
+                            }]
+                    }
+            },{ # Entered Rooms Database is empty
+                KEY_INPUT: 
+                    {
+                        KEY_SID: '123456789ABCDEF',
+                        KEY_CHANNEL: 'users received',
+                        KEY_ROOM_ID: 0,
+                        KEY_ENTERED_ROOMS_DB:
+                            [],
+                        KEY_AUTH_USER_DB:
+                            [{
+                                'id': 0,
+                                'auth_type': models.AuthUserType.GOOGLE,
+                                'username': 'John Smith',
+                                'email': 'jsmith@gmail.com',
+                                'picUrl': ''
+                            },{
+                                'id': 1,
+                                'auth_type': models.AuthUserType.GOOGLE,
+                                'username': 'Jill Smith',
+                                'email': 'jill_s@gmail.com',
+                                'picUrl': ''
+                            },{
+                                'id': 2,
+                                'auth_type': models.AuthUserType.GOOGLE,
+                                'username': 'Jane Doe',
+                                'email': 'jill_s@gmail.com',
+                                'picUrl': ''
+                            }]
+                    },
+                KEY_EXPECTED:
+                    {
+                        KEY_HOLD_LIST:
+                            [{
+                                KEY_HOLD_TYPE: KEY_HOLD_PRINT,
+                                KEY_PRINT_CONTENT: "users: []"
+                            },{
+                                KEY_HOLD_TYPE: KEY_HOLD_EMIT,
+                                KEY_EMIT_ID: 'users received',
+                                KEY_DATA: 
+                                    {
+                                        'all_users': [],
+                                        'all_user_pics': [],
+                                        'all_user_ids': []
+                                    },
+                                KEY_EMIT_ROOM: 0
+                            }],
+                        KEY_ENTERED_ROOMS_DB:
+                            [],
+                        KEY_AUTH_USER_DB:
+                            [{
+                                'id': 0,
+                                'auth_type': models.AuthUserType.GOOGLE,
+                                'username': 'John Smith',
+                                'email': 'jsmith@gmail.com',
+                                'picUrl': ''
+                            },{
+                                'id': 1,
+                                'auth_type': models.AuthUserType.GOOGLE,
+                                'username': 'Jill Smith',
+                                'email': 'jill_s@gmail.com',
+                                'picUrl': ''
+                            },{
+                                'id': 2,
+                                'auth_type': models.AuthUserType.GOOGLE,
+                                'username': 'Jane Doe',
+                                'email': 'jill_s@gmail.com',
+                                'picUrl': ''
+                            }]
+                    }
+            },{ # Users Database is empty
+                KEY_INPUT: 
+                    {
+                        KEY_SID: '123456789ABCDEF',
+                        KEY_CHANNEL: 'users received',
+                        KEY_ROOM_ID: 0,
+                        KEY_ENTERED_ROOMS_DB:
+                            [{
+                                'id': 0,
+                                'room': 0,
+                                'user': 0
+                            },{
+                                'id': 1,
+                                'room': 0,
+                                'user': 1
+                            }],
+                        KEY_AUTH_USER_DB:
+                            []
+                    },
+                KEY_EXPECTED:
+                    {
+                        KEY_HOLD_LIST:
+                            [{
+                                KEY_HOLD_TYPE: KEY_HOLD_PRINT,
+                                KEY_PRINT_CONTENT: "users: []"
+                            },{
+                                KEY_HOLD_TYPE: KEY_HOLD_EMIT,
+                                KEY_EMIT_ID: 'users received',
+                                KEY_DATA: 
+                                    {
+                                        'all_users': [],
+                                        'all_user_pics': [],
+                                        'all_user_ids': []
+                                    },
+                                KEY_EMIT_ROOM: 0
+                            }],
+                        KEY_ENTERED_ROOMS_DB:
+                            [{
+                                'id': 0,
+                                'room': 0,
+                                'user': 0
+                            },{
+                                'id': 1,
+                                'room': 0,
+                                'user': 1
+                            }],
+                        KEY_AUTH_USER_DB:
+                            []
+                    }
             }
         ]
         self.hold = []
@@ -182,15 +486,12 @@ class testEmitUsers(unittest.TestCase):
             string += str(arg)
         self.hold.append({KEY_HOLD_TYPE: KEY_HOLD_PRINT, KEY_PRINT_CONTENT: str(string)})
 
-     def mock_get_room(self, client_sid):
-         return 0
-
      @mock.patch('app.flask')
-     def test_emit_all_users_success(self, mock_flash):
+     def test_emit_all_users_success(self, mock_flask):
         session = mockDBsession.MockSession()
         for test in self.success_test_params:
             self.hold = []
-            mock_flash.request.sid = test[KEY_INPUT][KEY_SID]
+            mock_flask.request.sid = test[KEY_INPUT][KEY_SID]
 
             # Load the initial state of the tables
             mockModels.EnteredRooms.reset_mock_database()
@@ -199,12 +500,11 @@ class testEmitUsers(unittest.TestCase):
             load_users_table(test[KEY_INPUT][KEY_AUTH_USER_DB])
 
             with mock.patch("models.DB.session", session):
-                with mock.patch("app.get_room", self.mock_get_room):
-                    with mock.patch("flask_socketio.SocketIO.emit", self.mock_emit):
-                        with mock.patch("models.EnteredRooms", mockModels.EnteredRooms):
-                            with mock.patch("models.AuthUser", mockModels.AuthUser):
-                                with mock.patch("builtins.print", self.mock_print):
-                                    app.emit_all_users(test[KEY_INPUT][KEY_CHANNEL], test[KEY_INPUT][KEY_ROOM_ID])
+                with mock.patch("flask_socketio.SocketIO.emit", self.mock_emit):
+                    with mock.patch("models.EnteredRooms", mockModels.EnteredRooms):
+                        with mock.patch("models.AuthUser", mockModels.AuthUser):
+                            with mock.patch("builtins.print", self.mock_print):
+                                app.emit_all_users(test[KEY_INPUT][KEY_CHANNEL], test[KEY_INPUT][KEY_ROOM_ID])
 
             # Verify that the table(s) state ageter execution matches what was expected
             createdTable = export_entered_rooms_table()
