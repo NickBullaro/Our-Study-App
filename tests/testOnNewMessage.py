@@ -33,7 +33,10 @@ class testOnNewMessage(unittest.TestCase):
               
                 },
         ]
-        
+    
+    def mock_get_room(self, client_sid):
+        return 0
+         
     @mock.patch('app.flask')
     def test_new_message_success(self, mock_flask):
             session = UnifiedAlchemyMagicMock()
@@ -41,11 +44,12 @@ class testOnNewMessage(unittest.TestCase):
                 mock_flask.request.sid = test[KEY_INPUT][KEY_SID]
                 
                 with mock.patch("models.DB.session", session):
-                    session.add(models.CurrentConnections(test[KEY_INPUT][KEY_SID], 3))
-                    session.add(models.AuthUser(models.AuthUserType.GOOGLE, 'nrw24', 'nrw24@njit.edu', 'pic'))
-                    session.commit()
-                    
-                    app.on_new_message(test[KEY_INPUT][KEY_DATA])
+                    with mock.patch("app.get_room", self.mock_get_room):
+                        session.add(models.CurrentConnections(test[KEY_INPUT][KEY_SID], 3))
+                        session.add(models.AuthUser(models.AuthUserType.GOOGLE, 'nrw24', 'nrw24@njit.edu', 'pic'))
+                        session.commit()
+                        
+                        app.on_new_message(test[KEY_INPUT][KEY_DATA])
             
                
 
