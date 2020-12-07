@@ -111,13 +111,10 @@ def emit_all_messages(client_sid):
         "sending message history", {"allMessages": all_messages, 'all_user_pics': all_user_pics}, room=room_id
     )
 
-def emit_room_history(room_id):
-
+def emit_room_history(client_sid):
+    room_id = get_room(client_sid)
     emit_flashcards(room_id)
-    # TODO properly load the messages realted to the room from the database
-    message_history = SAMPLE_MESSAGES
-    data = {"allMessages": message_history}
-    socketio.emit("sending room data", data, room=room_id)
+    emit_all_messages(client_sid)
 
 def emit_all_users(channel, roomID):
     entered_room_rows = models.DB.session.query(models.EnteredRooms).filter_by(room=roomID).all()
@@ -138,8 +135,9 @@ def emit_room_stats(client_sid):
     # If the user isn't in a room, emit nothing
     if room_id == client_sid:
         return
-    room_password = models.DB.session.query(models.Rooms).filter_by(id=int(room_id)).first().password
-    socketio.emit("room stats update", {'roomId':room_id, 'roomPassword': room_password}, room=room_id)
+    room_row = models.DB.session.query(models.Rooms).filter_by(id=int(room_id)).first()
+    if room_row:
+        socketio.emit("room stats update", {'roomId':room_row.id, 'roomPassword': room_row.password, 'roomName': room_row.name}, room=room_id)
 
 def clear_non_persistent_tables():
     '''

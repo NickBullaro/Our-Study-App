@@ -30,6 +30,12 @@ jobs:
       - run:
           command: python ./tests/testEmitAllUsers.py
           name: Test_emit_all_users()
+      - run:
+          command: python ./tests/testEmitRoomStats.py
+          name: Test_emit_room_stats()
+      - run:
+          command: python ./tests/testEmitRoomHistory.py
+          name: Test_emit_room_history()
 
 workflows:
   main:
