@@ -138,8 +138,9 @@ def emit_room_stats(client_sid):
     # If the user isn't in a room, emit nothing
     if room_id == client_sid:
         return
-    room_password = models.DB.session.query(models.Rooms).filter_by(id=int(room_id)).first().password
-    socketio.emit("room stats update", {'roomId':room_id, 'roomPassword': room_password}, room=room_id)
+    room_row = models.DB.session.query(models.Rooms).filter_by(id=int(room_id)).first()
+    if room_row:
+        socketio.emit("room stats update", {'roomId':room_row.id, 'roomPassword': room_row.password, 'roomName': room_row.name}, room=room_id)
 
 def clear_non_persistent_tables():
     '''

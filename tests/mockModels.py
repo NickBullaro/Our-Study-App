@@ -139,10 +139,13 @@ class Rooms:
         Rooms._id = 0
 
     # THIS PART IS COPIED AND PASTED FROM MODELS.PY (adding one line to __init__ for self.id)
-    def __init__(self, roomCreator, roomName):
+    def __init__(self, roomCreator, roomName, roomPassword=None):
         self.creator = roomCreator
         self.name = roomName
-        self.password = GenerateCharacterPin(ROOM_PASSWORD_LENGTH)
+        if roomPassword:
+            self.password = roomPassword
+        else:
+            self.password = GenerateCharacterPin(ROOM_PASSWORD_LENGTH)
         self.id = None
     
     def __repr__(self):
