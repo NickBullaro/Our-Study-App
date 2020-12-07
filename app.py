@@ -10,6 +10,8 @@ import flask
 import flask_socketio
 import boto3
 import models
+from twilio.jwt.access_token import AccessToken
+from twilio.jwt.access_token.grants import VideoGrant
 
 
 APP = flask.Flask(__name__)
@@ -23,10 +25,16 @@ try:
     DATABASE_URI = os.environ["DATABASE_URL"]
     AWS_ACCESS_KEY = os.environ["AWS_ACCESS_KEY"]
     AWS_SECRET_KEY = os.environ["AWS_SECRET_KEY"]
+    twilio_account_sid = os.environ["TWILIO_ACCOUNT_SID"]
+    twilio_api_key_sid = os.environ["TWILIO_API_KEY_SID"]
+    twilio_api_key_secret = os.environ["TWILIO_API_KEY_SECRET"]
 except KeyError:
     DATABASE_URI = ""
     AWS_ACCESS_KEY = ""
     AWS_SECRET_KEY = ""
+    twilio_account_sid = ""
+    twilio_api_key_sid = ""
+    twilio_api_key_secret = ""
 
 APP.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
 APP.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -44,6 +52,7 @@ socketio = flask_socketio.SocketIO(APP)
 socketio.init_app(APP, cors_allowed_origins="*")
 
 username_sid_dict = {}
+roomTokens = {}
 
 USERS_RECEIVED_CHANNEL = "users received"
 NEW_CARDS = "new cards"
@@ -363,6 +372,20 @@ def on_room_entry_request(data):
     emit_all_users(USERS_RECEIVED_CHANNEL, data["roomId"])
     emit_all_messages(flask.request.sid)
     emit_room_stats(flask.request.sid)
+
+    username = models.DB.session.query(models.AuthUser.username).filter_by(id=user_id).first()[0]
+    if data['roomId'] not in roomTokens.keys():
+        token = AccessToken(twilio_account_sid, twilio_api_key_sid,
+                        twilio_api_key_secret, identity=username)
+        roomTokens[data['roomId']] = token
+        token.add_grant(VideoGrant(room=data['roomId']))
+        socketio.emit("token",
+            {'tokens': token.to_jwt().decode(), 'room': str(data['roomId']), 'username': username})
+    else:
+        token = roomTokens[data['roomId']]
+        token.identity=username
+        socketio.emit("token",
+            {'tokens': token.to_jwt().decode(), 'room': str(data['roomId']), 'username': username})
 
 
 @socketio.on("leave room")
