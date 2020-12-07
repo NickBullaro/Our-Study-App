@@ -6,12 +6,38 @@ const Video = ({token, roomName, username}) => {
   const [room, setRoom] = React.useState(null);
   const [participants, setParticipants] = React.useState([]);
   const [usernamee, setUsername] = React.useState('');
+  const [status, setStatus] = React.useState(false);
+  const [videoDevice, setVideoDevice] = React.useState([]);
+  const [audioDevice, setAudioDevice] = React.useState([]);
   
   if(usernamee !== username)
   {
     setUsername(username);
   }
-
+  
+  function changeStatus () {
+    setStatus(true);
+  }
+  
+  React.useEffect(() => {
+    window.navigator.mediaDevices.enumerateDevices()
+      .then(function(devices)
+      {
+        devices.forEach(function(device)
+        {
+          if(device.kind == 'videoinput')
+          {
+            setVideoDevice(device.kind);
+          }
+          if(device.kind == 'audioinput')
+          {
+            setAudioDevice(device.kind);
+          }
+        });
+        return changeStatus();
+      });
+    }, []);
+  
   React.useEffect(() => {
     const participantConnected = participant => {
       console.log('Participant', participant.identity, 'connected.');
@@ -24,68 +50,58 @@ const Video = ({token, roomName, username}) => {
         prevParticipants.filter(p => p !== participant)
       );
     };
-    let videoDevices = [];
-    let audioDevices = [];
-    window.navigator.mediaDevices.enumerateDevices()
-    .then(function(devices) {
-      devices.forEach(function(device) {
-        if(device.kind == 'videoinput')
-        {
-          videoDevices.push(device.kind);
-        }
-        if(device.kind == 'audioinput')
-        {
-          audioDevices.push(device.kind);
-        }
-      });
-    });
-    if(videoDevices[0] == 'videoinput' && audioDevices[0] == 'audioinput')
+    if(status == true)
     {
-      Twilio.connect(String(token), {name: roomName}).then(room => {
-        setRoom(room);
-        room.on('participantConnected', participantConnected);
-        room.once('participantDisconnected', participantDisconnected);
-        room.participants.forEach(participantConnected);
-      }).catch((error) => {
-        console.log(error);
-      });
+      if(videoDevice == 'videoinput' && audioDevice == 'audioinput')
+      {
+        Twilio.connect(String(token), {name: roomName}).then(room => {
+          setRoom(room);
+          room.on('participantConnected', participantConnected);
+          room.on('participantDisconnected', participantDisconnected);
+          room.participants.forEach(participantConnected);
+        }).catch((error) => {
+          console.log(error);
+        });
+      }
+      else if(videoDevice != 'videoinput' && audioDevice == 'audioinput')
+      {
+        Twilio.connect(String(token), {name: roomName, video: false, audio: true}).then(room => {
+          setRoom(room);
+          room.on('participantConnected', participantConnected);
+          room.on('participantDisconnected', participantDisconnected);
+          room.participants.forEach(participantConnected);
+        }).catch((error) => {
+          console.log(error);
+        });
+      }
+      else
+      {
+        Twilio.connect(String(token), {name: roomName, video: false, audio: false}).then(room => {
+          setRoom(room);
+          room.on('participantConnected', participantConnected);
+          room.on('participantDisconnected', participantDisconnected);
+          room.participants.forEach(participantConnected);
+        }).catch((error) => {
+          console.log(error);
+        });
+      }
+  
+      return () => {
+        setRoom(currentRoom => {
+          if (currentRoom && currentRoom.localParticipant.state === 'connected') {
+            currentRoom.localParticipant.tracks.forEach(function(trackPublication) {
+              trackPublication.track.stop();
+            });
+            console.log("disconnect");
+            currentRoom.disconnect();
+            return null;
+          } else {
+            return currentRoom;
+          }
+        });
+      };
     }
-    else if(videoDevices[0] != 'videoinput' && audioDevices[0] == 'audioinput')
-    {
-      Twilio.connect(String(token), {name: roomName, video: false, audio: true}).then(room => {
-        setRoom(room);
-        room.on('participantConnected', participantConnected);
-        room.once('participantDisconnected', participantDisconnected);
-        room.participants.forEach(participantConnected);
-      }).catch((error) => {
-        console.log(error);
-      });
-    }
-    else{
-      Twilio.connect(String(token), {name: roomName, video: false, audio: false}).then(room => {
-        setRoom(room);
-        room.on('participantConnected', participantConnected);
-        room.once('participantDisconnected', participantDisconnected);
-        room.participants.forEach(participantConnected);
-      }).catch((error) => {
-        console.log(error);
-      });
-    }
-
-    return () => {
-      setRoom(currentRoom => {
-        if (currentRoom && currentRoom.localParticipant.state === 'connected') {
-          currentRoom.localParticipant.tracks.forEach(function(trackPublication) {
-            trackPublication.track.stop();
-          });
-          currentRoom.disconnect();
-          return null;
-        } else {
-          return currentRoom;
-        }
-      });
-    };
-  }, [usernamee]);
+  }, [usernamee, status]);
 
   const remoteParticipants = participants.map(participant => (
     <Participant key={participant.sid} participant={participant} />
