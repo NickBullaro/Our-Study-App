@@ -36,6 +36,9 @@ jobs:
       - run:
           command: python ./tests/testEmitRoomHistory.py
           name: Test_emit_room_history()
+      - run:
+          command: python ./tests/testResetRoomPassword.py
+          name: Test_reset_room_password()
 
 workflows:
   main:
