@@ -10,7 +10,6 @@ function RoomStats() {
   function setup() {
     React.useEffect(() => {
       Socket.on('room stats update', (data) => {
-        console.log("Received room stats");
         setRoomId(data.roomId);
         setRoomPassword(data.roomPassword);
         setRoomName(data.roomName);
