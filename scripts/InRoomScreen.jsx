@@ -25,7 +25,6 @@ function InRoomScreen() {
     <div id="inRoomScreen">
       <RoomStats />
       <div id="grid_container">
-      <h2 className="header"> Room Name</h2>
       <div className="container" id="chat_and_users"style={{background:"none"}}>
         <UsersInRoomList />
         <Chatbox />
