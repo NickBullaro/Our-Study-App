@@ -6,15 +6,10 @@ function UsersInRoomList() {
   const [picUrls, setUrls] = React.useState([]);
   const [userIds, setIds] = React.useState([]);
 
-  function updateUsers(data) {
-    console.log(`Received new user: ${data.all_users}`);
-    setUsers(data.all_users);
-    setUrls(data.all_user_pics);
-  }
-
   function getNewUser() {
     React.useEffect(() => {
       Socket.on('users received', (data) => {
+        console.log("Received new users list");
         setUsers(data.all_users);
         setUrls(data.all_user_pics);
         setIds(data.all_user_ids);

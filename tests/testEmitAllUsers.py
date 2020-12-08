@@ -142,7 +142,7 @@ class testEmitUsers(unittest.TestCase):
                                         'all_user_pics': ['', ''],
                                         'all_user_ids': [0, 1]
                                     },
-                                KEY_EMIT_ROOM: 0
+                                KEY_EMIT_ROOM: '0'
                             }],
                         KEY_ENTERED_ROOMS_DB:
                             [{
@@ -225,7 +225,7 @@ class testEmitUsers(unittest.TestCase):
                                         'all_user_pics': ['', ''],
                                         'all_user_ids': [0, 1]
                                     },
-                                KEY_EMIT_ROOM: 0
+                                KEY_EMIT_ROOM: '0'
                             }],
                         KEY_ENTERED_ROOMS_DB:
                             [{
@@ -318,7 +318,7 @@ class testEmitUsers(unittest.TestCase):
                                         'all_user_pics': [''],
                                         'all_user_ids': [2]
                                     },
-                                KEY_EMIT_ROOM: 1
+                                KEY_EMIT_ROOM: '1'
                             }],
                         KEY_ENTERED_ROOMS_DB:
                             [{
@@ -399,7 +399,7 @@ class testEmitUsers(unittest.TestCase):
                                         'all_user_pics': [],
                                         'all_user_ids': []
                                     },
-                                KEY_EMIT_ROOM: 0
+                                KEY_EMIT_ROOM: '0'
                             }],
                         KEY_ENTERED_ROOMS_DB:
                             [],
@@ -458,7 +458,7 @@ class testEmitUsers(unittest.TestCase):
                                         'all_user_pics': [],
                                         'all_user_ids': []
                                     },
-                                KEY_EMIT_ROOM: 0
+                                KEY_EMIT_ROOM: '0'
                             }],
                         KEY_ENTERED_ROOMS_DB:
                             [{

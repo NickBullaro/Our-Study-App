@@ -393,7 +393,7 @@ p.RoomListName {
     justify-content:center;
     display: flex;
     flex-flow: row wrap;
-    height: calc(80vh - 60px);
+    height: 30%/*calc(80vh - 60px)*/;
     overflow: auto;
 }
 
@@ -544,9 +544,10 @@ p.RoomListName {
 
 #chatbox.container {
     position:relative;
-    height: calc(80vh - 150px);
+    height: 50%/*calc(80vh - 150px)*/;
     width:auto;
     display:block;
+    margin-bottom: 10px;
 }
 
 .chat_messages {
@@ -555,7 +556,7 @@ p.RoomListName {
     background: var(--lightest-grey);
     border:1px solid var(--grey);
     /*min-height: 170px;*/
-    height: calc(80vh - 20px - 80px - 130px);
+    height: 90%/*calc(80vh - 20px - 80px - 130px)*/;
     border-radius: 5px;
     margin:0;
     overflow-y: scroll;

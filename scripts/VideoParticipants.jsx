@@ -40,7 +40,7 @@ const Participant = ({ participant }) => {
         setAudioTracks([]);
         participant.removeAllListeners();
       };
-    }, [participant.sid]);
+    }, [participant]);
   
     React.useEffect(() => {
         const videoTrack = videoTracks[0];
@@ -72,7 +72,7 @@ const Participant = ({ participant }) => {
                 ) : (
                 <img className ='noCamera' src='../static/482929.svg'></img>)
             }
-            <audio ref={audioRef} autoPlay={true} muted={true} />
+            <audio ref={audioRef} autoPlay={true}></audio>
         </div>
     );
 //}

@@ -11,7 +11,7 @@ function Chatbox() {
       Socket.on('sending message history',(data) => {
         setMessages(data.allMessages);
         setUrls(data.all_user_pics);
-        const chatBox = document.getElementById('chatbox');
+        const chatBox = document.getElementById('chatBoxScroll');
         chatBox.scrollTop = chatBox.scrollHeight;
       });
     });
@@ -20,8 +20,8 @@ function Chatbox() {
   getNewMessage();
 
   return (
-    <div className="container" id="chatbox">
-      <div className="chat_messages">
+    <div className="container"id="chatbox">
+      <div className="chat_messages" id="chatBoxScroll">
           {
             messages.map((message, index) => <div className="container" id="registered_message" key={index}><img src={picUrls[index]} className="img"/>{message}</div>)
           }

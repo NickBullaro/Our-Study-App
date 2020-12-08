@@ -15,8 +15,8 @@ from twilio.jwt.access_token.grants import VideoGrant
 
 
 APP = flask.Flask(__name__)
-SOCKETIO = flask_socketio.SocketIO(APP)
-SOCKETIO.init_app(APP, cors_allowed_origins="*")
+# SOCKETIO = flask_socketio.SocketIO(APP)
+# SOCKETIO.init_app(APP, cors_allowed_origins="*")
 
 DOTENV_PATH = os.path.join(os.path.dirname(__file__), "keys.env")
 load_dotenv(DOTENV_PATH)
@@ -90,7 +90,7 @@ def emit_joined_rooms(client_room):
     socketio.emit(
         "updated room list",
         {"rooms": room_list},
-        room=client_room,
+        room=str(client_room),
     )
 
 
@@ -148,8 +148,7 @@ def emit_flashcards(room):
         card_dict["answer"] = card.answer
         cards.append(card_dict)
 
-    socketio.emit(CARDS, cards, room=room)
-
+    socketio.emit(CARDS, cards, room=str(room))
     return cards
 
 
@@ -168,8 +167,8 @@ def emit_all_messages(client_sid):
 
     socketio.emit(
         "sending message history",
-        {"allMessages": all_messages, "all_user_pics": all_user_pics},
-        room=room_id,
+        {"allMessages": all_messages, 'all_user_pics': all_user_pics},
+        room=str(room_id)
     )
 
 def emit_room_history(client_sid):
@@ -194,14 +193,13 @@ def emit_all_users(channel, roomID):
             all_user_pics.append(user_row.picUrl)
             all_user_ids.append(user_row.id)
     print("users: ", all_users)
+
     socketio.emit(
         channel,
-        {
-            "all_users": all_users,
-            "all_user_pics": all_user_pics,
-            "all_user_ids": all_user_ids,
-        },
+        {"all_users": all_users, 'all_user_pics': all_user_pics, 'all_user_ids': all_user_ids},
+        room=str(roomID)
     )
+
 
 def emit_room_stats(client_sid):
     room_id = get_room(client_sid)
@@ -210,7 +208,7 @@ def emit_room_stats(client_sid):
         return
     room_row = models.DB.session.query(models.Rooms).filter_by(id=int(room_id)).first()
     if room_row:
-        socketio.emit("room stats update", {'roomId':room_row.id, 'roomPassword': room_row.password, 'roomName': room_row.name}, room=room_id)
+        socketio.emit("room stats update", {'roomId':room_row.id, 'roomPassword': room_row.password, 'roomName': room_row.name}, room=str(room_id))
 
 def clear_non_persistent_tables():
     """
@@ -475,6 +473,7 @@ def kick_user(data):
     if kicked_current_connections_query.first():
         kicked_sid = kicked_current_connections_query.first().sid
         socketio.emit("kicked", {"roomId": room_id}, room=kicked_sid)
+        socketio.emit('kicked', {'roomId': room_id}, room=str(kicked_sid))
     models.DB.session.commit()
     print("\tUser {} was kicked from room {}".format(kick_target_id, room_id))
 
@@ -654,8 +653,7 @@ def disconnect_whiteboard(my_sid):
 @socketio.on("drawing stroke input")
 def on_drawing_stroke(data):
     room_id = get_board(flask.request.sid)
-    socketio.emit("drawing stroke output", data, room=room_id)
-
+    socketio.emit("drawing stroke output", data, room=str(room_id))
 
 @socketio.on("save")
 def on_save(data):
@@ -713,7 +711,7 @@ def index():
 if __name__ == "__main__":
     database_init()
     clear_non_persistent_tables()
-    SOCKETIO.run(
+    socketio.run(
         APP,
         host=os.getenv("IP", "0.0.0.0"),
         port=int(os.getenv("PORT", "8080")),
