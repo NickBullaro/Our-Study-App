@@ -96,7 +96,9 @@ def get_room(client_sid):
     
 def emit_flashcards(room):
     """Emit all the flashcards for a specific room"""
-    all_cards = models.DB.session.query(models.Flashcards).all()
+    room = get_room(client_sid)
+    
+    all_cards = models.DB.session.query(models.Flashcards).filter_by(room=room).all()
     cards = []
     for card in all_cards:
         card_dict = {}
@@ -104,7 +106,7 @@ def emit_flashcards(room):
         card_dict["answer"] = card.answer
         cards.append(card_dict)
 
-    socketio.emit(CARDS, cards, room=str(room))
+    socketio.emit(CARDS, cards, room=room)
     
     return cards
 
@@ -232,6 +234,28 @@ def accept_google_login(data):
         models.DB.session.add(models.AuthUser(models.AuthUserType.GOOGLE, data['user'], data['email'], data['pic']))
         models.DB.session.commit()
         user = models.DB.session.query(models.AuthUser).filter_by(auth_type=models.AuthUserType.GOOGLE.value, email=data['email']).first()
+    else:
+        print('updating existing user')
+        user.username = data['user']
+        user.picUrl = data['pic']
+    connection = models.DB.session.query(models.CurrentConnections).filter_by(sid=flask.request.sid).first()
+    connection.user = user.id
+    models.DB.session.commit()
+    print("{} logged in".format(user.username))
+    emit_joined_rooms(flask.request.sid)
+    
+@socketio.on("facebook login")
+def accept_facebook_login(data):
+    socketio.emit(
+        "login accepted",
+        room=flask.request.sid
+    )
+    user = models.DB.session.query(models.AuthUser).filter_by(auth_type=models.AuthUserType.FACEBOOK.value, email=data['email']).first()
+    if not user:
+        print('adding new user')
+        models.DB.session.add(models.AuthUser(models.AuthUserType.FACEBOOK, data['user'], data['email'], data['pic']))
+        models.DB.session.commit()
+        user = models.DB.session.query(models.AuthUser).filter_by(auth_type=models.AuthUserType.FACEBOOK.value, email=data['email']).first()
     else:
         print('updating existing user')
         user.username = data['user']
@@ -377,7 +401,7 @@ def new_cards(data):
         models.DB.session.add(models.Flashcards(question, answer, room))
 
     models.DB.session.commit()
-    emit_flashcards(room)
+    emit_flashcards(flask.request.sid)
 
 @socketio.on("drawing stroke input")
 def on_drawing_stroke(data):
@@ -398,5 +422,5 @@ if __name__ == "__main__":
         APP,
         host=os.getenv("IP", "0.0.0.0"),
         port=int(os.getenv("PORT", "8080")),
-        debug=False,
+        debug=True,
     )

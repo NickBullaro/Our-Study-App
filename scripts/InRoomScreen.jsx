@@ -43,6 +43,7 @@ function InRoomScreen() {
      
       
     </div>
+    </div>
   );
 }
 
