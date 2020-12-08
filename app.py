@@ -178,27 +178,22 @@ def emit_room_history(client_sid):
 
 
 def emit_all_users(channel, roomID):
-    entered_room_rows = (
-        models.DB.session.query(models.EnteredRooms).filter_by(room=roomID).all()
+   entered_room_rows = (
+       models.DB.session.query(models.EnteredRooms).filter_by(room=roomID).all()
     )
-    all_user_ids = (
-        models.DB.session.query(models.EnteredRooms.user).filter_by(room=roomID).all()
-    )
+    all_user_ids = []
     all_users = []
     all_user_pics = []
     for entered_room_row in entered_room_rows:
-        user_row = models.DB.session.query(models.AuthUser).filter_by(id=entered_room_row.user).first()
+        user_row = (
+            models.DB.session.query(models.AuthUser).filter_by(id=entered_room_row.user).first()
+        )
         if user_row:
             all_users.append(user_row.username)
             all_user_pics.append(user_row.picUrl)
             all_user_ids.append(user_row.id)
     print("users: ", all_users)
-
-    socketio.emit(
-        channel,
-        {"all_users": all_users, 'all_user_pics': all_user_pics, 'all_user_ids': all_user_ids},
-        room=str(roomID)
-    )
+    socketio.emit(channel, {"all_users": all_users, 'all_user_pics': all_user_pics, 'all_user_ids': all_user_ids}, room=str(roomID))
 
 
 def emit_room_stats(client_sid):
