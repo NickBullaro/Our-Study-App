@@ -172,40 +172,27 @@ def emit_all_messages(client_sid):
         room=room_id,
     )
 
-<<<<<<< HEAD
-
-def emit_room_history(room_id):
-
-=======
 def emit_room_history(client_sid):
     room_id = get_room(client_sid)
->>>>>>> eb0302c6dad654f55a642424481b24a21fbf45fc
     emit_flashcards(room_id)
     emit_all_messages(client_sid)
 
 
 def emit_all_users(channel, roomID):
+    entered_room_rows = (
+        models.DB.session.query(models.EnteredRooms).filter_by(room=roomID).all()
+    )
     all_user_ids = (
         models.DB.session.query(models.EnteredRooms.user).filter_by(room=roomID).all()
     )
     all_users = []
     all_user_pics = []
-<<<<<<< HEAD
-    for i in all_user_ids:
-        all_users.append(
-            models.DB.session.query(models.AuthUser.username).filter_by(id=i).first()[0]
-        )
-        all_user_pics.append(
-            models.DB.session.query(models.AuthUser.picUrl).filter_by(id=i).first()[0]
-        )
-=======
     for entered_room_row in entered_room_rows:
         user_row = models.DB.session.query(models.AuthUser).filter_by(id=entered_room_row.user).first()
         if user_row:
             all_users.append(user_row.username)
             all_user_pics.append(user_row.picUrl)
             all_user_ids.append(user_row.id)
->>>>>>> eb0302c6dad654f55a642424481b24a21fbf45fc
     print("users: ", all_users)
     socketio.emit(
         channel,
@@ -221,23 +208,9 @@ def emit_room_stats(client_sid):
     # If the user isn't in a room, emit nothing
     if room_id == client_sid:
         return
-<<<<<<< HEAD
-    room_password = (
-        models.DB.session.query(models.Rooms.password)
-        .filter_by(id=int(room_id))
-        .first()[0]
-    )
-    socketio.emit(
-        "room stats update",
-        {"roomId": room_id, "roomPassword": room_password},
-        room=room_id,
-    )
-
-=======
     room_row = models.DB.session.query(models.Rooms).filter_by(id=int(room_id)).first()
     if room_row:
         socketio.emit("room stats update", {'roomId':room_row.id, 'roomPassword': room_row.password, 'roomName': room_row.name}, room=room_id)
->>>>>>> eb0302c6dad654f55a642424481b24a21fbf45fc
 
 def clear_non_persistent_tables():
     """
