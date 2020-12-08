@@ -24,12 +24,10 @@ KEY_GENERATE_PIN_RETURN = 'not_so_random_pin'
 
 KEY_HOLD_LIST = 'emitted'
 KEY_HOLD_TYPE = 'captured_emit_type'
-KEY_HOLD_EMIT = 'emit'
+KEY_HOLD_EMIT_ROOM_STATS = 'emit_room_stats'
 KEY_HOLD_PRINT = 'print'
 KEY_PRINT_CONTENT = 'string'
-KEY_EMIT_ID = 'emit_id'
-KEY_DATA = 'data'
-KEY_EMIT_ROOM = 'room'
+KEY_ARGS = 'data'
 
 def load_rooms_table(list_table):
     '''
@@ -94,7 +92,142 @@ def export_current_connections_table():
 class testEmitUsers(unittest.TestCase):
      def setUp(self):
         self.success_test_params = [
-            {
+            { # Test for a request from someone other than the room creator
+                KEY_INPUT:
+                    {
+                        KEY_SID: '123456789ABCDEF',
+                        KEY_GET_ROOM_RETURN: '0',
+                        KEY_GENERATE_PIN_RETURN: 'QWER',
+                        KEY_CURRENT_CONNECTIONS_DB:
+                            [{
+                                'id': 0,
+                                'user': 15,
+                                'sid': '123456789ABCDEF'
+                            }],
+                        KEY_ROOMS_DB:
+                            [{
+                                'id': 0,
+                                'name': 'Test Room',
+                                'creator': 1,
+                                'password': 'ASDF'
+                            }]
+                    },
+                KEY_EXPECTED:
+                    {
+                        KEY_HOLD_LIST:
+                            [{
+                                KEY_HOLD_TYPE: KEY_HOLD_PRINT,
+                                KEY_PRINT_CONTENT: "Received password change request"
+                            },{
+                                KEY_HOLD_TYPE: KEY_HOLD_PRINT,
+                                KEY_PRINT_CONTENT: "\tPassword not changed since sender is not room creator"
+                            }],
+                        KEY_CURRENT_CONNECTIONS_DB:
+                            [{
+                                'id': 0,
+                                'user': 15,
+                                'sid': '123456789ABCDEF'
+                            }],
+                        KEY_ROOMS_DB:
+                            [{
+                                'id': 0,
+                                'name': 'Test Room',
+                                'creator': 1,
+                                'password': 'ASDF'
+                            }]
+                    }
+            },{ # Test for a request from the room creator
+                KEY_INPUT:
+                    {
+                        KEY_SID: '123456789ABCDEF',
+                        KEY_GET_ROOM_RETURN: '0',
+                        KEY_GENERATE_PIN_RETURN: 'QWER',
+                        KEY_CURRENT_CONNECTIONS_DB:
+                            [{
+                                'id': 0,
+                                'user': 15,
+                                'sid': '123456789ABCDEF'
+                            }],
+                        KEY_ROOMS_DB:
+                            [{
+                                'id': 0,
+                                'name': 'Test Room',
+                                'creator': 15,
+                                'password': 'ASDF'
+                            }]
+                    },
+                KEY_EXPECTED:
+                    {
+                        KEY_HOLD_LIST:
+                            [{
+                                KEY_HOLD_TYPE: KEY_HOLD_PRINT,
+                                KEY_PRINT_CONTENT: "Received password change request"
+                            },{
+                                KEY_HOLD_TYPE: KEY_HOLD_PRINT,
+                                KEY_PRINT_CONTENT: "\tPassword for room 0 changed to QWER"
+                            },{
+                                KEY_HOLD_TYPE: KEY_HOLD_EMIT_ROOM_STATS,
+                                KEY_ARGS: '123456789ABCDEF'
+                            }],
+                        KEY_CURRENT_CONNECTIONS_DB:
+                            [{
+                                'id': 0,
+                                'user': 15,
+                                'sid': '123456789ABCDEF'
+                            }],
+                        KEY_ROOMS_DB:
+                            [{
+                                'id': 0,
+                                'name': 'Test Room',
+                                'creator': 15,
+                                'password': 'QWER'
+                            }]
+                    }
+            },{ # Test if the user is not connected
+                KEY_INPUT:
+                    {
+                        KEY_SID: '123456789ABCDEF',
+                        KEY_GET_ROOM_RETURN: '0',
+                        KEY_GENERATE_PIN_RETURN: 'QWER',
+                        KEY_CURRENT_CONNECTIONS_DB:
+                            [{
+                                'id': 0,
+                                'user': 15,
+                                'sid': '123456787654321'
+                            }],
+                        KEY_ROOMS_DB:
+                            [{
+                                'id': 0,
+                                'name': 'Test Room',
+                                'creator': 15,
+                                'password': 'ASDF'
+                            }]
+                    },
+                KEY_EXPECTED:
+                    {
+                        KEY_HOLD_LIST:
+                            [{
+                                KEY_HOLD_TYPE: KEY_HOLD_PRINT,
+                                KEY_PRINT_CONTENT: "Received password change request"
+                            },{
+                                KEY_HOLD_TYPE: KEY_HOLD_PRINT,
+                                KEY_PRINT_CONTENT: "\tPassword not changed since sender is not connected"
+                            }],
+                        KEY_CURRENT_CONNECTIONS_DB:
+                            [{
+                                'id': 0,
+                                'user': 15,
+                                'sid': '123456787654321'
+                            }],
+                        KEY_ROOMS_DB:
+                            [{
+                                'id': 0,
+                                'name': 'Test Room',
+                                'creator': 15,
+                                'password': 'ASDF'
+                            }]
+                    }
+            },{ # Test if the user is not in a room
                 KEY_INPUT:
                     {
                         KEY_SID: '123456789ABCDEF',
@@ -103,14 +236,14 @@ class testEmitUsers(unittest.TestCase):
                         KEY_CURRENT_CONNECTIONS_DB:
                             [{
                                 'id': 0,
-                                'user': None,
+                                'user': 15,
                                 'sid': '123456789ABCDEF'
                             }],
                         KEY_ROOMS_DB:
                             [{
                                 'id': 0,
                                 'name': 'Test Room',
-                                'creator': 'John Smith',
+                                'creator': 15,
                                 'password': 'ASDF'
                             }]
                     },
@@ -127,28 +260,72 @@ class testEmitUsers(unittest.TestCase):
                         KEY_CURRENT_CONNECTIONS_DB:
                             [{
                                 'id': 0,
-                                'user': None,
+                                'user': 15,
                                 'sid': '123456789ABCDEF'
                             }],
                         KEY_ROOMS_DB:
                             [{
                                 'id': 0,
                                 'name': 'Test Room',
-                                'creator': 'John Smith',
+                                'creator': 15,
+                                'password': 'ASDF'
+                            }]
+                    }
+            },{ # Test if the room is somehow not valid
+                KEY_INPUT:
+                    {
+                        KEY_SID: '123456789ABCDEF',
+                        KEY_GET_ROOM_RETURN: '1',
+                        KEY_GENERATE_PIN_RETURN: 'QWER',
+                        KEY_CURRENT_CONNECTIONS_DB:
+                            [{
+                                'id': 0,
+                                'user': 15,
+                                'sid': '123456789ABCDEF'
+                            }],
+                        KEY_ROOMS_DB:
+                            [{
+                                'id': 0,
+                                'name': 'Test Room',
+                                'creator': 15,
+                                'password': 'ASDF'
+                            }]
+                    },
+                KEY_EXPECTED:
+                    {
+                        KEY_HOLD_LIST:
+                            [{
+                                KEY_HOLD_TYPE: KEY_HOLD_PRINT,
+                                KEY_PRINT_CONTENT: "Received password change request"
+                            },{
+                                KEY_HOLD_TYPE: KEY_HOLD_PRINT,
+                                KEY_PRINT_CONTENT: "\tPassword not changed since room id is invalid"
+                            }],
+                        KEY_CURRENT_CONNECTIONS_DB:
+                            [{
+                                'id': 0,
+                                'user': 15,
+                                'sid': '123456789ABCDEF'
+                            }],
+                        KEY_ROOMS_DB:
+                            [{
+                                'id': 0,
+                                'name': 'Test Room',
+                                'creator': 15,
                                 'password': 'ASDF'
                             }]
                     }
             }]
         self.hold = []
-
-     def mock_emit(self, channel, data, room='default'):
-        self.hold.append({KEY_HOLD_TYPE: KEY_HOLD_EMIT, KEY_EMIT_ID: channel, KEY_DATA: data, KEY_EMIT_ROOM: room})
         
      def mock_print(self, *args):
         string = ''
         for arg in args:
             string += str(arg)
         self.hold.append({KEY_HOLD_TYPE: KEY_HOLD_PRINT, KEY_PRINT_CONTENT: str(string)})
+
+     def mock_emit_room_stats(self, client_sid):
+        self.hold.append({KEY_HOLD_TYPE: KEY_HOLD_EMIT_ROOM_STATS, KEY_ARGS: client_sid})
 
      @mock.patch('models.GenerateCharacterPin')
      @mock.patch('app.get_room')
@@ -168,7 +345,7 @@ class testEmitUsers(unittest.TestCase):
             load_current_connections_table(test[KEY_INPUT][KEY_CURRENT_CONNECTIONS_DB])
 
             with mock.patch("models.DB.session", session):
-                with mock.patch("flask_socketio.SocketIO.emit", self.mock_emit):
+                with mock.patch("app.emit_room_stats", self.mock_emit_room_stats):
                     with mock.patch("builtins.print", self.mock_print):
                         with mock.patch("models.Rooms", mockModels.Rooms):
                             with mock.patch("models.CurrentConnections", mockModels.CurrentConnections):
