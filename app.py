@@ -178,7 +178,7 @@ def emit_room_history(client_sid):
 
 
 def emit_all_users(channel, roomID):
-   entered_room_rows = (
+    entered_room_rows = (
        models.DB.session.query(models.EnteredRooms).filter_by(room=roomID).all()
     )
     all_user_ids = []
