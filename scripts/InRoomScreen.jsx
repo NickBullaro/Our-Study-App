@@ -30,8 +30,6 @@ function InRoomScreen() {
         <Chatbox />
         <div className="container" id="flashcards_container">
           <Flashcards />
-          <FlashcardTest />
-        </div>
       </div>
       <WhiteboardButton />
       <Stream />
@@ -44,6 +42,7 @@ function InRoomScreen() {
 
      
       
+    </div>
     </div>
   );
 }

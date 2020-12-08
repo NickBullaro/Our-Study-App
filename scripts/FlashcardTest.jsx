@@ -1,38 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import Socket from './Socket';
-import InRoomScreen from './InRoomScreen';
 import PropTypes from 'prop-types';
+import Socket from './Socket';
 
-const TEST_FLASHCARDS = [
-  {
-    question: '2+2=',
-    answer: '4',
-  },
-
-  {
-    question: 'What is the capital of NJ?',
-    answer: 'Trenton',
-  },
-
-  {
-    question: 'Who is the first US President',
-    answer: 'George Washington',
-  },
-
-  {
-    question: 'Who is the best person in the world',
-    answer: 'Definitely You :)',
-  },
-];
-
-export default function FlashcardTest() {
-  // const [flashcards, setFlashcards] = useState(TEST_FLASHCARDS);
+export default function FlashcardTest({ cards }) {
   const [key, setKey] = useState([]);
   const [test, setTest] = useState([{}]);
-  const [flashcards, setFlashcards] = useState([]);
+  const [flashcards, setFlashcards] = useState(cards);
 
   const [fields, setFields] = useState([]);
-  
+
   const CARDS = 'cards';
 
   function handleAnswer(i, event) {
@@ -42,32 +18,25 @@ export default function FlashcardTest() {
   }
 
   function shuffle(arr) {
-    let currentIndex = arr.length;
-    let temporaryValue;
-    let randomIndex;
     const array = [...arr];
 
-    // While there remain elements to shuffle...
-    while (currentIndex !== 0) {
-      // Pick a remaining element...
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex -= 1;
-
-      // And swap it with the current element.
-      temporaryValue = array[currentIndex];
-      array[currentIndex] = array[randomIndex];
-      array[randomIndex] = temporaryValue;
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * i);
+      const temp = array[i];
+      array[i] = array[j];
+      array[j] = temp;
     }
 
     return array;
   }
-   function newCards() {
+  function newCards() {
     useEffect(() => {
       Socket.on(CARDS, (data) => {
         setFlashcards(data);
       });
     });
   }
+
   function checkQuiz() {
     for (let i = 0; i < fields.length; i += 1) {
       const field = document.getElementById(`field${i}`);
@@ -90,17 +59,16 @@ export default function FlashcardTest() {
 
   function setUp() {
     React.useEffect(() => {
-      const answers = [];
-      const questions = [];
+      let answers = [];
+      let questions = [];
 
       for (let i = 0; i < flashcards.length; i += 1) {
         questions.push(flashcards[i].question);
         answers.push(flashcards[i].answer);
       }
-      console.log(flashcards);
 
-      shuffle(questions);
-      shuffle(answers);
+      questions = shuffle(questions);
+      answers = shuffle(answers);
 
       const tests = [];
       const answerKey = [];
@@ -119,21 +87,20 @@ export default function FlashcardTest() {
 
       setTest(tests);
       setKey(answerKey);
-    }, [flashcards]);
+    }, [cards]);
   }
-  
 
   newCards();
   setUp();
-  
+
   return (
     <div>
       Possible Answers
       {
    test.map((flashcard, index) => (
-     <div>
+     <div key={`${flashcard + index}`}>
 
-       <div className="row" key={`${flashcard + index}`}>
+       <div className="row">
          <div className="col-12">
            <p>{flashcard.answer}</p>
          </div>
@@ -162,7 +129,7 @@ export default function FlashcardTest() {
           ))}
 
           <input type="button" value="Submit quiz" onClick={handleSubmit} />
-       
+
         </form>
 
       </div>
@@ -172,10 +139,10 @@ export default function FlashcardTest() {
 }
 
 FlashcardTest.defaultProps = {
-  flashcards: [],
+  cards: [],
 };
 
 FlashcardTest.propTypes = {
-  flashcards: PropTypes.arrayOf(PropTypes.object),
+  cards: PropTypes.arrayOf(PropTypes.object),
 
 };
