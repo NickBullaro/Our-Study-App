@@ -330,7 +330,7 @@ class testEmitUsers(unittest.TestCase):
      @mock.patch('models.GenerateCharacterPin')
      @mock.patch('app.get_room')
      @mock.patch('app.flask')
-     def test_emit_all_users_success(self, mock_flask, mock_get_room, mock_generate_pin):
+     def test_reset_room_password(self, mock_flask, mock_get_room, mock_generate_pin):
         session = mockDBsession.MockSession()
         for test in self.success_test_params:
             self.hold = []
