@@ -404,14 +404,19 @@ def reset_room_password():
     if client_sid == room_id:
         print("\tPassword not changed since sender is not in a room")
         return
-    client_user_id = (
-        models.DB.session.query(models.CurrentConnections.user)
-        .filter_by(sid=client_sid)
-        .first()[0]
-    )
+    curr_conn_row = models.DB.session.query(models.CurrentConnections).filter_by(sid=client_sid).first()
+    if curr_conn_row:
+        client_user_id = curr_conn_row.user
+    else:
+        print("\tPassword not changed since sender is not connected")
+        return
     room = models.DB.session.query(models.Rooms).filter_by(id=int(room_id)).first()
-    if client_user_id != room.creator:
-        print("\tPassword not changed since sender is not room creator")
+    if room:
+        if client_user_id != room.creator:
+            print("\tPassword not changed since sender is not room creator")
+            return
+    else:
+        print("\tPassword not changed since room id is invalid")
         return
     room.password = models.GenerateCharacterPin(models.ROOM_PASSWORD_LENGTH)
     print("\tPassword for room {} changed to {}".format(room.id, room.password))
