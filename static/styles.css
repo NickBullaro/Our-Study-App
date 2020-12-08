@@ -201,6 +201,23 @@ button {
     background: linear-gradient(180deg, rgba(95,112,160,1) 0%, rgba(95,112,160,0.6909138655462185) 12%, rgba(95,112,160,0) 50%, rgba(95,112,160,0.5676645658263305) 83%, rgba(95,112,160,1) 100%);
 }
 
+#refresh_button {
+    position:absolute;
+    right: 0px;
+    top: 0px;
+}
+
+#refresh_image {
+    height: 20px;
+    width: auto;
+}
+
+#about_link {
+    position:absolute;
+    left: 0px;
+    top: 0px;
+}
+
 /*area for creating or joining*/
 /*#roomJoinCreateButtons {*/
     /*position: fixed;*/

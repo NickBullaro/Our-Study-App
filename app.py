@@ -385,11 +385,16 @@ def on_drawing_stroke(data):
     socketio.emit("drawing stroke output", data, room=str(room_id))
 
 
-@APP.route("/")
+@APP.route("/index.html")
 def index():
     """ Return the index.html page on this route"""
     return flask.render_template("index.html")
 
+@APP.route("/about.html")
+@APP.route("/")
+def about():
+    """ Return the landing page at these routes"""
+    return flask.render_template("about.html")
 
 if __name__ == "__main__":
     database_init()

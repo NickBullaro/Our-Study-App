@@ -21,9 +21,15 @@ function InRoomScreen() {
   function logout() {
     return;
   }
+  
+  function Refresh() {
+    Socket.emit("resend in room data");
+  }
 
   return (
     <div id="inRoomScreen">
+      <p id="about_link"><a href="about.html"> About Our Study </a></p>
+      <button id="refresh_button" onClick={Refresh} type="submit"><img src="/static/refresh_icon.jpg" id="refresh_image"/></button>
       <RoomStats />
       <div id="grid_container">
       <div className="container" id="chat_and_users"style={{background:"none"}}>
