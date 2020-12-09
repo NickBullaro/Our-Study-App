@@ -50,7 +50,7 @@ def database_init():
     models.DB.create_all()
     models.DB.session.commit()
 
-def emit_joined_rooms(client_room):
+def emit_joined_rooms(client_sid):
     """
     Takes in a clients personal room sid and uses it to identify the user in the database.
     It then checks the database to see which rooms the user has joined and
@@ -58,7 +58,7 @@ def emit_joined_rooms(client_room):
     """
     curr_conn_row = (
         models.DB.session.query(models.CurrentConnections)
-        .filter_by(sid=client_room)
+        .filter_by(sid=client_sid)
         .first()
     )
     if curr_conn_row:
