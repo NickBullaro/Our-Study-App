@@ -141,13 +141,7 @@ def emit_flashcards(room):
         card_dict["answer"] = card.answer
         cards.append(card_dict)
 
-<<<<<<< HEAD
-    socketio.emit(CARDS, cards, room=room)
-    
-    return cards
-=======
     socketio.emit(CARDS, cards, room=str(room))
->>>>>>> 0a35774c122f2615daf89ec425c6993d8f364497
 
 def emit_all_messages(client_sid):
     room_id = get_room(client_sid)
@@ -560,8 +554,6 @@ def new_cards(data):
 
     models.DB.session.commit()
     emit_flashcards(flask.request.sid)
-<<<<<<< HEAD
-=======
 
 def emit_boards(my_sid):
     my_room = get_room(my_sid)
@@ -657,7 +649,6 @@ def disconnect_whiteboard(my_sid):
                 models.DB.session.commit()
     except ValueError:
         print("not in whiteboard")
->>>>>>> 0a35774c122f2615daf89ec425c6993d8f364497
 
 @socketio.on("drawing stroke input")
 def on_drawing_stroke(data):
