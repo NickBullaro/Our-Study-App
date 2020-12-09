@@ -284,6 +284,13 @@ form > #input_desc {
     border-radius: 0px 0px 10px 10px;
 }
 
+
+#aboutUs, #appMethodology, #ourApp{
+    display: none;
+    padding-left: 2em;
+    font-size: 1.3em;
+}
+
 #join_room_button , #create_room_button {
     position:relative;
     bottom:0px;
@@ -377,6 +384,11 @@ p.RoomListName {
     width:auto;
     margin:10px auto 10px auto;
     word-break: break-all;
+}
+
+.landingButtons{
+    margin: 3em;
+    size: 2em;
 }
 .RoomListButton {
     border-radius: 5px;
