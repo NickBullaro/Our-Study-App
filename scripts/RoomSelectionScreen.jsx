@@ -7,14 +7,19 @@ function RoomSelectionScreen() {
   function Refresh() {
     Socket.emit("resend room selection data");
   }
-  
+
   return (
     <div id="roomSelectionScreen">
       <h2 className="header">Existing Rooms</h2>
+      <button id="refresh_button" onClick={Refresh} type="submit">
+        <img id="refresh_image" alt="" src="../static/refresh_icon.jpg"/>
+      </button>
+      <form action="about.html" id="help">
+        <button type="submit">?</button>
+      </form>
+      <div id="about_help">About us</div>
       <JoinedRoomsList />
       <RoomJoinCreate />
-      <p id="about_link"><a href="about.html"> About Our Study </a></p>
-      <button id="refresh_button" onClick={Refresh} type="submit"><img src="/static/refresh_icon.jpg" id="refresh_image"/></button>
     </div>
   );
 }

@@ -9,7 +9,8 @@
     --darker-grey:#808080;
     --darkest-grey:#333333;
     --transparent-color:rgba(0,0,0,0);
-
+    --about-color:#0963DC;
+    
     --chatbox-green: #006666;
     --background-jade:#5F9EA0;
     --text-color: #F5FFFA;
@@ -205,6 +206,9 @@ button {
     position:absolute;
     right: 0px;
     top: 0px;
+    width: 30px;
+    height: 30px;
+    background: white;
 }
 
 #refresh_image {
@@ -218,24 +222,33 @@ button {
     top: 0px;
 }
 
-/*area for creating or joining*/
-/*#roomJoinCreateButtons {*/
-    /*position: fixed;*/
-    /*right: 50px;*/
-    /*top:50px;*/
-/*    margin-left:auto;*/
-/*    margin-right:auto;*/
-/*    margin-bottom: 5px;*/
-/*    height: 365px;*/
-/*    width: 415px;*/
-/*    border-radius: 15px;*/
-/*    background-color: var(--light-grey);*/
-/*    box-shadow: 0 2px 4px 0 rgba(0,0,0,0.5);*/
-/*    max-width:300px;*/
-/*    text-align: center;*/
-/*    align-content: center;*/
-/*    justify-content: center;*/
-/*}*/
+#help {
+    position:absolute;
+    left:0;
+    top:0;
+}
+#help > button {
+    width: 35px;
+    height:35px;
+}
+#about_help {
+    display:none;
+    position:absolute;
+    left:30px;
+    top:30px;
+    background: rgba(225,225,255,0.5);
+    border-radius:5px;
+    width:auto;
+    height:auto;
+    color: black;
+    font-size:14px;
+    padding:10px;
+}
+#help:hover + #about_help,#help>button:hover + #about_help {
+    display:block;
+    transition:5s;
+}
+
 #roomJCB_message {
     color: var(--darkest-grey);
     /*font-family: Avenir;*/
@@ -666,67 +679,65 @@ video {
 
 .LandingPage {
     text-align: center;
-    font-size: 22pt;
-    font-family: Garamond;
+    /*font-size: 22pt;*/
+    font-family: Avenir;
     margin-left: auto;
     margin-right: auto;
 }
-
-.left {
-    width: 45%;
-    height: 50%;
-    float: left;
-    margin-left: 20px;
-    margin-right: 20px;
-    margin-top: auto;
-    margin-bottom: auto;
+.LandingPage > h1 {
+    font-size:5vw;
+    color: var(--lighter-grey);
 }
-
-.right {
-    width: 45%;
-    height: 50%;
-    float: right;
-    margin-left: 20px;
-    margin-right: 20px;
-    margin-top: 2.5em;
-    margin-bottom: auto;
+.LandingPage > h1,h2,h3,h4 {
+    color: var(--very-dark-turquoise);
 }
-
-.welcomeMessage {
-    font-size: 50pt;
-    color: #0963DC;
+.LandingPage > footer {
+    font-size:3vw;
 }
-
-.whoWeAre {
-    margin-bottom: 20px;
-}
-
 .landingQuestion {
-    font-size: 35pt;
-    color: #0963DC;
+    font-size: 3vw;
+    color: var(--darkest-grey);
 }
 
-.tryIt {
-    color: #0963DC;
-    text-align: center;
-    margin-left: auto;
-    margin-right: auto;
-    display: inline-block;
-    vertical-align: bottom;
-    margin-top: 2em;
-    font-size: 30pt;
-    font-family: Garamond;
-    width: 100%;
+.container_grid {
+    display:grid;
+    grid-template-columns: calc(35vw - 20px) calc(25vw - 20px) calc(40vw);
+    column-gap:10px;
 }
 
-.whereItIs {
-    margin-left: auto;
-    margin-right: auto;
-    font-size: 25pt;
-    font-family: Garamond;
-    text-align: center;
-    display: inline-flex;
-    vertical-align: bottom;
+.container_grid > .container {
+    text-align:center;
+    height:auto;
+    padding: 10px;
+    background:rgba(225,225,225,0.5);
+    border-radius:10px;
+    box-shadow:none;
+    margin: 0 10px 0 10px;
+}
+.description {
+    text-align:justify;
+    font-size:2.5vw;
+}
+
+@media only screen and (min-width: 500px) {
+    .LandingPage > header {
+        font-size:5vh;
+    }
+    .LandingPage > footer{
+        font-size:3vh;
+    }
+    .landingQuestion{
+        font-size:3vh;
+    }
+    .description {
+        font-size:2.5vh;
+    }
+}
+
+footer {
+    text-align:center;
+    margin: auto;
+    font: 10vw;
 }
 
 .loadingButton {
@@ -742,57 +753,3 @@ video {
 p {
     margin-bottom: 0;
 }
-
-/*inRoomScreen > #leave_room {*/
-/*    position: fixed;*/
-/*    top: calc(100vh - 20px);*/
-/*}*/
-
-/*#leave_room {*/
-/*    position: fixed;*/
-/*    top: calc(100vh - 60px);*/
-/*    left: calc(50vw - 49px);*/
-/*}*/
-
-/*@media only screen and (max-width: 1030px) {*/
-/*    #grid_container {*/
-/*        display:block;*/
-/*    }*/
-/*    #inRoomScreen.button_tab {*/
-/*        visibility:visible;*/
-/*        display:block;*/
-/*        width: 250px;*/
-/*        height:auto;*/
-/*        padding:30vh 0 0 0;*/
-/*        overflow:scroll;*/
-/*        background: var(--very-dark-turquoise);*/
-/*        position:fixed;*/
-/*        top: 0;*/
-/*        left:0;*/
-/*        bottom:0;*/
-        /*z-index:1;*/
-/*    }*/
-/*    #inRoomScreen.button_tab > button {*/
-/*        width: 200px;*/
-/*        margin: 10px;*/
-/*    }*/
-/*    #inRoomScreen.button_area {*/
-/*        visibility: hidden;*/
-/*    }*/
-/*    #chat_and_users.container {*/
-/*        display:block;*/
-/*        width:auto;*/
-/*        visibility: hidden;*/
-/*    }*/
-/*    #flashcards_container.container {*/
-/*        display:block;*/
-/*        width:auto;*/
-/*        visibility: hidden;*/
-/*    }*/
-/*    #whiteboard_component {*/
-/*        display:block;*/
-/*        width:auto;*/
-/*        visibility: hidden;*/
-/*    }*/
-
-/*}*/
