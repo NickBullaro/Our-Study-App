@@ -702,6 +702,86 @@ video {
     max-width: 200px;
 }
 
+.LandingPage {
+    text-align: center;
+    font-size: 22pt;
+    font-family: Garamond;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.left {
+    width: 45%;
+    height: 50%;
+    float: left;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.right {
+    width: 45%;
+    height: 50%;
+    float: right;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-top: 2.5em;
+    margin-bottom: auto;
+}
+
+.welcomeMessage {
+    font-size: 50pt;
+    color: #0963DC;
+}
+
+.whoWeAre {
+    margin-bottom: 20px;
+}
+
+.landingQuestion {
+    font-size: 35pt;
+    color: #0963DC;
+}
+
+.tryIt {
+    color: #0963DC;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    display: inline-block;
+    vertical-align: bottom;
+    margin-top: 2em;
+    font-size: 30pt;
+    font-family: Garamond;
+    width: 100%;
+}
+
+.whereItIs {
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 25pt;
+    font-family: Garamond;
+    text-align: center;
+    display: inline-flex;
+    vertical-align: bottom;
+}
+
+.loadingButton {
+    text-align: center;
+    display: inline-block;
+}
+
+.redirectButton {
+    font-size: 20pt;
+    display: inline-block;
+}
+
+p {
+    margin-bottom: 0;
+}
+
+
 /*inRoomScreen > #leave_room {*/
 /*    position: fixed;*/
 /*    top: calc(100vh - 20px);*/
