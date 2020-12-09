@@ -29,15 +29,13 @@ function InRoomScreen() {
     <div id="inRoomScreen">
       <RoomStats />
       <div id="grid_container">
-        <div className="container" id="chat_and_users" style={{ background: 'none' }}>
-          <Chatbox />
-          <div className="container" id="flashcards_container">
-            <Flashcards />
-            <FlashcardTest />
-          </div>
+      <div className="container" id="chat_and_users"style={{background:"none"}}>
+        <Chatbox />
+        <div className="container" id="flashcards_container">
+          <Flashcards />
         </div>
-        <WhiteboardButton />
-        <Stream />
+      <WhiteboardButton />
+      <Stream />
       </div>
       <div className="button_area" id="inRoomScreen">
         <button id="leave_room" onClick={tempRoomLeave} type="submit">Leave Room</button>
@@ -46,6 +44,7 @@ function InRoomScreen() {
       </div>
       <p id="about_link"><a href="about.html"> About Our Study </a></p>
       <button id="refresh_button" onClick={Refresh} type="submit"><img src="/static/refresh_icon.jpg" id="refresh_image" /></button>
+    </div>
     </div>
   );
 }

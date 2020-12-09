@@ -131,7 +131,9 @@ def get_board(client_sid):
 
 def emit_flashcards(room):
     """Emit all the flashcards for a specific room"""
-    all_cards = models.DB.session.query(models.Flashcards).all()
+    room = get_room(room)
+    
+    all_cards = models.DB.session.query(models.Flashcards).filter_by(room=room).all()
     cards = []
     for card in all_cards:
         card_dict = {}
@@ -327,6 +329,28 @@ def accept_google_login(data):
         .filter_by(sid=flask.request.sid)
         .first()
     )
+    connection.user = user.id
+    models.DB.session.commit()
+    print("{} logged in".format(user.username))
+    emit_joined_rooms(flask.request.sid)
+    
+@socketio.on("facebook login")
+def accept_facebook_login(data):
+    socketio.emit(
+        "login accepted",
+        room=flask.request.sid
+    )
+    user = models.DB.session.query(models.AuthUser).filter_by(auth_type=models.AuthUserType.FACEBOOK.value, email=data['email']).first()
+    if not user:
+        print('adding new user')
+        models.DB.session.add(models.AuthUser(models.AuthUserType.FACEBOOK, data['user'], data['email'], data['pic']))
+        models.DB.session.commit()
+        user = models.DB.session.query(models.AuthUser).filter_by(auth_type=models.AuthUserType.FACEBOOK.value, email=data['email']).first()
+    else:
+        print('updating existing user')
+        user.username = data['user']
+        user.picUrl = data['pic']
+    connection = models.DB.session.query(models.CurrentConnections).filter_by(sid=flask.request.sid).first()
     connection.user = user.id
     models.DB.session.commit()
     print("{} logged in".format(user.username))

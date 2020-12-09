@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import * as React from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import PropTypes from 'prop-types';
+import FlashcardTest from './FlashcardTest';
 import Flashcard from './Flashcard';
+
 import Socket from './Socket';
 
 export default function Flashcards() {
-  const [addCards, setAddCards] = useState(false);
-  const [flashcards, setFlashcards] = useState([]);
+  const [addCards, setAddCards] = React.useState(false);
+  const [flashcards, setFlashcards] = React.useState([]);
 
   const CARDS = 'cards';
 
@@ -16,11 +18,28 @@ export default function Flashcards() {
   }
 
   function newCards() {
-    useEffect(() => {
+    React.useEffect(() => {
       Socket.on(CARDS, (data) => {
         setFlashcards(data);
       });
     });
+  }
+
+  function showTest() {
+    const modal = document.getElementById('myModal');
+    const span = document.getElementsByClassName('close')[0];
+
+    modal.style.display = 'block';
+
+    span.onclick = () => {
+      modal.style.display = 'none';
+    };
+
+    window.onclick = (event) => {
+      if (event.target === modal) {
+        modal.style.display = 'none';
+      }
+    };
   }
 
   newCards();
@@ -29,20 +48,31 @@ export default function Flashcards() {
     addCards
       ? <CreateFlashcards cards={flashcards} />
       : (
-
         <div>
-          <div className="card-grid">
-            {flashcards.map((flashcard) => <Flashcard key={uuidv4()} flashcard={flashcard} />)}
+
+          <div id="myModal" className="modal">
+
+            <div className="modal-content">
+              <span className="close">&times;</span>
+              <FlashcardTest cards={flashcards} />
+            </div>
+
           </div>
-          <button type="submit" onClick={addFlashCards}>Edit Flashcards</button>
+          <div>
+            <div className="card-grid" id="cards">
+              {flashcards.map((flashcard) => <Flashcard key={uuidv4()} flashcard={flashcard} />)}
+            </div>
+            <button type="submit" onClick={addFlashCards}>Edit Flashcards</button>
+            <button type="button" id="takeTest" onClick={showTest}> Test Me </button>
+          </div>
         </div>
       )
   );
 }
 
 function CreateFlashcards({ cards }) {
-  const [submitted, setSubmit] = useState(false);
-  const [fields, setFields] = useState(cards);
+  const [submitted, setSubmit] = React.useState(false);
+  const [fields, setFields] = React.useState(cards);
   const NEW_CARDS = 'new cards';
 
   function handleQuestion(i, event) {
