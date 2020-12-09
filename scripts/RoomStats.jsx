@@ -1,7 +1,6 @@
 import * as React from 'react';
 import Socket from './Socket';
 
-
 function RoomStats() {
   const [roomId, setRoomId] = React.useState('-1');
   const [roomPassword, setRoomPassword] = React.useState('AAAA');
@@ -15,10 +14,9 @@ function RoomStats() {
         setRoomName(data.roomName);
       });
     });
-
   }
 
-  function resetPassword () {
+  function resetPassword() {
     Socket.emit('reset password');
   }
 
@@ -27,7 +25,13 @@ function RoomStats() {
   return (
     <div id="roomStats">
       <h2 className="header">{ roomName }</h2>
-      <p>Room Id: { roomId }     Room Password: { roomPassword }</p>
+      <p>
+        Room Id:
+        { roomId }
+        {' '}
+        Room Password:
+        { roomPassword }
+      </p>
       <button onClick={resetPassword} type="submit">ResetPassword</button>
     </div>
   );

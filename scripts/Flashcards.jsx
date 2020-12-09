@@ -30,12 +30,12 @@ export default function Flashcards() {
       ? <CreateFlashcards cards={flashcards} />
       : (
 
-          <div>
-            <div className="card-grid">
-              {flashcards.map((flashcard) => <Flashcard key={uuidv4()} flashcard={flashcard} />)}
-            </div>
-            <button type="submit" onClick={addFlashCards}>Edit Flashcards</button>
+        <div>
+          <div className="card-grid">
+            {flashcards.map((flashcard) => <Flashcard key={uuidv4()} flashcard={flashcard} />)}
           </div>
+          <button type="submit" onClick={addFlashCards}>Edit Flashcards</button>
+        </div>
       )
   );
 }
@@ -77,24 +77,24 @@ function CreateFlashcards({ cards }) {
 
   return (
     submitted
-        ? <Flashcards />
-        : (
-            <div id="editing_cards" className="container">
-                <div id="flashcards_editor">
-                    {fields.map((field, idx) => (
-                    <div key={`${field + idx}`} className="form_row">
-                        <input type="text" className="question" placeholder="Enter question" value={field.question} onChange={(e) => handleQuestion(idx, e)} />
-                        <input type="text" className="answer" placeholder="Enter answer" value={field.answer} onChange={(e) => handleAnswer(idx, e)} />
-                        <button type="button" onClick={() => handleRemove(idx)}>X</button>
-                    </div>
-                    ))}
-                </div>
-                <div className="flashcard_button_row">
-                    <button type="button" id="addCard" onClick={handleAdd}>Add Card</button>
-                    <button type="button" onClick={handleSubmit}>Done</button>
-                </div>
-            </div>
-        )
+      ? <Flashcards />
+      : (
+        <div id="editing_cards" className="container">
+          <div id="flashcards_editor">
+            {fields.map((field, idx) => (
+              <div key={`${field + idx}`} className="form_row">
+                <input type="text" className="question" placeholder="Enter question" value={field.question} onChange={(e) => handleQuestion(idx, e)} />
+                <input type="text" className="answer" placeholder="Enter answer" value={field.answer} onChange={(e) => handleAnswer(idx, e)} />
+                <button type="button" onClick={() => handleRemove(idx)}>X</button>
+              </div>
+            ))}
+          </div>
+          <div className="flashcard_button_row">
+            <button type="button" id="addCard" onClick={handleAdd}>Add Card</button>
+            <button type="button" onClick={handleSubmit}>Done</button>
+          </div>
+        </div>
+      )
   );
 }
 
