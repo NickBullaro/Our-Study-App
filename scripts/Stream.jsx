@@ -30,7 +30,7 @@ const Stream = () => {
 
 
     return(
-        <div>
+        <div className="streamReturn">
         {tokens ? (
             <VideoRooms token={tokens} roomName={roomName}/>
             ) : (

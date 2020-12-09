@@ -713,7 +713,13 @@ inRoomScreen {
     border-radius: 50%;
 }
 
+.videoBlock {
+    width: 45%;
+    display: inline-block;
+}
+
 .videoRoom {
+    width: 100%;
     text-align: center;
     margin-bottom: 2em;
     display: inline-block;

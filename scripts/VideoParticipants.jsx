@@ -62,7 +62,7 @@ const Participant = ({ participant }) => {
   }, [audioTracks]);
 
   return (
-    <div>
+    <div className="videoBlock">
       <h3>{participant.identity.toString()}</h3>
       { videoTracks[0] ? (
         <video ref={videoRef} autoPlay />
