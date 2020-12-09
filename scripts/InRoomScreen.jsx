@@ -21,6 +21,10 @@ function InRoomScreen() {
   function logout() {
     return;
   }
+  
+  function Refresh() {
+    Socket.emit("resend in room data");
+  }
 
   return (
     <div id="inRoomScreen">
@@ -30,7 +34,7 @@ function InRoomScreen() {
         <Chatbox />
         <div className="container" id="flashcards_container">
           <Flashcards />
-      </div>
+        </div>
       <WhiteboardButton />
       <Stream />
       </div>
@@ -39,9 +43,8 @@ function InRoomScreen() {
         <button id="room_settings" onClick={roomSettings} type="submit">Settings</button>
         <button id="logout" onClick={logout} type="submit">Log Out</button>
       </div>
-
-     
-      
+      <p id="about_link"><a href="about.html"> About Our Study </a></p>
+      <button id="refresh_button" onClick={Refresh} type="submit"><img src="/static/refresh_icon.jpg" id="refresh_image"/></button>
     </div>
     </div>
   );

@@ -1,0 +1,55 @@
+<html>
+    <head>
+        <meta http-equiv='X-UA-Compatiable' content='ie=edge'>
+    	<!--Required meta tags -->
+    	<meta charset="utf-8">
+    	<meta name="viewport" content="width=device-width, intial-scale=1, shrink-to-fit=no">
+    	<!-- CSS only -->
+    	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+        <link rel="stylesheet"  type="text/css" href="/static/styles.css">
+        <link rel="shortcut icon" href="{{ url_for('static', filename='our_study_icon.ico') }}">
+    </head>
+    <body class="LandingPage">
+        <h1>Welcome to Our Study!</h1>
+        <div class="container_grid">
+            <div class="container">
+                <div class='landingQuestion'>Who are we?</div>
+                    <div class="description">
+                        We are Group 7! Our group members are Jason Molisani, 
+                        Navado Wray, Mitchell Mecca, George Alvarado, and Nick 
+                        Bullaro. We are all seniors at NJIT interested in persuing 
+                        a career in software engineering. As part of our Design in 
+                        Software Engineering class, we created this web app to 
+                        demonstrate the core concepts we have learned so far.
+                    </div>
+            </div>
+            <div class="container">
+                <div class='landingQuestion'>What did we make?</div>
+                    <div class="description">
+                        Our web app is a collaborative study app. We combined Zoom, 
+                        Google Drawing, and Quizlet Flashcards into one easy-to-use app!
+                    </div>
+            </div>
+            <div class="container">
+                <div class='landingQuestion'>How did we make our app?</div>
+                    <div class="description">
+                        We made this app through full-stack development. We used 
+                        python, Socketio, Flask, SQLAlchemy, and Postgres in the 
+                        backend to make our app function the way it's supposed to. 
+                        We used Javascript, React, HTML, CSS, and more in the 
+                        front-end to make our app show what it needed to and look 
+                        pretty! We also used Google and Facebook Oauth for access 
+                        control and Twilio Video for our audio/video streaming.
+                </div>
+            </div>
+        </div>
+            <footer>
+                <h2>Try it out!</h2>
+                <h4>To be redirected to the login page, click the button.</h4>
+                <button class="redirectButton" type="button">
+                    <a href="index.html">Head to the app!</a>
+                </button>
+            </footer>
+        </div>
+    </body>
+</html>

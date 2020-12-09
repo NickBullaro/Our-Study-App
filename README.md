@@ -36,7 +36,6 @@
       * InRoomScreen
       * LoggedInContent
       * LoginScreen
-      * Main
       * RoomSelectionScreen
       * Socket
     * Added room functionality and all related databases and components
@@ -55,10 +54,23 @@
     * Whiteboard component
 
 3. Nick Bullaro: 
-    * Handle Google Auth
-    * Create Chatbox component
-    * Create User List component
-    * 
+    * Created Landing Page and implemented functionality
+        * LandingPage
+        * Implemented HTML functionality
+        * Implemented CSS beautification
+    * Implemented Google Auth login functionality and created/edited related components
+        * GoogleButton
+        * LoginScreen (edited only- was created by Jason Molisani)
+    * Created Chatbox functionality, created all related components, and edited related database tables
+        * Messages table (edited only- created by Mitchell Mecca)
+        * Chatbox
+        * SendMessageButton
+    * Implemented User List functionality and edited related component
+        * UsersInRoomList (edited only- created by Jason Molisani)
+    * Implemented video & audio streaming and created all related components
+        * Stream
+        * VideoRooms
+        * VideoParticipants
 
 4. Navado Wray: 
     * Create Flashcard component

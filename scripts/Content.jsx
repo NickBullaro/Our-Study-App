@@ -2,6 +2,7 @@ import * as React from 'react';
 import LoggedInContent from './LoggedInContent';
 import LoginScreen from './LoginScreen';
 import Socket from './Socket';
+import WhiteboardButton from './WhiteboardButton'
 
 
 function Content() {
