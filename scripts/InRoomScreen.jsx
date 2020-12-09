@@ -12,18 +12,17 @@ function InRoomScreen() {
   function tempRoomLeave() {
     Socket.emit('leave room');
   }
-  
 
   function roomSettings() {
-    return;
+
   }
-  
+
   function logout() {
-    return;
+
   }
-  
+
   function Refresh() {
-    Socket.emit("resend in room data");
+    Socket.emit('resend in room data');
   }
 
   return (
@@ -44,7 +43,7 @@ function InRoomScreen() {
         <button id="logout" onClick={logout} type="submit">Log Out</button>
       </div>
       <p id="about_link"><a href="about.html"> About Our Study </a></p>
-      <button id="refresh_button" onClick={Refresh} type="submit"><img src="/static/refresh_icon.jpg" id="refresh_image"/></button>
+      <button id="refresh_button" onClick={Refresh} type="submit"><img src="/static/refresh_icon.jpg" id="refresh_image" /></button>
     </div>
     </div>
   );

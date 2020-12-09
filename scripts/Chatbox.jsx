@@ -8,7 +8,7 @@ function Chatbox() {
 
   function getNewMessage() {
     React.useEffect(() => {
-      Socket.on('sending message history',(data) => {
+      Socket.on('sending message history', (data) => {
         setMessages(data.allMessages);
         setUrls(data.all_user_pics);
         const chatBox = document.getElementById('chatBoxScroll');
@@ -20,10 +20,15 @@ function Chatbox() {
   getNewMessage();
 
   return (
-    <div className="container"id="chatbox">
+    <div className="container" id="chatbox">
       <div className="chat_messages" id="chatBoxScroll">
-          {
-            messages.map((message, index) => <div className="container" id="registered_message" key={index}><img src={picUrls[index]} className="img"/>{message}</div>)
+        {
+            messages.map((message, index) => (
+              <div className="container" id="registered_message" key={index}>
+                <img src={picUrls[index]} className="img" />
+                {message}
+              </div>
+            ))
           }
       </div>
       <SendMessageButton />
