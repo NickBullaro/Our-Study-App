@@ -13,13 +13,14 @@ import models
 from twilio.jwt.access_token import AccessToken
 from twilio.jwt.access_token.grants import VideoGrant
 
-
-APP = flask.Flask(__name__)
-# SOCKETIO = flask_socketio.SocketIO(APP)
-# SOCKETIO.init_app(APP, cors_allowed_origins="*")
-
 DOTENV_PATH = os.path.join(os.path.dirname(__file__), "keys.env")
 load_dotenv(DOTENV_PATH)
+
+roomTokens = {}
+
+USERS_RECEIVED_CHANNEL = "users received"
+NEW_CARDS = "new cards"
+CARDS = "cards"
 
 try:
     DATABASE_URI = os.environ["DATABASE_URL"]
@@ -36,42 +37,34 @@ except KeyError:
     twilio_api_key_sid = ""
     twilio_api_key_secret = ""
 
+APP = flask.Flask(__name__)
+socketio = flask_socketio.SocketIO(APP)
+socketio.init_app(APP, cors_allowed_origins="*")
 APP.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
 APP.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 models.DB.init_app(APP)
 models.DB.app = APP
 
-
 def database_init():
     models.DB.create_all()
     models.DB.session.commit()
 
-
-socketio = flask_socketio.SocketIO(APP)
-socketio.init_app(APP, cors_allowed_origins="*")
-
-username_sid_dict = {}
-roomTokens = {}
-
-USERS_RECEIVED_CHANNEL = "users received"
-NEW_CARDS = "new cards"
-CARDS = "cards"
-
-SAMPLE_MESSAGES = []
-
-
-def emit_joined_rooms(client_room):
+def emit_joined_rooms(client_sid):
     """
     Takes in a clients personal room sid and uses it to identify the user in the database.
     It then checks the database to see which rooms the user has joined and
     emits that as a list to the client_room
     """
-    user_id = (
-        models.DB.session.query(models.CurrentConnections.user)
-        .filter_by(sid=client_room)
+    curr_conn_row = (
+        models.DB.session.query(models.CurrentConnections)
+        .filter_by(sid=client_sid)
         .first()
     )
+    if curr_conn_row:
+        user_id = curr_conn_row.user
+    else:
+        return
     room_id_list = (
         models.DB.session.query(models.JoinedRooms.room).filter_by(user=user_id).all()
     )
@@ -90,9 +83,8 @@ def emit_joined_rooms(client_room):
     socketio.emit(
         "updated room list",
         {"rooms": room_list},
-        room=str(client_room),
+        room=str(client_sid),
     )
-
 
 def get_room(client_sid):
     """
@@ -116,7 +108,6 @@ def get_room(client_sid):
     if entered_room:
         return str(entered_room[0])
     return client_sid
-
 
 def get_board(client_sid):
     """
@@ -149,8 +140,6 @@ def emit_flashcards(room):
         cards.append(card_dict)
 
     socketio.emit(CARDS, cards, room=str(room))
-    return cards
-
 
 def emit_all_messages(client_sid):
     room_id = get_room(client_sid)
@@ -173,14 +162,17 @@ def emit_all_messages(client_sid):
 
 def emit_room_history(client_sid):
     room_id = get_room(client_sid)
-    emit_flashcards(room_id)
+    emit_flashcards(client_sid)
     emit_all_messages(client_sid)
+    emit_all_users(USERS_RECEIVED_CHANNEL, client_sid)
+    emit_room_stats(client_sid)
 
-
-def emit_all_users(channel, roomID):
-    entered_room_rows = (
-       models.DB.session.query(models.EnteredRooms).filter_by(room=roomID).all()
-    )
+def emit_all_users(channel, client_sid):
+    room_id = get_room((client_sid))
+    # If the user isn't in a room, emit nothing
+    if room_id == client_sid:
+        return
+    entered_room_rows = models.DB.session.query(models.EnteredRooms).filter_by(room=room_id).all()
     all_user_ids = []
     all_users = []
     all_user_pics = []
@@ -193,8 +185,7 @@ def emit_all_users(channel, roomID):
             all_user_pics.append(user_row.picUrl)
             all_user_ids.append(user_row.id)
     print("users: ", all_users)
-    socketio.emit(channel, {"all_users": all_users, 'all_user_pics': all_user_pics, 'all_user_ids': all_user_ids}, room=str(roomID))
-
+    socketio.emit(channel, {"all_users": all_users, 'all_user_pics': all_user_pics, 'all_user_ids': all_user_ids}, room=str(room_id))
 
 def emit_room_stats(client_sid):
     room_id = get_room(client_sid)
@@ -216,13 +207,11 @@ def clear_non_persistent_tables():
     models.DB.session.query(models.WhiteboardConnections).delete()
     models.DB.session.commit()
 
-
 @socketio.on("connect")
 def on_connect():
     print("Someone connected!")
     models.DB.session.add(models.CurrentConnections(flask.request.sid, None))
     models.DB.session.commit()
-
 
 @socketio.on("disconnect")
 def on_disconnect():
@@ -247,7 +236,7 @@ def on_disconnect():
         ).delete()
         models.DB.session.commit()
         # Update the room members for anyone still in the room
-        emit_all_users(USERS_RECEIVED_CHANNEL, user_room)
+        emit_all_users(USERS_RECEIVED_CHANNEL, flask.request.sid)
         # get the disconnected user's username
         disconnected_username = (
             models.DB.session.query(models.AuthUser)
@@ -262,6 +251,13 @@ def on_disconnect():
     models.DB.session.delete(disconnected_user)
     models.DB.session.commit()
 
+@socketio.on("resend room selection data")
+def refresh_room_selection_screen():
+    emit_joined_rooms(flask.request.sid)
+
+@socketio.on("resend in room data")
+def refresh_in_room_screen():
+    emit_room_history(flask.request.sid)
 
 @socketio.on("new room creation request")
 def on_new_room_creation(data):
@@ -279,7 +275,6 @@ def on_new_room_creation(data):
     models.DB.session.commit()
     print("created new room:\n\t{}".format(new_room))
     emit_joined_rooms(flask.request.sid)
-
 
 @socketio.on("join room request")
 def on_join_room_request(data):
@@ -301,7 +296,6 @@ def on_join_room_request(data):
     if room:
         models.DB.session.add(models.JoinedRooms(user_id, room.id))
     emit_joined_rooms(flask.request.sid)
-
 
 @socketio.on("new google user login")
 def accept_google_login(data):
@@ -338,7 +332,6 @@ def accept_google_login(data):
     print("{} logged in".format(user.username))
     emit_joined_rooms(flask.request.sid)
 
-
 @socketio.on("room entry request")
 def on_room_entry_request(data):
     user_id = (
@@ -352,9 +345,6 @@ def on_room_entry_request(data):
     flask_socketio.join_room(str(data["roomId"]))
     print("room entry accepted")
     emit_room_history(flask.request.sid)
-    emit_all_users(USERS_RECEIVED_CHANNEL, data["roomId"])
-    emit_all_messages(flask.request.sid)
-    emit_room_stats(flask.request.sid)
 
     username = models.DB.session.query(models.AuthUser.username).filter_by(id=user_id).first()[0]
     if data['roomId'] not in roomTokens.keys():
@@ -369,7 +359,6 @@ def on_room_entry_request(data):
         token.identity=username
         socketio.emit("token",
             {'tokens': token.to_jwt().decode(), 'room': str(data['roomId']), 'username': username})
-
 
 @socketio.on("leave room")
 def accept_room_departure():
@@ -393,9 +382,8 @@ def accept_room_departure():
     flask_socketio.leave_room(str(room_id))
     print("user {} left room {}".format(user_id, room_id))
     emit_joined_rooms(flask.request.sid)
-    emit_all_users(USERS_RECEIVED_CHANNEL, room_id)
-
-
+    emit_all_users(USERS_RECEIVED_CHANNEL, flask.request.sid)
+    
 @socketio.on("reset password")
 def reset_room_password():
     print("Received password change request")
@@ -422,7 +410,6 @@ def reset_room_password():
     print("\tPassword for room {} changed to {}".format(room.id, room.password))
     models.DB.session.commit()
     emit_room_stats(client_sid)
-
 
 @socketio.on("kick user request")
 def kick_user(data):
@@ -476,7 +463,7 @@ def kick_user(data):
         socketio.emit('kicked', {'roomId': room_id}, room=str(kicked_sid))
     models.DB.session.commit()
     print("\tUser {} was kicked from room {}".format(kick_target_id, room_id))
-
+    emit_all_users(USERS_RECEIVED_CHANNEL, flask.request.sid)
 
 @socketio.on("i was kicked")
 def simple_leave_room(data):
@@ -493,8 +480,6 @@ def simple_leave_room(data):
     )
     flask_socketio.leave_room(str(room_id))
     emit_joined_rooms(flask.request.sid)
-    emit_all_users(USERS_RECEIVED_CHANNEL, room_id)
-
 
 @socketio.on("new message input")
 def on_new_message(data):
@@ -525,7 +510,6 @@ def on_new_message(data):
     models.DB.session.commit()
     emit_all_messages(flask.request.sid)
 
-
 @socketio.on(NEW_CARDS)
 def new_cards(data):
     """Listen for new cards event from client.
@@ -545,8 +529,7 @@ def new_cards(data):
         models.DB.session.add(models.Flashcards(question, answer, room))
 
     models.DB.session.commit()
-    emit_flashcards(room)
-
+    emit_flashcards(flask.request.sid)
 
 def emit_boards(my_sid):
     my_room = get_room(my_sid)
@@ -556,7 +539,6 @@ def emit_boards(my_sid):
         to_send.append({"name": board.name, "id": board.id})
     socketio.emit("got whiteboard", to_send, room=my_sid)
 
-
 @socketio.on("make whiteboard")
 def on_make_whiteboard(data):
     room = get_room(flask.request.sid)
@@ -564,18 +546,15 @@ def on_make_whiteboard(data):
     models.DB.session.commit()
     emit_boards(flask.request.sid)
 
-
 @socketio.on("get whiteboards")
 def on_get_whiteboard():
     emit_boards(flask.request.sid)
-
 
 @socketio.on("remove whiteboard")
 def on_remove_whiteboard(data):
     models.DB.session.query(models.Whiteboards).filter_by(id=data["id"]).delete()
     models.DB.session.commit()
     emit_boards(flask.request.sid)
-
 
 @socketio.on("join whiteboard")
 def on_join_whiteboard(data):
@@ -612,11 +591,9 @@ def on_join_whiteboard(data):
     models.DB.session.commit()
     flask_socketio.join_room("w{}".format((data["id"])))
 
-
 @socketio.on("disconnect whiteboard")
 def on_disconnect_whiteboard():
     disconnect_whiteboard(flask.request.sid)
-
 
 def disconnect_whiteboard(my_sid):
     print("whiteboard disconnecting", my_sid)
@@ -649,7 +626,6 @@ def disconnect_whiteboard(my_sid):
     except ValueError:
         print("not in whiteboard")
 
-
 @socketio.on("drawing stroke input")
 def on_drawing_stroke(data):
     room_id = get_board(flask.request.sid)
@@ -659,7 +635,6 @@ def on_drawing_stroke(data):
 def on_save(data):
     print("saving")
     do_save(data["blob"], get_board(flask.request.sid))
-
 
 @socketio.on("forced save")
 def on_forced_save(data):
@@ -675,7 +650,6 @@ def on_forced_save(data):
         },
         room=board,
     )
-
 
 def do_save(blob, board):
     s3_client = boto3.client(
@@ -700,7 +674,6 @@ def do_save(blob, board):
     except ClientError as error:
         print(error)
     return new_num
-
 
 @APP.route("/index.html")
 def index():
