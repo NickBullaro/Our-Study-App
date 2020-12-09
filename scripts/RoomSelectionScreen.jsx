@@ -10,11 +10,11 @@ function RoomSelectionScreen() {
   
   return (
     <div id="roomSelectionScreen">
-      <p id="about_link"><a href="about.html"> About Our Study </a></p>
-      <button id="refresh_button" onClick={Refresh} type="submit"><img src="/static/refresh_icon.jpg" id="refresh_image"/></button>
       <h2 className="header">Existing Rooms</h2>
       <JoinedRoomsList />
       <RoomJoinCreate />
+      <p id="about_link"><a href="about.html"> About Our Study </a></p>
+      <button id="refresh_button" onClick={Refresh} type="submit"><img src="/static/refresh_icon.jpg" id="refresh_image"/></button>
     </div>
   );
 }
