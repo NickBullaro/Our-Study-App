@@ -96,7 +96,7 @@ def get_room(client_sid):
     
 def emit_flashcards(room):
     """Emit all the flashcards for a specific room"""
-    room = get_room(client_sid)
+    room = get_room(room)
     
     all_cards = models.DB.session.query(models.Flashcards).filter_by(room=room).all()
     cards = []
