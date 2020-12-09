@@ -124,4 +124,26 @@ class EnteredRooms(DB.Model):
     def __init__(self, user, room):
         self.user = user
         self.room = room
- 
+   
+class Whiteboards(DB.Model):
+    id = DB.Column(DB.Integer, primary_key=True)
+    room = DB.Column(DB.Integer, DB.ForeignKey(Rooms.id), nullable=False)
+    name = DB.Column(DB.String(32), nullable=False)
+    save_num = DB.Column(DB.Integer, nullable=False)
+    
+    def __init__(self, room, name):
+        self.room = room
+        self.name = name
+        self.save_num = 0
+
+class WhiteboardConnections(DB.Model):
+    id = DB.Column(DB.Integer, primary_key=True)
+    whiteboard = DB.Column(DB.Integer, DB.ForeignKey(Whiteboards.id), nullable=False)
+    sid = DB.Column(DB.String(32), nullable=False)
+    leader = DB.Column(DB.Integer, nullable=False)
+    
+    def __init__(self, whiteboard, sid, leader):
+        self.whiteboard = whiteboard
+        self.sid = sid
+        self.sid = sid
+        self.leader = leader

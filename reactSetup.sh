@@ -9,3 +9,5 @@ npm install --save-dev webpack
 npm install socket.io-client --save
 npm install -g heroku
 pip install requests
+npm install twilio-video@^2.2.0 --save
+pip install boto3

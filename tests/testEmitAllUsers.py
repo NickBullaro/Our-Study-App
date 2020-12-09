@@ -16,7 +16,7 @@ KEY_INPUT = 'input'
 KEY_EXPECTED = 'expected'
 KEY_RESPONSE = 'response'
 
-KEY_ROOM_ID = 'room_id'
+KEY_GET_ROOM_RETURN = 'room_id'
 KEY_CHANNEL = 'channel'
 KEY_ENTERED_ROOMS_DB = 'enter_rm'
 KEY_AUTH_USER_DB = 'auth_usr'
@@ -101,7 +101,7 @@ class testEmitUsers(unittest.TestCase):
                     {
                         KEY_SID: '123456789ABCDEF',
                         KEY_CHANNEL: 'users received',
-                        KEY_ROOM_ID: 0,
+                        KEY_GET_ROOM_RETURN: 0,
                         KEY_ENTERED_ROOMS_DB:
                             [{
                                 'id': 0,
@@ -142,7 +142,7 @@ class testEmitUsers(unittest.TestCase):
                                         'all_user_pics': ['', ''],
                                         'all_user_ids': [0, 1]
                                     },
-                                KEY_EMIT_ROOM: 0
+                                KEY_EMIT_ROOM: '0'
                             }],
                         KEY_ENTERED_ROOMS_DB:
                             [{
@@ -174,7 +174,7 @@ class testEmitUsers(unittest.TestCase):
                     {
                         KEY_SID: '123456789ABCDEF',
                         KEY_CHANNEL: 'users received',
-                        KEY_ROOM_ID: 0,
+                        KEY_GET_ROOM_RETURN: 0,
                         KEY_ENTERED_ROOMS_DB:
                             [{
                                 'id': 0,
@@ -225,7 +225,7 @@ class testEmitUsers(unittest.TestCase):
                                         'all_user_pics': ['', ''],
                                         'all_user_ids': [0, 1]
                                     },
-                                KEY_EMIT_ROOM: 0
+                                KEY_EMIT_ROOM: '0'
                             }],
                         KEY_ENTERED_ROOMS_DB:
                             [{
@@ -267,7 +267,7 @@ class testEmitUsers(unittest.TestCase):
                     {
                         KEY_SID: '123456789ABCDEF',
                         KEY_CHANNEL: 'users received',
-                        KEY_ROOM_ID: 1,
+                        KEY_GET_ROOM_RETURN: 1,
                         KEY_ENTERED_ROOMS_DB:
                             [{
                                 'id': 0,
@@ -318,7 +318,7 @@ class testEmitUsers(unittest.TestCase):
                                         'all_user_pics': [''],
                                         'all_user_ids': [2]
                                     },
-                                KEY_EMIT_ROOM: 1
+                                KEY_EMIT_ROOM: '1'
                             }],
                         KEY_ENTERED_ROOMS_DB:
                             [{
@@ -360,7 +360,7 @@ class testEmitUsers(unittest.TestCase):
                     {
                         KEY_SID: '123456789ABCDEF',
                         KEY_CHANNEL: 'users received',
-                        KEY_ROOM_ID: 0,
+                        KEY_GET_ROOM_RETURN: 0,
                         KEY_ENTERED_ROOMS_DB:
                             [],
                         KEY_AUTH_USER_DB:
@@ -399,7 +399,7 @@ class testEmitUsers(unittest.TestCase):
                                         'all_user_pics': [],
                                         'all_user_ids': []
                                     },
-                                KEY_EMIT_ROOM: 0
+                                KEY_EMIT_ROOM: '0'
                             }],
                         KEY_ENTERED_ROOMS_DB:
                             [],
@@ -429,7 +429,7 @@ class testEmitUsers(unittest.TestCase):
                     {
                         KEY_SID: '123456789ABCDEF',
                         KEY_CHANNEL: 'users received',
-                        KEY_ROOM_ID: 0,
+                        KEY_GET_ROOM_RETURN: 0,
                         KEY_ENTERED_ROOMS_DB:
                             [{
                                 'id': 0,
@@ -458,7 +458,7 @@ class testEmitUsers(unittest.TestCase):
                                         'all_user_pics': [],
                                         'all_user_ids': []
                                     },
-                                KEY_EMIT_ROOM: 0
+                                KEY_EMIT_ROOM: '0'
                             }],
                         KEY_ENTERED_ROOMS_DB:
                             [{
@@ -486,11 +486,13 @@ class testEmitUsers(unittest.TestCase):
             string += str(arg)
         self.hold.append({KEY_HOLD_TYPE: KEY_HOLD_PRINT, KEY_PRINT_CONTENT: str(string)})
 
+     @mock.patch('app.get_room')
      @mock.patch('app.flask')
-     def test_emit_all_users_success(self, mock_flask):
+     def test_emit_all_users_success(self, mock_flask, mock_get_room):
         session = mockDBsession.MockSession()
         for test in self.success_test_params:
             self.hold = []
+            mock_get_room.return_value = test[KEY_INPUT][KEY_GET_ROOM_RETURN]
             mock_flask.request.sid = test[KEY_INPUT][KEY_SID]
 
             # Load the initial state of the tables
@@ -504,7 +506,7 @@ class testEmitUsers(unittest.TestCase):
                     with mock.patch("models.EnteredRooms", mockModels.EnteredRooms):
                         with mock.patch("models.AuthUser", mockModels.AuthUser):
                             with mock.patch("builtins.print", self.mock_print):
-                                app.emit_all_users(test[KEY_INPUT][KEY_CHANNEL], test[KEY_INPUT][KEY_ROOM_ID])
+                                app.emit_all_users(test[KEY_INPUT][KEY_CHANNEL], test[KEY_INPUT][KEY_SID])
 
             # Verify that the table(s) state ageter execution matches what was expected
             createdTable = export_entered_rooms_table()
