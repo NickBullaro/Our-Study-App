@@ -370,7 +370,7 @@ form > input {
 #flashcards_container {
     area:'flashcards';
     overflow:auto;
-    height:50%;
+    height:90%;
 }
 /*whiteboard screen*/
 #whiteboard_component{
