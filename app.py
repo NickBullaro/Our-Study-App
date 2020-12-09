@@ -507,32 +507,28 @@ def simple_leave_room(data):
 
 @socketio.on("new message input")
 def on_new_message(data):
-    print("Got an event for new message input with data:", data)
-    user = {}
-    user["sid"] = flask.request.sid
-    user["room"] = get_room(
-        flask.request.sid
-    )  # TODO: get room_id from the sender request.sid
-    user_id = (
-        models.DB.session.query(models.CurrentConnections.user)
-        .filter_by(sid=flask.request.sid)
-        .first()[0]
-    )
-    user["username"] = (
-        models.DB.session.query(models.AuthUser.username)
-        .filter_by(id=user_id)
-        .first()[0]
-    )
-    user["picUrl"] = (
-        models.DB.session.query(models.AuthUser.picUrl)
-        .filter_by(username=user["username"])
-        .first()[0]
-    )
-    models.DB.session.add(
-        models.Messages(user, user["username"] + ": " + data["message"])
-    )
-    models.DB.session.commit()
-    emit_all_messages(flask.request.sid)
+    print("Got an event for new message input")
+    curr_conn_row = models.DB.session.query(models.CurrentConnections).filter_by(sid=flask.request.sid).first()
+    if curr_conn_row:
+        user_id = curr_conn_row.user
+    else:
+        print("\tmessage not added due to unconnected sender")
+        return
+    user_row = models.DB.session.query(models.AuthUser).filter_by(id=user_id).first()
+    if user_row:
+        user = {}
+        user["sid"] = flask.request.sid
+        user["username"] = user_row.username
+        user["picUrl"] = user_row.picUrl
+        user["room"] = get_room(flask.request.sid)
+        models.DB.session.add(
+            models.Messages(user, user["username"] + ": " + data["message"])
+        )
+        models.DB.session.commit()
+        print("\tmessage added to message history")
+        emit_all_messages(flask.request.sid)
+    else:
+        print("\tmessage not sent due to unidentified sender")
 
 @socketio.on(NEW_CARDS)
 def new_cards(data):
