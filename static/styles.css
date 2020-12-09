@@ -369,6 +369,8 @@ form > input {
 }
 #flashcards_container {
     area:'flashcards';
+    overflow:auto;
+    height:50%;
 }
 /*whiteboard screen*/
 #whiteboard_component{
@@ -437,7 +439,7 @@ p.RoomListName {
 
 #editing_cards.container {
     padding:10px;
-    height: calc(80vh - 60px);
+    height: calc(35vh + 15px);
 }
 
 .flashcard_button_row {
@@ -449,7 +451,7 @@ p.RoomListName {
 #flashcards_editor{
     padding:10px;
     overflow-y:auto;
-    height: calc(80vh - 60px - 70px);
+    height: calc(30vh);
 }
 #form_row {
     align-content:center !important;
