@@ -29,14 +29,14 @@ function InRoomScreen() {
     <div id="inRoomScreen">
       <RoomStats />
       <div id="grid_container">
-      <div className="container" id="chat_and_users"style={{background:"none"}}>
-        <Chatbox />
-        <div className="container" id="flashcards_container">
-          <Flashcards />
-        </div>
+        <div className="container" id="chat_and_users"style={{background:"none"}}>
+          <Chatbox />
+          <div className="container" id="flashcards_container">
+            <Flashcards />
+          </div>
+      </div>
       <WhiteboardButton />
       <Stream />
-      </div>
       <div className="button_area" id="inRoomScreen">
         <button id="leave_room" onClick={tempRoomLeave} type="submit">Leave Room</button>
         <button id="room_settings" onClick={roomSettings} type="submit">Settings</button>
