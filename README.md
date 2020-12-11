@@ -74,8 +74,19 @@
 
 4. Navado Wray: 
     * Create Flashcard component
+        * Flip animations
+        * Styling to mock Quizlet Flashcards
     * Create Flashcard DB Model
     * Ablility to edit flashcards (add/delete/modify)
+    * Facebook Login Button
+    * Testing
+        * Room Departure
+        * New message
+        * Disconnect
+        * Emit messages
+        * Emit users
+        * On new cards
+        * Emit room history
 
 5. George Alvarado: 
     * Created all HTML functions
